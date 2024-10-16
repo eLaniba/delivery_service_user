@@ -1,63 +1,22 @@
 import 'package:delivery_service_user/models/sellers.dart';
 import 'package:flutter/material.dart';
 
-class InfoDesignWidget extends StatefulWidget {
+class SellerInfo extends StatefulWidget {
   Sellers? model;
   BuildContext? context;
 
-  InfoDesignWidget({this.model, this.context});
+  SellerInfo({this.model, this.context});
 
   @override
-  _InfoDesignWidgetState createState() => _InfoDesignWidgetState();
+  _SellerInfoState createState() => _SellerInfoState();
 }
 
-// class _InfoDesignWidgetState extends State<InfoDesignWidget> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return InkWell(
-//       splashColor: Colors.amber,
-//       child: Padding(
-//         padding: const EdgeInsets.all(5.0),
-//         child: Container(
-//           height: 100,
-//           width: MediaQuery.of(context).size.width,
-//           child: Column(
-//             children: [
-//               Icon(Icons.store),
-//               const SizedBox(height: 1.0,),
-//               Text(
-//                 widget.model!.sellerName!,
-//                 style: const TextStyle(
-//                   color: Colors.cyan,
-//                   fontSize: 20,
-//                   fontFamily: "Train",
-//                 ),
-//               ),
-//               Text(
-//                 widget.model!.sellerEmail!,
-//                 style: const TextStyle(
-//                   color: Colors.grey,
-//                   fontSize: 12,
-//                 ),
-//               ),
-//               Divider(
-//                 height: 4,
-//                 thickness: 3,
-//                 color: Colors.grey[300],
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-class _InfoDesignWidgetState extends State<InfoDesignWidget> {
+class _SellerInfoState extends State<SellerInfo> {
   @override
   Widget build(BuildContext context) {
     return Card(
       // elevation: 4,
-      margin: const EdgeInsets.all(8),
+      // margin: const EdgeInsets.all(16),
       child: InkWell(
         onTap: () {},
         child: Padding(

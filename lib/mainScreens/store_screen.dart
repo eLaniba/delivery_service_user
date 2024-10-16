@@ -62,36 +62,39 @@ class StoreScreen extends StatefulWidget {
 class _StoreScreenState extends State<StoreScreen> {
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        StreamBuilder<QuerySnapshot>(
-          stream:
-          FirebaseFirestore.instance.collection("sellers").snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return SliverToBoxAdapter(
-                child: Center(child: circularProgress()),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: CustomScrollView(
+        slivers: [
+          StreamBuilder<QuerySnapshot>(
+            stream:
+            FirebaseFirestore.instance.collection("sellers").snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return SliverToBoxAdapter(
+                  child: Center(child: circularProgress()),
+                );
+              }
+              return SliverMasonryGrid.count(
+                crossAxisCount: 2, // Adjust as needed
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 4,
+                childCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  Sellers sModel = Sellers.fromJson(
+                    snapshot.data!.docs[index].data()! as Map<String, dynamic>,
+                  );
+                  // Design for display sellers-cafes-restaurants
+                  return SellerInfo(
+                    model: sModel,
+                    context: context,
+                  );
+                },
               );
-            }
-            return SliverMasonryGrid.count(
-              crossAxisCount: 2, // Adjust as needed
-              // mainAxisSpacing: 4,
-              // crossAxisSpacing: 4,
-              childCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) {
-                Sellers sModel = Sellers.fromJson(
-                  snapshot.data!.docs[index].data()! as Map<String, dynamic>,
-                );
-                // Design for display sellers-cafes-restaurants
-                return InfoDesignWidget(
-                  model: sModel,
-                  context: context,
-                );
-              },
-            );
-          },
-        ),
-      ],
+            },
+          ),
+        ],
+      ),
     );
   }
 }
