@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery_service_user/mainScreens/store_specific_screen_item.dart';
 import 'package:delivery_service_user/models/category_item.dart';
 import 'package:delivery_service_user/models/sellers.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
@@ -38,7 +39,7 @@ class _StoreSpecificScreenState extends State<StoreSpecificScreen> {
           SliverToBoxAdapter(
             child: Container(
               padding: EdgeInsets.all(16),
-              color: Colors.grey,
+              // color: Colors.grey,
               child: Column(
                 children: [
                   Container(
@@ -74,12 +75,13 @@ class _StoreSpecificScreenState extends State<StoreSpecificScreen> {
               minHeight: 40,
               maxHeight: 40,
               child: Container(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.inversePrimary,
                 child: const Center(
                   child: Text(
                     'Categories',
                     style: TextStyle(
                       fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -131,7 +133,10 @@ class _StoreSpecificScreenState extends State<StoreSpecificScreen> {
                       );
 
                       return InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => StoreSpecificScreenItem(sellerModel: widget.model,categoryModel: sCategory,)));
+
+                        },
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           height: 40,
@@ -162,6 +167,7 @@ class _StoreSpecificScreenState extends State<StoreSpecificScreen> {
                               ),
                               const Divider(
                                 color: Colors.grey,
+                                thickness: 1,
                               ),
                             ],
                           ),
