@@ -1,3 +1,4 @@
+import 'package:delivery_service_user/mainScreens/store_specific_screen.dart';
 import 'package:delivery_service_user/models/sellers.dart';
 import 'package:flutter/material.dart';
 
@@ -17,8 +18,13 @@ class _SellerInfoState extends State<SellerInfo> {
     return Card(
       // elevation: 4,
       // margin: const EdgeInsets.all(16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero
+      ),
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => StoreSpecificScreen(model: widget.model,)));
+        },
         child: Padding(
           padding: const EdgeInsets.all(8),
           child: Column(

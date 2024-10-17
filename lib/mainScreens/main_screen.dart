@@ -40,7 +40,7 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Profile',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.store),
+            icon: Icon(Icons.store_outlined),
             label: 'Stores',
           ),
           BottomNavigationBarItem(

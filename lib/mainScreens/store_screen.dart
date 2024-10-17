@@ -76,7 +76,7 @@ class _StoreScreenState extends State<StoreScreen> {
                 );
               }
               return SliverMasonryGrid.count(
-                crossAxisCount: 2, // Adjust as needed
+                crossAxisCount: 1, // Adjust as needed
                 mainAxisSpacing: 4,
                 crossAxisSpacing: 4,
                 childCount: snapshot.data!.docs.length,
