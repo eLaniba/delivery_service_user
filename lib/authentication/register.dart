@@ -114,7 +114,7 @@ class _RegisterState extends State<Register> {
     });
 
     //Setting up default address' reference
-    CollectionReference addressCollection = FirebaseFirestore.instance.collection("users").doc(currentUser.uid).collection("Address");
+    CollectionReference addressCollection = FirebaseFirestore.instance.collection("users").doc(currentUser.uid).collection("address");
 
     //Add address, latitude, and longitude
     await addressCollection.add({

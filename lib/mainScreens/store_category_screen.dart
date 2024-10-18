@@ -1,20 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivery_service_user/mainScreens/store_specific_screen_item.dart';
+import 'package:delivery_service_user/mainScreens/store_item_screen.dart';
 import 'package:delivery_service_user/models/category_item.dart';
 import 'package:delivery_service_user/models/sellers.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:flutter/material.dart';
 
-class StoreSpecificScreen extends StatefulWidget {
-  StoreSpecificScreen({super.key, this.model});
+class StoreCategoryScreen extends StatefulWidget {
+  StoreCategoryScreen({super.key, this.model});
 
   Sellers? model;
 
   @override
-  State<StoreSpecificScreen> createState() => _StoreSpecificScreenState();
+  State<StoreCategoryScreen> createState() => _StoreCategoryScreenState();
 }
 
-class _StoreSpecificScreenState extends State<StoreSpecificScreen> {
+class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
 
   Future<bool> checkCategory() async {
     //Create a Category Collection reference
@@ -134,7 +134,7 @@ class _StoreSpecificScreenState extends State<StoreSpecificScreen> {
 
                       return InkWell(
                         onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => StoreSpecificScreenItem(sellerModel: widget.model,categoryModel: sCategory,)));
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => StoreItemScreen(sellerModel: widget.model,categoryModel: sCategory,)));
 
                         },
                         child: Container(

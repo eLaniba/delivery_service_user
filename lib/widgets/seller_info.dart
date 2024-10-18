@@ -1,4 +1,4 @@
-import 'package:delivery_service_user/mainScreens/store_specific_screen.dart';
+import 'package:delivery_service_user/mainScreens/store_category_screen.dart';
 import 'package:delivery_service_user/models/sellers.dart';
 import 'package:flutter/material.dart';
 
@@ -23,7 +23,7 @@ class _SellerInfoState extends State<SellerInfo> {
       ),
       child: InkWell(
         onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => StoreSpecificScreen(model: widget.model,)));
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => StoreCategoryScreen(model: widget.model,)));
         },
         child: Padding(
           padding: const EdgeInsets.all(8),
