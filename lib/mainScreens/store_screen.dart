@@ -12,53 +12,6 @@ class StoreScreen extends StatefulWidget {
   State<StoreScreen> createState() => _StoreScreenState();
 }
 
-// class _StoreScreenState extends State<StoreScreen> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text("Name"),
-//       ),
-//       body: CustomScrollView(
-//         slivers: [
-//           StreamBuilder<QuerySnapshot>(
-//             stream:
-//                 FirebaseFirestore.instance.collection("sellers").snapshots(),
-//             builder: (context, snapshot) {
-//               if (!snapshot.hasData) {
-//                 return SliverToBoxAdapter(
-//                   child: Center(child: circularProgress()),
-//                 );
-//               }
-//               return SliverMasonryGrid.count(
-//                 crossAxisCount: 2, // Adjust as needed
-//                 // mainAxisSpacing: 4,
-//                 // crossAxisSpacing: 4,
-//                 childCount: snapshot.data!.docs.length,
-//                 itemBuilder: (context, index) {
-//                   Sellers sModel = Sellers.fromJson(
-//                     snapshot.data!.docs[index].data()! as Map<String, dynamic>,
-//                   );
-//                   // Design for display sellers-cafes-restaurants
-//                   return InfoDesignWidget(
-//                     model: sModel,
-//                     context: context,
-//                   );
-//                 },
-//               );
-//             },
-//           ),
-//         ],
-//       ),
-//       bottomNavigationBar: BottomNavigationBar(
-//         items: const <BottomNavigationBarItem> [
-//           BottomNavigationBarItem(icon: Icon(Icons.home),),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 class _StoreScreenState extends State<StoreScreen> {
   @override
   Widget build(BuildContext context) {

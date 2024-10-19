@@ -1,5 +1,4 @@
 class AddToCartItem {
-
   //Seller Item
   String? itemID;
   String? itemName;

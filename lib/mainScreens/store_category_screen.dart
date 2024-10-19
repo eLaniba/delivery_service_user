@@ -33,6 +33,14 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("${widget.model!.sellerName}"),
+        actions: [
+          IconButton(
+            onPressed: () {
+              
+            },
+            icon: const Icon(Icons.shopping_cart_outlined),
+          ),
+        ],
       ),
       body: CustomScrollView(
         slivers: [

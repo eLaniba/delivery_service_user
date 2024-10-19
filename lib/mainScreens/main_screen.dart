@@ -1,5 +1,8 @@
+import 'package:delivery_service_user/global/global.dart';
+import 'package:delivery_service_user/mainScreens/cart_screen.dart';
 import 'package:delivery_service_user/mainScreens/order_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen.dart';
+import 'package:delivery_service_user/services/count_cart_listener.dart';
 import 'package:flutter/material.dart';
 
 import 'profile_screen.dart';
@@ -24,7 +27,17 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("User Name Sample"),
+        title: const Text("User Sample"),
+        actions: (widgetIndex == 1) ? [
+        IconButton(
+          onPressed: () async {
+            // Navigator.of(context).push(MaterialPageRoute(builder: (context) => StoreItemScreen(sellerModel: widget.model,categoryModel: sCategory,)));
+            // Navigator.of(context).push(MaterialPageRoute(builder: (context) => CartScreen()));
+
+          },
+          icon: const Icon(Icons.shopping_cart_outlined),
+        ),
+        ] : null,
       ),
       body: _screens[widgetIndex],
       bottomNavigationBar: BottomNavigationBar(

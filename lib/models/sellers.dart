@@ -30,4 +30,13 @@ class Sellers {
     data["address"] = this.sellerAddress;
     return data;
   }
+
+  Map<String, dynamic> addSellerToCart() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data["sellerUID"] = this.sellerUID;
+    data["sellerName"] = this.sellerName;
+    data["phone"] = this.sellerPhone;
+    data["address"] = this.sellerAddress;
+    return data;
+  }
 }

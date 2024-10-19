@@ -5,6 +5,7 @@ import 'package:delivery_service_user/models/category_item.dart';
 import 'package:delivery_service_user/models/sellers.dart';
 import 'package:delivery_service_user/widgets/error_dialog.dart';
 import 'package:delivery_service_user/widgets/item_dialog.dart';
+import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -213,16 +214,85 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
     //Adding the store inside the cart Collection as Document
     DocumentReference storeReference = cartCollection.doc(sellerModel.sellerUID);
 
-    //Add the item Collection inside the store
+    //Add a fields to the new store document: sellerUID, sellerName, phone, address
+    await storeReference.set(sellerModel.addSellerToCart());
+
+    //Add the item Collection inside the store Document || this is the items Collection reference
     CollectionReference itemReference = storeReference.collection('items');
 
     //Check if the item document exist
     DocumentSnapshot itemSnapshot = await itemReference.doc('${itemModel.itemID}').get();
 
     if(itemSnapshot.exists) {
+      try {
+        Navigator.of(context).pop();
+        int newItemQnty = addCartItemModel.itemQnty! + itemSnapshot.get('itemQnty') as int;
+        double newItemTotal = addCartItemModel.itemTotal! + itemSnapshot.get('itemTotal');
 
+        showDialog(
+          context: context,
+          builder: (c) {
+            return const LoadingDialog(message: "Adding item to cart");
+          },
+
+        );
+
+        await itemReference.doc('${itemModel.itemID}').update({
+          'itemQnty' : newItemQnty,
+          'itemTotal' : newItemTotal,
+        });
+
+        Navigator.of(context).pop();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Item added to cart successfully!'),
+            backgroundColor: Colors.blue, // Optional: Set background color
+            duration: Duration(seconds: 5), // Optional: How long the snackbar is shown
+          ),
+        );
+      } catch (e) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to add item to cart: $e'),
+            backgroundColor: Colors.red, // Optional: Set background color for error
+            duration: const Duration(seconds: 5), // Optional: How long the snackbar is shown
+          ),
+        );
+      }
     } else {
-      itemReference.doc('${itemModel.itemID}').set(addCartItemModel.toJson());
+      try {
+        Navigator.of(context).pop();
+
+        showDialog(
+          context: context,
+          builder: (c) {
+            return const LoadingDialog(message: "Adding item to cart");
+          },
+        );
+
+        await itemReference.doc('${itemModel.itemID}').set(addCartItemModel.toJson());
+
+        Navigator.of(context).pop();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Item added to cartsuccessfully!'),
+            backgroundColor: Colors.blue, // Optional: Set background color
+            duration: Duration(seconds: 5), // Optional: How long the snackbar is shown
+          ),
+        );
+      } catch (e) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to add item to cart: $e'),
+            backgroundColor: Colors.red, // Optional: Set background color for error
+            duration: const Duration(seconds: 5), // Optional: How long the snackbar is shown
+          ),
+        );
+      }
     }
   }
 
@@ -231,6 +301,13 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('${widget.sellerModel!.sellerName}'),
+        actions: [
+          IconButton(
+            onPressed: () {
+            },
+            icon: const Icon(Icons.shopping_cart_outlined),
+          ),
+        ],
       ),
       body: CustomScrollView(
         slivers: [
