@@ -3,6 +3,7 @@ import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/category_item.dart';
 import 'package:delivery_service_user/models/sellers.dart';
+import 'package:delivery_service_user/services/count_cart_listener.dart';
 import 'package:delivery_service_user/widgets/error_dialog.dart';
 import 'package:delivery_service_user/widgets/item_dialog.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
@@ -300,12 +301,63 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.sellerModel!.sellerName}'),
+        title: Text("${widget.sellerModel!.sellerName}"),
         actions: [
-          IconButton(
-            onPressed: () {
+          StreamBuilder<int>(
+            stream: countAllItems('${sharedPreferences!.get('uid')}'),
+            builder: (context, snapshot) {
+              if(!snapshot.hasData) {
+                return const Padding(
+                  padding: EdgeInsets.only(right: 40,),
+                  child: SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+
+              //other code
+              int itemCount = snapshot.data ?? 0;
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 24),
+                child: Stack(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+
+                      },
+                      icon: const Icon(Icons.shopping_cart_outlined),
+                    ),
+                    if(itemCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            '$itemCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
             },
-            icon: const Icon(Icons.shopping_cart_outlined),
+
           ),
         ],
       ),

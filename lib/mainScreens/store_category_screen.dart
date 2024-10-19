@@ -2,8 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/mainScreens/store_item_screen.dart';
 import 'package:delivery_service_user/models/category_item.dart';
 import 'package:delivery_service_user/models/sellers.dart';
+import 'package:delivery_service_user/services/count_cart_listener.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:flutter/material.dart';
+
+import '../global/global.dart';
 
 class StoreCategoryScreen extends StatefulWidget {
   StoreCategoryScreen({super.key, this.model});
@@ -34,11 +37,61 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
       appBar: AppBar(
         title: Text("${widget.model!.sellerName}"),
         actions: [
-          IconButton(
-            onPressed: () {
-              
+          StreamBuilder<int>(
+            stream: countAllItems('${sharedPreferences!.get('uid')}'),
+            builder: (context, snapshot) {
+              if(!snapshot.hasData) {
+                return const Padding(
+                  padding: EdgeInsets.only(right: 40,),
+                  child: SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+
+              //other code
+              int itemCount = snapshot.data ?? 0;
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 24),
+                child: Stack(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+
+                      },
+                      icon: const Icon(Icons.shopping_cart_outlined),
+                    ),
+                    if(itemCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            '$itemCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
             },
-            icon: const Icon(Icons.shopping_cart_outlined),
+
           ),
         ],
       ),

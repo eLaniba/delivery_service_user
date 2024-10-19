@@ -18,7 +18,7 @@ class _SellerInfoState extends State<SellerInfo> {
     return Card(
       // elevation: 4,
       // margin: const EdgeInsets.all(16),
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.zero
       ),
       child: InkWell(
