@@ -111,7 +111,7 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                                       });
                                     }
                                   },
-                                  icon: Icon(Icons.remove),
+                                  icon: const Icon(Icons.remove),
                                 ),
                                 SizedBox(
                                   width: 30,
@@ -152,7 +152,7 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                                       itemCount++;
                                     });
                                   },
-                                  icon: Icon(Icons.add),
+                                  icon: const Icon(Icons.add),
                                 ),
                               ],
                             ),
@@ -249,16 +249,17 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
           const SnackBar(
             content: Text('Item added to cart successfully!'),
             backgroundColor: Colors.blue, // Optional: Set background color
-            duration: Duration(seconds: 5), // Optional: How long the snackbar is shown
+            duration: Duration(seconds: 3), // Optional: How long the snackbar is shown
           ),
         );
+
       } catch (e) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to add item to cart: $e'),
             backgroundColor: Colors.red, // Optional: Set background color for error
-            duration: const Duration(seconds: 5), // Optional: How long the snackbar is shown
+            duration: const Duration(seconds: 3), // Optional: How long the snackbar is shown
           ),
         );
       }
@@ -279,9 +280,9 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Item added to cartsuccessfully!'),
+            content: Text('Item added to cart successfully!'),
             backgroundColor: Colors.blue, // Optional: Set background color
-            duration: Duration(seconds: 5), // Optional: How long the snackbar is shown
+            duration: Duration(seconds: 3), // Optional: How long the snackbar is shown
           ),
         );
       } catch (e) {
@@ -290,7 +291,7 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
           SnackBar(
             content: Text('Failed to add item to cart: $e'),
             backgroundColor: Colors.red, // Optional: Set background color for error
-            duration: const Duration(seconds: 5), // Optional: How long the snackbar is shown
+            duration: const Duration(seconds: 3), // Optional: How long the snackbar is shown
           ),
         );
       }
@@ -301,11 +302,16 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("${widget.sellerModel!.sellerName}"),
+        title: const Text("User Sample"),
         actions: [
-          StreamBuilder<int>(
-            stream: countAllItems('${sharedPreferences!.get('uid')}'),
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .doc('${sharedPreferences!.get('uid')}')
+                .collection('cart')
+                .snapshots(),
             builder: (context, snapshot) {
+
               if(!snapshot.hasData) {
                 return const Padding(
                   padding: EdgeInsets.only(right: 40,),
@@ -315,50 +321,126 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                     child: CircularProgressIndicator(),
                   ),
                 );
-              }
+              } else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty){
+                return Padding(
+                  padding: const EdgeInsets.only(right: 24),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: () {
 
-              //other code
-              int itemCount = snapshot.data ?? 0;
+                        },
+                        icon: const Icon(Icons.shopping_cart_outlined),
+                      ),
 
-              return Padding(
-                padding: const EdgeInsets.only(right: 24),
-                child: Stack(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-
-                      },
-                      icon: const Icon(Icons.shopping_cart_outlined),
-                    ),
-                    if(itemCount > 0)
                       Positioned(
                         right: 0,
                         top: 0,
                         child: Container(
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Colors.red,
-                            borderRadius: BorderRadius.circular(2),
+                            shape: BoxShape.circle,
                           ),
                           constraints: const BoxConstraints(
                             minWidth: 16,
                             minHeight: 16,
                           ),
-                          child: Text(
-                            '$itemCount',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            ),
-                            textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 24,),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+
+                        },
+                        icon: const Icon(Icons.shopping_cart_outlined),
+                      ),
+
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            // color: Colors.blue,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
                           ),
                         ),
                       ),
-                  ],
-                ),
-              );
+                    ],
+                  ),
+                );
+              }
             },
-
           ),
+
+          // StreamBuilder<int>(
+          //   stream: countAllItems('${sharedPreferences!.get('uid')}'),
+          //   builder: (context, snapshot) {
+          //     if(!snapshot.hasData) {
+          //       return const Padding(
+          //         padding: EdgeInsets.only(right: 40,),
+          //         child: SizedBox(
+          //           width: 16,
+          //           height: 16,
+          //           child: CircularProgressIndicator(),
+          //         ),
+          //       );
+          //     }
+          //
+          //     //other code
+          //     int itemCount = snapshot.data ?? 0;
+          //
+          //     return Padding(
+          //       padding: const EdgeInsets.only(right: 24),
+          //       child: Stack(
+          //         children: [
+          //           IconButton(
+          //             onPressed: () {
+          //               Navigator.push(context, MaterialPageRoute(builder: (c) => const CartScreen()));
+          //             },
+          //             icon: const Icon(Icons.shopping_cart_outlined),
+          //           ),
+          //           if(itemCount > 0)
+          //             Positioned(
+          //               right: 0,
+          //               top: 0,
+          //               child: Container(
+          //                 decoration: BoxDecoration(
+          //                   color: Colors.red,
+          //                   borderRadius: BorderRadius.circular(2),
+          //                 ),
+          //                 constraints: const BoxConstraints(
+          //                   minWidth: 16,
+          //                   minHeight: 16,
+          //                 ),
+          //                 child: Text(
+          //                   '$itemCount',
+          //                   style: const TextStyle(
+          //                     color: Colors.white,
+          //                     fontSize: 16,
+          //                   ),
+          //                   textAlign: TextAlign.center,
+          //                 ),
+          //               ),
+          //             ),
+          //               ],
+          //       ),
+          //     );
+          //   },
+          //
+          // ),
         ],
       ),
       body: CustomScrollView(

@@ -5,6 +5,8 @@ import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 
+import 'cart_screen_2.dart';
+
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
 
@@ -34,7 +36,7 @@ class _CartScreenState extends State<CartScreen> {
                     child: Center(child: circularProgress(),),
                   );
                 }
-                print(storeSnapshot.data!.docs[0].id);
+
                 if (storeSnapshot.data!.docs.isEmpty) {
                   return const SliverFillRemaining(
                     hasScrollBody: false,
@@ -79,6 +81,7 @@ class _CartScreenState extends State<CartScreen> {
                           child: InkWell(
                             onTap: () {
                               //code here
+                              Navigator.push(context, MaterialPageRoute(builder: (c) => CartScreen2(addToCartStoreInfo: sAddToCartStoreInfo,)));
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),

@@ -35,11 +35,16 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("${widget.model!.sellerName}"),
+        title: const Text("User Sample"),
         actions: [
-          StreamBuilder<int>(
-            stream: countAllItems('${sharedPreferences!.get('uid')}'),
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .doc('${sharedPreferences!.get('uid')}')
+                .collection('cart')
+                .snapshots(),
             builder: (context, snapshot) {
+
               if(!snapshot.hasData) {
                 return const Padding(
                   padding: EdgeInsets.only(right: 40,),
@@ -49,50 +54,126 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
                     child: CircularProgressIndicator(),
                   ),
                 );
-              }
+              } else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty){
+                return Padding(
+                  padding: const EdgeInsets.only(right: 24),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: () {
 
-              //other code
-              int itemCount = snapshot.data ?? 0;
+                        },
+                        icon: const Icon(Icons.shopping_cart_outlined),
+                      ),
 
-              return Padding(
-                padding: const EdgeInsets.only(right: 24),
-                child: Stack(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-
-                      },
-                      icon: const Icon(Icons.shopping_cart_outlined),
-                    ),
-                    if(itemCount > 0)
                       Positioned(
                         right: 0,
                         top: 0,
                         child: Container(
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Colors.red,
-                            borderRadius: BorderRadius.circular(2),
+                            shape: BoxShape.circle,
                           ),
                           constraints: const BoxConstraints(
                             minWidth: 16,
                             minHeight: 16,
                           ),
-                          child: Text(
-                            '$itemCount',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            ),
-                            textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 24,),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+
+                        },
+                        icon: const Icon(Icons.shopping_cart_outlined),
+                      ),
+
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            // color: Colors.blue,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
                           ),
                         ),
                       ),
-                  ],
-                ),
-              );
+                    ],
+                  ),
+                );
+              }
             },
-
           ),
+
+          // StreamBuilder<int>(
+          //   stream: countAllItems('${sharedPreferences!.get('uid')}'),
+          //   builder: (context, snapshot) {
+          //     if(!snapshot.hasData) {
+          //       return const Padding(
+          //         padding: EdgeInsets.only(right: 40,),
+          //         child: SizedBox(
+          //           width: 16,
+          //           height: 16,
+          //           child: CircularProgressIndicator(),
+          //         ),
+          //       );
+          //     }
+          //
+          //     //other code
+          //     int itemCount = snapshot.data ?? 0;
+          //
+          //     return Padding(
+          //       padding: const EdgeInsets.only(right: 24),
+          //       child: Stack(
+          //         children: [
+          //           IconButton(
+          //             onPressed: () {
+          //               Navigator.push(context, MaterialPageRoute(builder: (c) => const CartScreen()));
+          //             },
+          //             icon: const Icon(Icons.shopping_cart_outlined),
+          //           ),
+          //           if(itemCount > 0)
+          //             Positioned(
+          //               right: 0,
+          //               top: 0,
+          //               child: Container(
+          //                 decoration: BoxDecoration(
+          //                   color: Colors.red,
+          //                   borderRadius: BorderRadius.circular(2),
+          //                 ),
+          //                 constraints: const BoxConstraints(
+          //                   minWidth: 16,
+          //                   minHeight: 16,
+          //                 ),
+          //                 child: Text(
+          //                   '$itemCount',
+          //                   style: const TextStyle(
+          //                     color: Colors.white,
+          //                     fontSize: 16,
+          //                   ),
+          //                   textAlign: TextAlign.center,
+          //                 ),
+          //               ),
+          //             ),
+          //               ],
+          //       ),
+          //     );
+          //   },
+          //
+          // ),
         ],
       ),
       body: CustomScrollView(
@@ -195,7 +276,12 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
 
                       return InkWell(
                         onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => StoreItemScreen(sellerModel: widget.model,categoryModel: sCategory,)));
+                          // Navigator.of(context).push(MaterialPageRoute(builder: (context) => StoreItemScreen(sellerModel: widget.model,categoryModel: sCategory,)));
+                          Navigator.push(context, MaterialPageRoute(builder: (c) => StoreItemScreen(sellerModel: widget.model,categoryModel: sCategory,))).then((_) {
+                            setState(() {
+
+                            });
+                          });
 
                         },
                         child: Container(
