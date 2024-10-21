@@ -1,4 +1,5 @@
 import 'package:delivery_service_user/authentication/auth_screen.dart';
+import 'package:delivery_service_user/mainScreens/checkout_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
 import 'package:firebase_core/firebase_core.dart';

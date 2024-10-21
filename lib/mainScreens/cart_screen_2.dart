@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
+import 'package:delivery_service_user/mainScreens/checkout_screen.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/add_to_cart_storeInfo.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
@@ -141,18 +142,24 @@ class _CartScreen2State extends State<CartScreen2> {
           ),
         ],
       ),
-
-      floatingActionButton: FloatingActionButton.extended(
-        label: Text('Checkout'),
-        icon: Icon(Icons.shopping_cart),
-        onPressed: () {
-          // Define your checkout action here
-          // For example, navigate to a checkout page:
-          // Navigator.push(context, MaterialPageRoute(builder: (context) => CheckoutPage()));
-        },
-        backgroundColor: Colors.deepOrange,
+      bottomNavigationBar: BottomAppBar(
+        child: Container(
+          height: 60,
+          color: Colors.black,
+          child: TextButton(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (c) => CheckOutScreen(addToCartStoreInfo: widget.addToCartStoreInfo,)));
+            },
+            child: const Text(
+              'Checkout',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+              ),
+            ),
+          ),
+        ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
