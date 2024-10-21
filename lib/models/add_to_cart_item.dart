@@ -23,6 +23,14 @@ class AddToCartItem {
     data['itemTotal'] = (this.itemPrice ?? 0) * (this.itemQnty ?? 0);
     return data;
   }
+
+  AddToCartItem.fromJson(Map<String, dynamic> json) {
+    itemID = json['itemID'];
+    itemName = json['itemName'];
+    itemPrice = json['itemPrice'];
+    itemQnty = json['itemQnty'];
+    itemTotal = json['itemTotal'];
+  }
 }
 
 // //Seller Information

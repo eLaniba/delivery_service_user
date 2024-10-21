@@ -18,4 +18,6 @@ class AddToCartStoreInfo {
     phone = json["phone"];
     address = json["address"];
   }
+
+
 }
