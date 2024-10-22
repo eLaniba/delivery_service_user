@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery_service_user/mainScreens/main_screen.dart';
 import 'package:delivery_service_user/widgets/custom_text_field.dart';
 import 'package:delivery_service_user/widgets/custom_text_field_validations.dart';
 import 'package:delivery_service_user/widgets/error_dialog.dart';
@@ -98,7 +99,7 @@ class _RegisterState extends State<Register> {
       saveDataToFirestore(currentUser!).then((value) {
         Navigator.pop(context);
         //send the user to homePage
-        Route newRoute = MaterialPageRoute(builder: (c) => StoreScreen());
+        Route newRoute = MaterialPageRoute(builder: (c) => MainScreen());
         Navigator.pushReplacement(context, newRoute);
       });
     }
@@ -111,24 +112,28 @@ class _RegisterState extends State<Register> {
       "userName": nameController.text.trim(),
       "phone": phoneController.text.trim(),
       "status": "approved",
+      //temporarily add the Address info here instead of as a collection
+      "address": locationController.text.trim(),
     });
 
     //Setting up default address' reference
     CollectionReference addressCollection = FirebaseFirestore.instance.collection("users").doc(currentUser.uid).collection("address");
 
-    //Add address, latitude, and longitude
-    await addressCollection.add({
-      'lat' : position!.latitude,
-      'lng' : position!.longitude,
-      'add_en' : completeAddress,
-    });
+    //Add address, latitude, and longitude (will be added 2nd semester)
+    // await addressCollection.add({
+    //   'lat' : position!.latitude,
+    //   'lng' : position!.longitude,
+    //   'add_en' : completeAddress,
+    // });
+
 
     //Save data locally
     sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences!.setString("name", nameController.text.trim());
     await sharedPreferences!.setString("uid", currentUser.uid);
     await sharedPreferences!.setString("email", currentUser.email.toString());
-    await sharedPreferences!.setString("name", nameController.text.trim());
     await sharedPreferences!.setString("phone", phoneController.text.trim());
+    await sharedPreferences!.setString("address", completeAddress);
   }
 
   @override

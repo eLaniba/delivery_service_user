@@ -2,6 +2,7 @@ import 'package:delivery_service_user/authentication/auth_screen.dart';
 import 'package:delivery_service_user/mainScreens/checkout_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
+import 'package:delivery_service_user/sampleFeatures/order_data.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -40,7 +41,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: MainScreen(),
+      home: AuthScreen(),
     );
   }
 }

@@ -20,6 +20,8 @@ class CartScreen2 extends StatefulWidget {
 }
 
 class _CartScreen2State extends State<CartScreen2> {
+  List<AddToCartItem> itemList = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,6 +54,10 @@ class _CartScreen2State extends State<CartScreen2> {
                     AddToCartItem sAddToCartItem = AddToCartItem.fromJson(
                         itemSnapshot.data!.docs[index].data()! as Map<String, dynamic>
                     );
+
+                    //Attempt to add items
+                    itemList.add(sAddToCartItem);
+
                     return Card(
                       // margin: const EdgeInsets.all(8),
                       shape: const RoundedRectangleBorder(
@@ -149,6 +155,7 @@ class _CartScreen2State extends State<CartScreen2> {
           child: TextButton(
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (c) => CheckOutScreen(addToCartStoreInfo: widget.addToCartStoreInfo,)));
+              print(sharedPreferences!.get('email'));
             },
             child: const Text(
               'Checkout',

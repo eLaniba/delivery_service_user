@@ -270,19 +270,19 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                       children: [
                                         Flexible(
                                           child: RichText(
-                                            text: const TextSpan(
+                                            text: TextSpan(
                                               children: [
                                                 TextSpan(
-                                                  text: 'Ezra Nehemiah C. Laniba | ',
-                                                  style: TextStyle(
+                                                  text: '${sharedPreferences!.get('name')} ',
+                                                  style: const TextStyle(
                                                     fontSize: 16,
                                                     fontWeight: FontWeight.bold,
                                                     color: Colors.black,
                                                   ),
                                                 ),
                                                 TextSpan(
-                                                  text: '09204331423',
-                                                  style: TextStyle(
+                                                  text: '${sharedPreferences!.get('phone')}',
+                                                  style: const TextStyle(
                                                     color: Colors.black54,
                                                   ),
                                                 ),
@@ -292,10 +292,10 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                         ),
                                       ],
                                     ),
-                                    const Flexible(
+                                    Flexible(
                                       child: Text(
-                                        'District 4, Pagina, Jagna, Bohol',
-                                        style: TextStyle(
+                                        '${sharedPreferences!.get('address')}',
+                                        style: const TextStyle(
                                           fontSize: 16,
                                         ),
                                       ),
@@ -349,19 +349,19 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                       children: [
                                         Flexible(
                                           child: RichText(
-                                            text: const TextSpan(
+                                            text: TextSpan(
                                               children: [
                                                 TextSpan(
-                                                  text: 'Meat Stall Store 24 | ',
-                                                  style: TextStyle(
+                                                  text: '${widget.addToCartStoreInfo!.sellerName} ',
+                                                  style: const TextStyle(
                                                     fontSize: 16,
                                                     fontWeight: FontWeight.bold,
                                                     color: Colors.black,
                                                   ),
                                                 ),
                                                 TextSpan(
-                                                  text: '09204331423',
-                                                  style: TextStyle(
+                                                  text: '${widget.addToCartStoreInfo!.phone}',
+                                                  style: const TextStyle(
                                                     color: Colors.black54,
                                                   ),
                                                 ),
@@ -371,10 +371,10 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                         ),
                                       ],
                                     ),
-                                    const Flexible(
+                                    Flexible(
                                       child: Text(
-                                        'Santa Cruz, Calape, Bohol, Philippines',
-                                        style: TextStyle(
+                                        '${widget.addToCartStoreInfo!.address}',
+                                        style: const TextStyle(
                                           fontSize: 16,
                                         ),
                                       ),
@@ -395,7 +395,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     color: Colors.white,
-                    child: Column(
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
                         Text(
@@ -440,7 +440,6 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                 } else if (itemSnapshot.hasError) {
                   return Center(child: Text('Error: ${itemSnapshot.error}'));
                 } else if (itemSnapshot.data!.docs.isNotEmpty) {
-                  print('Document is not empty');
 
                   return Container(
                     height: 150, // Set a fixed height for the horizontal list
@@ -453,7 +452,64 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                         );
 
                         return Card(
-                          child: Text("hello"),
+                          child: Container(
+                            // height: 40,
+                              width: 100,
+                              color: Colors.white,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      height: 80,
+                                      // color: Colors.white,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.grey,),
+                                      ),
+                                      child: const Center(
+                                        child: Icon(
+                                          Icons.image,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 8,),
+                                    RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: '₱ ${sAddToCartItem.itemPrice!.toStringAsFixed(2)}',
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                        ),
+                                          TextSpan(
+                                            text: ' x${sAddToCartItem.itemQnty}',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                      ]
+                                      ),
+                                    ),
+                                    SizedBox(height: 2,),
+                                    Expanded(
+                                      child: Text(
+                                        '₱ ${sAddToCartItem.itemTotal!.toStringAsFixed(2)}',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.orange,
+                                          fontWeight: FontWeight.bold
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )),
                         );
                       },
                     ),
