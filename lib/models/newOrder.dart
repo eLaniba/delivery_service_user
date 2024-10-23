@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 
-class Order{
+class NewOrder{
   //Order Information
   String? orderStatus;
   String? orderID;
   Timestamp? orderTime;
   Timestamp? orderDelivered;
-  String? orderTotal;
+  double? orderTotal;
 
 
   //Store information
@@ -26,6 +26,7 @@ class Order{
   String? userName;
   String? userPhone;
   String? userAddress;
+  bool? userConfirmDelivery;
   // double? userLat;
   // double? userLng;
 
@@ -33,9 +34,10 @@ class Order{
   String? riderID;
   String? riderName;
   String? riderPhone;
+  bool? riderConfirmDelivery;
 
   //Constructor for Order
-  Order({
+  NewOrder({
     //Order Information
     this.orderStatus,
     this.orderID,
@@ -58,6 +60,7 @@ class Order{
     this.userName,
     this.userPhone,
     this.userAddress,
+    this.userConfirmDelivery,
     // this.userLat,
     // this.userLng,
 
@@ -65,9 +68,19 @@ class Order{
     this.riderID,
     this.riderName,
     this.riderPhone,
+    this.riderConfirmDelivery,
   });
 
-  Order.fromJson(Map<String, dynamic> json) {
+  double calculateOrderTotal(List<AddToCartItem>? items) {
+    double total = 0;
+    for(var item in items!) {
+      total += item.itemTotal!;
+    }
+    orderTotal = total;
+    return total;
+  }
+
+  NewOrder.fromJson(Map<String, dynamic> json) {
     orderStatus = json['orderStatus'];
     orderID = json['orderID'];
     orderTime = json['orderTime'];

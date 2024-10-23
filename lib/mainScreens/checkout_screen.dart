@@ -1,236 +1,42 @@
-// import 'package:dotted_line/dotted_line.dart';
-// import 'package:flutter/material.dart';
-//
-// class CheckOutScreen extends StatefulWidget {
-//   const CheckOutScreen({super.key});
-//
-//   @override
-//   State<CheckOutScreen> createState() => _CheckOutScreenState();
-// }
-//
-// class _CheckOutScreenState extends State<CheckOutScreen> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Checkout'),
-//       ),
-//       backgroundColor: Colors.grey[200],
-//       body: SingleChildScrollView(
-//         child: Padding(
-//           padding: const EdgeInsets.symmetric(vertical: 8),
-//           child: Column(
-//             children: [
-//               //User Info
-//               Container(
-//                 padding: const EdgeInsets.all(8),
-//                 color: Colors.white,
-//                 width: MediaQuery.of(context).size.width,
-//                 child: Padding(
-//                   padding: const EdgeInsets.symmetric(horizontal: 12,),
-//                   child: Column(
-//                     children: [
-//                       Row(
-//                         mainAxisAlignment: MainAxisAlignment.start,
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         // mainAxisSize: MainAxisSize.min,
-//                         children: [
-//                           const SizedBox(
-//                             // width: 16,
-//                             // height: 20,
-//                             child: Icon(Icons.location_on, size: 16,),
-//                           ),
-//                           const SizedBox(
-//                             width: 16,
-//                           ),
-//                           Expanded(
-//                             child: Column(
-//                               crossAxisAlignment: CrossAxisAlignment.start,
-//                               mainAxisSize: MainAxisSize.min,
-//                               children: [
-//                                 Row(
-//                                   children: [
-//                                     Flexible(
-//                                       child: RichText(
-//                                         text: const TextSpan(
-//                                           children: [
-//                                             TextSpan(
-//                                               text: 'Ezra Nehemiah C. Laniba | ',
-//                                               style: TextStyle(
-//                                                 fontSize: 16,
-//                                                 fontWeight: FontWeight.bold,
-//                                                 color: Colors.black,
-//                                               ),
-//                                             ),
-//                                             TextSpan(
-//                                               text: '09204331423',
-//                                               style: TextStyle(
-//                                                 color: Colors.black54,
-//                                               ),
-//
-//                                             ),
-//                                           ],
-//                                         ),
-//                                       ),
-//                                     ),
-//                                   ],
-//                                 ),
-//                                 const Flexible(
-//                                   child: Text(
-//                                     'District 4, Pagina, Jagna, Bohol',
-//                                     style: TextStyle(
-//                                       fontSize: 16,
-//                                     ),
-//                                   ),
-//                                 ),
-//                                 SizedBox(height: 16,),
-//                               ],
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                       const DottedLine(
-//                         dashColor: Colors.orange, // Orange color for the dots
-//                         lineThickness: 2, // Thickness of the dotted line
-//                         dashLength: 10, // Length of each dash (dot)
-//                         dashGapLength: 12, // Space between dashes
-//                         dashRadius: 2, // Makes each dot circular
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//               //Store Info
-//               Container(
-//                 padding: const EdgeInsets.all(8),
-//                 color: Colors.white,
-//                 width: MediaQuery.of(context).size.width,
-//                 child: Padding(
-//                   padding: const EdgeInsets.symmetric(horizontal: 12,),
-//                   child: Column(
-//                     children: [
-//                       Row(
-//                         mainAxisAlignment: MainAxisAlignment.start,
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         // mainAxisSize: MainAxisSize.min,
-//                         children: [
-//                           const SizedBox(
-//                             // width: 16,
-//                             // height: 20,
-//                             child: Icon(Icons.storefront, size: 16,),
-//                           ),
-//                           const SizedBox(
-//                             width: 16,
-//                           ),
-//                           Expanded(
-//                             child: Column(
-//                               crossAxisAlignment: CrossAxisAlignment.start,
-//                               mainAxisSize: MainAxisSize.min,
-//                               children: [
-//                                 Row(
-//                                   children: [
-//                                     Flexible(
-//                                       child: RichText(
-//                                         text: const TextSpan(
-//                                           children: [
-//                                             TextSpan(
-//                                               text: 'Meat Stall Store 24 | ',
-//                                               style: TextStyle(
-//                                                 fontSize: 16,
-//                                                 fontWeight: FontWeight.bold,
-//                                                 color: Colors.black,
-//                                               ),
-//                                             ),
-//                                             TextSpan(
-//                                               text: '09204331423',
-//                                               style: TextStyle(
-//                                                 color: Colors.black54,
-//                                               ),
-//
-//                                             ),
-//                                           ],
-//                                         ),
-//                                       ),
-//                                     ),
-//                                   ],
-//                                 ),
-//                                 const Flexible(
-//                                   child: Text(
-//                                     'Santa Cruz, Calape, Bohol, Philippines',
-//                                     style: TextStyle(
-//                                       fontSize: 16,
-//                                     ),
-//                                   ),
-//                                 ),
-//                                 SizedBox(height: 8,),
-//                               ],
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//               //Payment Method
-//               Container(
-//                 padding: const EdgeInsets.symmetric(horizontal: 16,),
-//                 width: MediaQuery.of(context).size.width,
-//                 color: Colors.white,
-//                 child: const Expanded(
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Text(
-//                         'Payment Method',
-//                         style: TextStyle(
-//                           fontSize: 16,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                       ),
-//                       Row(
-//                         children: [
-//                           SizedBox(width: 16,),
-//                           Icon(Icons.payment_rounded),
-//                           Text(' Cash on Delivery')
-//                         ],
-//                       ),
-//                       SizedBox(height: 12,),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/add_to_cart_storeInfo.dart';
+import 'package:delivery_service_user/models/newOrder.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 
 import '../global/global.dart';
 
 class CheckOutScreen extends StatefulWidget {
-  CheckOutScreen({super.key, this.addToCartStoreInfo});
+  CheckOutScreen({
+    super.key,
+    this.addToCartStoreInfo,
+    this.items,
+  });
 
   AddToCartStoreInfo? addToCartStoreInfo;
+  List<AddToCartItem>? items;
 
   @override
   State<CheckOutScreen> createState() => _CheckOutScreenState();
 }
 
 class _CheckOutScreenState extends State<CheckOutScreen> {
+  NewOrder? order;
+
+  double calculateOrderTotal(List<AddToCartItem>? items) {
+    double total = 0;
+    for(var item in items!) {
+      total += item.itemTotal!;
+    }
+    return total;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:Text('Checkout'),
+        title:const Text('Checkout'),
       ),
       backgroundColor: Colors.grey[200],
       body: CustomScrollView(
@@ -474,7 +280,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                         ),
                                       ),
                                     ),
-                                    SizedBox(height: 8,),
+                                    const SizedBox(height: 8,),
                                     RichText(
                                       text: TextSpan(
                                         children: [
@@ -495,7 +301,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                       ]
                                       ),
                                     ),
-                                    SizedBox(height: 2,),
+                                    const SizedBox(height: 2,),
                                     Expanded(
                                       child: Text(
                                         '₱ ${sAddToCartItem.itemTotal!.toStringAsFixed(2)}',
@@ -521,7 +327,70 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
             ),
           ),
 
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Container(
+                color: Colors.white,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      right: 16,
+                      bottom: 16,
+                      child: Text('Total Order: 50000000'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
         ],
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Container(
+          height: 60,
+          color: Colors.black,
+          child: TextButton(
+            onPressed: () {
+              DateTime now = DateTime.now();
+              Timestamp orderTime = Timestamp.fromDate(now);
+
+              //Creating new order
+              NewOrder order = NewOrder(
+              //Order Info
+              orderStatus: 'Pending',
+              orderTotal: calculateOrderTotal(widget.items),
+
+              //Store Info
+              storeID: widget.addToCartStoreInfo!.sellerUID,
+              storeName: widget.addToCartStoreInfo!.sellerName,
+              storePhone: widget.addToCartStoreInfo!.phone,
+              storeAddress: widget.addToCartStoreInfo!.address,
+
+              items: widget.items,
+
+              //User Info
+              userID: sharedPreferences!.get('uid').toString(),
+              userName: sharedPreferences!.get('name').toString(),
+              userPhone: sharedPreferences!.get('phone').toString(),
+              userAddress: sharedPreferences!.get('address').toString(),
+              userConfirmDelivery: false,
+
+              //Rider Info
+              //After Store Preperation
+              );
+            },
+            child: const Text(
+              'Confirm Order',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

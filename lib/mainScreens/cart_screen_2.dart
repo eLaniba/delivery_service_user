@@ -3,6 +3,7 @@ import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/checkout_screen.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/add_to_cart_storeInfo.dart';
+import 'package:delivery_service_user/models/newOrder.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,9 @@ class CartScreen2 extends StatefulWidget {
 }
 
 class _CartScreen2State extends State<CartScreen2> {
-  List<AddToCartItem> itemList = [];
+  List<AddToCartItem> listAddToCartItem = [];
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -51,12 +54,13 @@ class _CartScreen2State extends State<CartScreen2> {
               } else if (itemSnapshot.hasData && itemSnapshot.data!.docs.isNotEmpty) {
                 return SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
+
                     AddToCartItem sAddToCartItem = AddToCartItem.fromJson(
                         itemSnapshot.data!.docs[index].data()! as Map<String, dynamic>
                     );
 
                     //Attempt to add items
-                    itemList.add(sAddToCartItem);
+                    listAddToCartItem.add(sAddToCartItem);
 
                     return Card(
                       // margin: const EdgeInsets.all(8),
@@ -66,7 +70,8 @@ class _CartScreen2State extends State<CartScreen2> {
                       elevation: 2,
                       child: InkWell(
                         onTap: () {
-                          //Navigate to Checkout Page
+                          //Create a pop-up window to edit the items
+
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -120,7 +125,7 @@ class _CartScreen2State extends State<CartScreen2> {
                                       fontSize: 16,
                                     ),
                                   ),
-                                  SizedBox(width: 16,)
+                                  const SizedBox(width: 16,)
                                 ],
                               ),
                               const SizedBox(height: 16,),
@@ -153,9 +158,8 @@ class _CartScreen2State extends State<CartScreen2> {
           height: 60,
           color: Colors.black,
           child: TextButton(
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (c) => CheckOutScreen(addToCartStoreInfo: widget.addToCartStoreInfo,)));
-              print(sharedPreferences!.get('email'));
+            onPressed: () async {
+              Navigator.push(context, MaterialPageRoute(builder: (c) => CheckOutScreen(addToCartStoreInfo: widget.addToCartStoreInfo, items: listAddToCartItem,)));
             },
             child: const Text(
               'Checkout',
