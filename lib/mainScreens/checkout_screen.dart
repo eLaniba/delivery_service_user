@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/add_to_cart_storeInfo.dart';
-import 'package:delivery_service_user/models/newOrder.dart';
+import 'package:delivery_service_user/models/new_order.dart';
+import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 
@@ -22,14 +23,61 @@ class CheckOutScreen extends StatefulWidget {
 }
 
 class _CheckOutScreenState extends State<CheckOutScreen> {
-  NewOrder? order;
+  double totalOrderPrice = 0;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    totalOrderPrice = calculateOrderTotal(widget.items);
+  }
 
   double calculateOrderTotal(List<AddToCartItem>? items) {
     double total = 0;
-    for(var item in items!) {
+    // Set<String> processedItemIDs = {};
+
+    // for(var item in items!) {
+    //   if (item.itemID != null && !processedItemIDs.contains(item.itemID)) {
+    //     total += item.itemTotal ?? 0;
+    //     processedItemIDs.add(item.itemID!);  // Mark this itemID as processed
+    //   }
+    for (var item in items!) {
       total += item.itemTotal!;
     }
     return total;
+  }
+
+  void _addOrderToFirestore(NewOrder order) async {
+    showDialog(
+      context: context,
+      builder: (c) {
+        return const LoadingDialog(message: "Processing order");
+      },
+    );
+
+    CollectionReference activeOrder = FirebaseFirestore.instance.collection('active_orders');
+
+    try{
+      var _newOrderRef = await activeOrder.add(order.toJson());
+
+      await _newOrderRef.update({
+        'orderID' : _newOrderRef.id,
+      });
+
+      Navigator.of(context).pop();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+
+        const SnackBar(
+          content: Text('Item added successfully!'),
+          backgroundColor: Colors.blue, // Optional: Set background color
+          duration: Duration(seconds: 5), // Optional: How long the snackbar is shown
+        ),
+      );
+    } catch (e){
+      rethrow;
+    }
+
   }
 
   @override
@@ -115,7 +163,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                             ],
                           ),
                           const DottedLine(
-                            dashColor: Colors.orange,
+                            dashColor: Colors.blue,
                             lineThickness: 2,
                             dashLength: 10,
                             dashGapLength: 12,
@@ -337,8 +385,27 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                   children: [
                     Positioned(
                       right: 16,
-                      bottom: 16,
-                      child: Text('Total Order: 50000000'),
+                      bottom: 0,
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            const TextSpan(
+                              text: 'Your Order: ',
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '₱ ${totalOrderPrice.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ]
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -361,7 +428,8 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
               NewOrder order = NewOrder(
               //Order Info
               orderStatus: 'Pending',
-              orderTotal: calculateOrderTotal(widget.items),
+              orderTime: orderTime,
+              orderTotal: totalOrderPrice,
 
               //Store Info
               storeID: widget.addToCartStoreInfo!.sellerUID,
@@ -381,6 +449,8 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
               //Rider Info
               //After Store Preperation
               );
+
+              _addOrderToFirestore(order);
             },
             child: const Text(
               'Confirm Order',

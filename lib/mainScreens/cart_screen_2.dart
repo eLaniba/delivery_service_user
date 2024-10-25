@@ -3,7 +3,6 @@ import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/checkout_screen.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/add_to_cart_storeInfo.dart';
-import 'package:delivery_service_user/models/newOrder.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
@@ -22,8 +21,24 @@ class CartScreen2 extends StatefulWidget {
 
 class _CartScreen2State extends State<CartScreen2> {
   List<AddToCartItem> listAddToCartItem = [];
+  Set<String> processedItemIDs = Set();
+  double totalOrderPrice = 0;
 
+  double calculateOrderTotal(List<AddToCartItem>? items) {
+    double total = 0;
 
+    for (var item in items!) {
+      total += item.itemTotal!;
+    }
+    return total;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    totalOrderPrice = calculateOrderTotal(listAddToCartItem);
+    print(totalOrderPrice);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +46,18 @@ class _CartScreen2State extends State<CartScreen2> {
       appBar: AppBar(
         title: Text(
           "${widget.addToCartStoreInfo!.sellerName}",
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
           overflow: TextOverflow.ellipsis,
         ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.black),
+        centerTitle: true,
       ),
+      backgroundColor: Colors.grey[100],
       body: CustomScrollView(
         slivers: [
           StreamBuilder<QuerySnapshot>(
@@ -45,64 +69,84 @@ class _CartScreen2State extends State<CartScreen2> {
                 .collection('items')
                 .snapshots(),
             builder: (context, itemSnapshot) {
-              if(!itemSnapshot.hasData) {
+              if (!itemSnapshot.hasData) {
                 return SliverToBoxAdapter(
                   child: Center(child: circularProgress()),
                 );
               } else if (itemSnapshot.hasError) {
-                return Center(child: Text('Error: ${itemSnapshot.error}'),);
+                return Center(child: Text('Error: ${itemSnapshot.error}'));
               } else if (itemSnapshot.hasData && itemSnapshot.data!.docs.isNotEmpty) {
                 return SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
-
                     AddToCartItem sAddToCartItem = AddToCartItem.fromJson(
-                        itemSnapshot.data!.docs[index].data()! as Map<String, dynamic>
-                    );
+                        itemSnapshot.data!.docs[index].data()! as Map<String, dynamic>);
 
-                    //Attempt to add items
-                    listAddToCartItem.add(sAddToCartItem);
+                    // Check if the item has already been processed
+                    if (!processedItemIDs.contains(sAddToCartItem.itemID)) {
+                      // Add item to the list and track its ID
+                      listAddToCartItem.add(sAddToCartItem);
+                      processedItemIDs.add(sAddToCartItem.itemID!);
+                      print('List added: ${sAddToCartItem.itemID}');
+                    }
 
                     return Card(
-                      // margin: const EdgeInsets.all(8),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(2),
                       ),
-                      elevation: 2,
+                      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                      elevation: 1,
                       child: InkWell(
                         onTap: () {
-                          //Create a pop-up window to edit the items
-
+                          // Pop-up window for item editing
                         },
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(12.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              const SizedBox(height: 16),
                               Row(
                                 children: [
                                   Container(
                                     height: 100,
                                     width: 100,
-                                    color: Colors.grey,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.grey,
+                                        width: 1,
+                                      ),
+                                      // borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.image,
+                                        color: Colors.grey,
+                                        size: 50,
+                                      ),
+                                    ),
                                   ),
-                                  const SizedBox(width: 16,),
+                                  const SizedBox(width: 16),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                         '${sAddToCartItem.itemName}',
+                                          '${sAddToCartItem.itemName}',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          '₱ ${sAddToCartItem.itemPrice!.toStringAsFixed(2)}',
                                           style: const TextStyle(
                                             fontSize: 16,
-                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey,
                                           ),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
                                         ),
-                                        Text('₱ ${sAddToCartItem.itemPrice!.toStringAsFixed(2)}',),
+                                        const SizedBox(height: 4),
                                         Text(
                                           '₱ ${sAddToCartItem.itemTotal!.toStringAsFixed(2)}',
                                           style: TextStyle(
@@ -114,40 +158,32 @@ class _CartScreen2State extends State<CartScreen2> {
                                       ],
                                     ),
                                   ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
+                                  const SizedBox(width: 16),
                                   Text(
                                     'x${sAddToCartItem.itemQnty}',
                                     style: const TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 18,
                                     ),
                                   ),
-                                  const SizedBox(width: 16,)
                                 ],
                               ),
-                              const SizedBox(height: 16,),
-                              DottedLine(
-                                dashColor: Theme
-                                    .of(context)
-                                    .colorScheme
-                                    .primary,
-                                lineThickness: 3,
-                                dashLength: 16,
-                              ),
+                              // const SizedBox(height: 12),
+                              // DottedLine(
+                              //   dashColor: Theme.of(context).colorScheme.primary,
+                              //   lineThickness: 1.5,
+                              //   dashLength: 6,
+                              // ),
                             ],
                           ),
                         ),
                       ),
                     );
-                    },
-                  childCount: itemSnapshot.data!.docs.length,
-                  ),
+                  }, childCount: itemSnapshot.data!.docs.length),
                 );
               } else {
-                return const SliverToBoxAdapter(child: Expanded(child: Center(child: Text('No item added in this store'))));
+                return const SliverToBoxAdapter(
+                  child: Center(child: Text('No items added in this store')),
+                );
               }
             },
           ),
@@ -159,13 +195,22 @@ class _CartScreen2State extends State<CartScreen2> {
           color: Colors.black,
           child: TextButton(
             onPressed: () async {
-              Navigator.push(context, MaterialPageRoute(builder: (c) => CheckOutScreen(addToCartStoreInfo: widget.addToCartStoreInfo, items: listAddToCartItem,)));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (c) => CheckOutScreen(
+                    addToCartStoreInfo: widget.addToCartStoreInfo,
+                    items: listAddToCartItem,
+                  ),
+                ),
+              );
             },
             child: const Text(
               'Checkout',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 18,
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),

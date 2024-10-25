@@ -169,7 +169,9 @@ class _MainScreenState extends State<MainScreen> {
           //
           // ),
         ] : null,
+        automaticallyImplyLeading: false,
       ),
+      backgroundColor: Colors.grey[200],
       body: _screens[widgetIndex],
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
