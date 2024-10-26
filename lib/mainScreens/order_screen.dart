@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
+import 'package:delivery_service_user/mainScreens/order_screen_2.dart';
 import 'package:delivery_service_user/models/new_order.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:flutter/material.dart';
@@ -33,11 +34,11 @@ class _OrderScreenState extends State<OrderScreen> {
                   NewOrder order = NewOrder.fromJson(orderSnapshot.data!.docs[index].data()! as Map<String, dynamic>,);
 
                   return Card(
-                    margin: EdgeInsets.all(8),
+                    margin: const EdgeInsets.all(8),
                     elevation: 2,
                     child: InkWell(
                       onTap: (){
-
+                        Navigator.push(context, MaterialPageRoute(builder: (c) => OrderScreen2(orderDetail: order,)));
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(8),
