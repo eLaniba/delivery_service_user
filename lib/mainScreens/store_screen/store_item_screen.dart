@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/category_item.dart';
-import 'package:delivery_service_user/models/sellers.dart';
+import 'package:delivery_service_user/models/stores.dart';
 import 'package:delivery_service_user/services/count_cart_listener.dart';
 import 'package:delivery_service_user/widgets/error_dialog.dart';
 import 'package:delivery_service_user/widgets/item_dialog.dart';
@@ -11,9 +11,9 @@ import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:flutter/material.dart';
 
 class StoreItemScreen extends StatefulWidget {
-  StoreItemScreen({super.key, this.sellerModel, this.categoryModel});
+  StoreItemScreen({super.key, this.store, this.categoryModel});
 
-  Sellers? sellerModel;
+  Stores? store;
   Category? categoryModel;
 
   @override
@@ -188,7 +188,7 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                 double itemTotal = itemCount * itemModel.itemPrice!;
 
                 _addItemToCartFirestore(
-                  widget.sellerModel!,
+                  widget.store!,
                   itemModel,
                   AddToCartItem(
                     itemID: itemModel.itemID,
@@ -207,16 +207,16 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
     );
   }
 
-  void _addItemToCartFirestore(Sellers sellerModel, Item itemModel, AddToCartItem addCartItemModel) async {
+  void _addItemToCartFirestore(Stores store, Item itemModel, AddToCartItem addCartItemModel) async {
 
     //Reference for the cart Collection in Firestore
     CollectionReference cartCollection = FirebaseFirestore.instance.collection('users').doc(sharedPreferences!.getString('uid')).collection('cart');
 
     //Adding the store inside the cart Collection as Document
-    DocumentReference storeReference = cartCollection.doc(sellerModel.sellerUID);
+    DocumentReference storeReference = cartCollection.doc(store.storeID);
 
     //Add a fields to the new store document: sellerUID, sellerName, phone, address
-    await storeReference.set(sellerModel.addSellerToCart());
+    await storeReference.set(store.addSellerToCart());
 
     //Add the item Collection inside the store Document || this is the items Collection reference
     CollectionReference itemReference = storeReference.collection('items');
@@ -467,8 +467,8 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
 
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
-                .collection("sellers")
-                .doc(widget.sellerModel!.sellerUID)
+                .collection("stores")
+                .doc(widget.store!.storeID)
                 .collection("categories")
                 .doc(widget.categoryModel!.categoryID)
                 .collection('items')

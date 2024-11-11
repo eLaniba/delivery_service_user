@@ -10,7 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:delivery_service_user/global/global.dart';
-import 'package:delivery_service_user/mainScreens/store_screen.dart';
+import 'package:delivery_service_user/mainScreens/store_screen/store_screen.dart';
 
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
 
@@ -32,6 +32,7 @@ class _RegisterState extends State<Register> {
 
   Position? position;
   List<Placemark>? placeMarks;
+  GeoPoint? geoPoint;
 
   String completeAddress = "";
 
@@ -51,6 +52,8 @@ class _RegisterState extends State<Register> {
         position!.latitude,
         position!.longitude,
       );
+
+      geoPoint = GeoPoint(position!.latitude, position!.longitude);
 
       Placemark pMark = placeMarks![1];
 
@@ -107,13 +110,14 @@ class _RegisterState extends State<Register> {
 
   Future saveDataToFirestore(User currentUser) async {
     FirebaseFirestore.instance.collection("users").doc(currentUser.uid).set({
-      "userUID": currentUser.uid,
+      "userID": currentUser.uid,
       "userEmail": currentUser.email,
       "userName": nameController.text.trim(),
-      "phone": phoneController.text.trim(),
+      "userPhone": phoneController.text.trim(),
       "status": "approved",
       //temporarily add the Address info here instead of as a collection
-      "address": locationController.text.trim(),
+      "userAddress": locationController.text.trim(),
+      "userLocation": geoPoint,
     });
 
     //Setting up default address' reference
@@ -125,7 +129,6 @@ class _RegisterState extends State<Register> {
     //   'lng' : position!.longitude,
     //   'add_en' : completeAddress,
     // });
-
 
     //Save data locally
     sharedPreferences = await SharedPreferences.getInstance();

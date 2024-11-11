@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/cart_screen.dart';
-import 'package:delivery_service_user/mainScreens/order_screen.dart';
-import 'package:delivery_service_user/mainScreens/store_screen.dart';
+import 'package:delivery_service_user/mainScreens/order_screen/order_screen.dart';
+import 'package:delivery_service_user/mainScreens/store_screen/store_screen.dart';
+import 'package:delivery_service_user/mainScreens/store_screen/store_screen_remake.dart';
 import 'package:delivery_service_user/services/count_cart_listener.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const ProfileScreen(),
-    const StoreScreen(),
+    const StoreScreenRemake(),
     const OrderScreen(),
   ];
 

@@ -1,17 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivery_service_user/mainScreens/store_item_screen.dart';
+import 'package:delivery_service_user/mainScreens/store_screen/store_item_screen.dart';
 import 'package:delivery_service_user/models/category_item.dart';
-import 'package:delivery_service_user/models/sellers.dart';
+import 'package:delivery_service_user/models/stores.dart';
 import 'package:delivery_service_user/services/count_cart_listener.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:flutter/material.dart';
 
-import '../global/global.dart';
+import '../../global/global.dart';
 
 class StoreCategoryScreen extends StatefulWidget {
-  StoreCategoryScreen({super.key, this.model});
+  StoreCategoryScreen({super.key, this.stores});
 
-  Sellers? model;
+  Stores? stores;
 
   @override
   State<StoreCategoryScreen> createState() => _StoreCategoryScreenState();
@@ -23,7 +23,7 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
     //Create a Category Collection reference
     CollectionReference categoriesCollection = FirebaseFirestore.instance
         .collection('sellers')
-        .doc(widget.model!.sellerUID)
+        .doc(widget.stores!.storeID)
         .collection('categories');
 
     //Get all documents from Category Collection
@@ -193,14 +193,14 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
                   ),
                   const SizedBox(height: 8,),
                   Text(
-                    '${widget.model!.sellerName}',
+                    '${widget.stores!.storeName}',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
-                    '${widget.model!.sellerAddress}',
+                    '${widget.stores!.storeAddress}',
                     style: const TextStyle(
                       fontSize: 12,
                     ),
@@ -233,8 +233,8 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
 
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
-                .collection("sellers")
-                .doc(widget.model!.sellerUID)
+                .collection("stores")
+                .doc(widget.stores!.storeID)
                 .collection('categories')
                 .snapshots(),
             builder: (context, categorySnapshot) {
@@ -277,7 +277,7 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
                       return InkWell(
                         onTap: () {
                           // Navigator.of(context).push(MaterialPageRoute(builder: (context) => StoreItemScreen(sellerModel: widget.model,categoryModel: sCategory,)));
-                          Navigator.push(context, MaterialPageRoute(builder: (c) => StoreItemScreen(sellerModel: widget.model,categoryModel: sCategory,))).then((_) {
+                          Navigator.push(context, MaterialPageRoute(builder: (c) => StoreItemScreen(store: widget.stores,categoryModel: sCategory,))).then((_) {
                             setState(() {
 
                             });

@@ -57,7 +57,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
 
     CollectionReference activeOrder = FirebaseFirestore.instance.collection('active_orders');
 
-    try{
+    try {
       var _newOrderRef = await activeOrder.add(order.toJson());
 
       await _newOrderRef.update({
@@ -74,7 +74,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
           duration: Duration(seconds: 5), // Optional: How long the snackbar is shown
         ),
       );
-    } catch (e){
+    } catch (e) {
       rethrow;
     }
 

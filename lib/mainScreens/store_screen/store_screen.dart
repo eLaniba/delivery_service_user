@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivery_service_user/models/sellers.dart';
+import 'package:delivery_service_user/models/stores.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:delivery_service_user/widgets/seller_info.dart';
 import 'package:flutter/material.dart';
@@ -34,14 +34,11 @@ class _StoreScreenState extends State<StoreScreen> {
                 crossAxisSpacing: 4,
                 childCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {
-                  Sellers sModel = Sellers.fromJson(
+                  Stores sModel = Stores.fromJson(
                     snapshot.data!.docs[index].data()! as Map<String, dynamic>,
                   );
                   // Design for display sellers-cafes-restaurants
-                  return SellerInfo(
-                    model: sModel,
-                    context: context,
-                  );
+                  return Container();
                 },
               );
             },

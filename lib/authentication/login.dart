@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/authentication/auth_screen.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
-import 'package:delivery_service_user/mainScreens/store_screen.dart';
+import 'package:delivery_service_user/mainScreens/store_screen/store_screen.dart';
 import 'package:delivery_service_user/widgets/custom_text_field.dart';
 import 'package:delivery_service_user/widgets/custom_text_field_validations.dart';
 import 'package:delivery_service_user/widgets/error_dialog.dart';
@@ -64,8 +64,8 @@ class _LoginState extends State<Login> {
         await sharedPreferences!.setString("uid", currentUser.uid);
         await sharedPreferences!.setString("name", snapshot.data()!["userName"]);
         await sharedPreferences!.setString("email", snapshot.data()!["userEmail"]);
-        await sharedPreferences!.setString("phone", snapshot.data()!["phone"]);
-        await sharedPreferences!.setString("address", snapshot.data()!["address"]);
+        await sharedPreferences!.setString("phone", snapshot.data()!["userPhone"]);
+        await sharedPreferences!.setString("address", snapshot.data()!["userAddress"]);
 
         Navigator.pop(context);
         Navigator.push(context, MaterialPageRoute(builder: (c) => const MainScreen()));

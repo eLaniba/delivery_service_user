@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
-import 'package:delivery_service_user/mainScreens/order_screen_2.dart';
+import 'package:delivery_service_user/mainScreens/order_screen/order_screen_2.dart';
 import 'package:delivery_service_user/models/new_order.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:flutter/material.dart';
