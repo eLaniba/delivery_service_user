@@ -6,7 +6,7 @@ import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 
-import '../global/global.dart';
+import '../../global/global.dart';
 
 class CheckOutScreen extends StatefulWidget {
   CheckOutScreen({

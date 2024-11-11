@@ -5,6 +5,7 @@ import 'package:delivery_service_user/models/stores.dart';
 import 'package:delivery_service_user/services/count_cart_listener.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../global/global.dart';
 
@@ -35,7 +36,37 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("User Sample"),
+        title: GestureDetector(
+          onTap: () {
+            // Navigate to another page (SearchScreen) when the search bar is tapped
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Scaffold(body: Placeholder(child: Text('hello'),),)), // Your search screen
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.regular),
+                  color: Colors.grey,
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'Search categories...',
+                  style: TextStyle(color: Colors.grey, fontSize: 18),
+                ),
+              ],
+            ),
+          ),
+        ),
+        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).primaryColor,
         actions: [
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
@@ -44,7 +75,6 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
                 .collection('cart')
                 .snapshots(),
             builder: (context, snapshot) {
-
               if(!snapshot.hasData) {
                 return const Padding(
                   padding: EdgeInsets.only(right: 40,),
@@ -180,7 +210,7 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
         slivers: [
           SliverToBoxAdapter(
             child: Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               // color: Colors.grey,
               child: Column(
                 children: [
@@ -217,13 +247,14 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
               minHeight: 40,
               maxHeight: 40,
               child: Container(
-                color: Theme.of(context).colorScheme.inversePrimary,
+                color: Theme.of(context).primaryColor,
                 child: const Center(
                   child: Text(
                     'Categories',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -285,38 +316,41 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
 
                         },
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          height: 40,
+                          padding: const EdgeInsets.symmetric(horizontal: 8,),
                           width: MediaQuery.of(context).size.width,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      sCategory.categoryName!,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      softWrap: false,
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 16,
-                                  ),
-                                ],
-                              ),
-                              const Divider(
-                                color: Colors.grey,
-                                thickness: 1,
-                              ),
-                            ],
+                          // child: Column(
+                          //   mainAxisAlignment: MainAxisAlignment.center,
+                          //   crossAxisAlignment: CrossAxisAlignment.start,
+                          //   children: [
+                          //     Row(
+                          //       mainAxisAlignment: MainAxisAlignment.start,
+                          //       children: [
+                          //         Expanded(
+                          //           child: Text(
+                          //             sCategory.categoryName!,
+                          //             style: TextStyle(
+                          //               fontSize: 16,
+                          //             ),
+                          //             overflow: TextOverflow.ellipsis,
+                          //             maxLines: 1,
+                          //             softWrap: false,
+                          //           ),
+                          //         ),
+                          //         Icon(
+                          //           Icons.arrow_forward_ios,
+                          //           size: 16,
+                          //         ),
+                          //       ],
+                          //     ),
+                          //     const Divider(
+                          //       color: Colors.grey,
+                          //       thickness: 1,
+                          //     ),
+                          //   ],
+                          // ),
+                          child: ListTile(
+                            title: Text('${sCategory.categoryName}'),
+                            trailing: Icon(PhosphorIcons.caretRight(PhosphorIconsStyle.regular)),
                           ),
                         ),
                       );

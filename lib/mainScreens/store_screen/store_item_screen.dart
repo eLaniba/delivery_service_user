@@ -9,6 +9,7 @@ import 'package:delivery_service_user/widgets/item_dialog.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class StoreItemScreen extends StatefulWidget {
   StoreItemScreen({super.key, this.store, this.categoryModel});
@@ -302,7 +303,37 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("User Sample"),
+        title: GestureDetector(
+          onTap: () {
+            // Navigate to another page (SearchScreen) when the search bar is tapped
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Scaffold(body: Placeholder(child: Text('hello'),),)), // Your search screen
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.regular),
+                  color: Colors.grey,
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'Search items...',
+                  style: TextStyle(color: Colors.grey, fontSize: 18),
+                ),
+              ],
+            ),
+          ),
+        ),
+        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).primaryColor,
         actions: [
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance

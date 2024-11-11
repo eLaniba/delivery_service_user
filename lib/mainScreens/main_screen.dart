@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
-import 'package:delivery_service_user/mainScreens/cart_screen.dart';
+import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_screen.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_screen_remake.dart';
 import 'package:delivery_service_user/services/count_cart_listener.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import 'profile_screen.dart';
 
@@ -30,26 +31,58 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("User Sample"),
-        actions: (widgetIndex != 0) ? [
+        title: widgetIndex == 0 ? const Text('Your profile') :
+          widgetIndex == 1 ? GestureDetector(
+          onTap: () {
+            // Navigate to another page (SearchScreen) when the search bar is tapped
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Scaffold(body: Placeholder(child: Text('hello'),),)), // Your search screen
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.regular),
+                  color: Colors.grey,
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'Search store...',
+                  style: TextStyle(color: Colors.grey, fontSize: 18),
+                ),
+              ],
+            ),
+          ),
+        ) :
+          const Text('Orders'),
+        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).primaryColor,
+        actions: widgetIndex != 0
+            ? [
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
-                      .collection('users')
-                      .doc('${sharedPreferences!.get('uid')}')
-                      .collection('cart')
-                      .snapshots(),
+                .collection('users')
+                .doc('${sharedPreferences!.get('uid')}')
+                .collection('cart')
+                .snapshots(),
             builder: (context, snapshot) {
-
-              if(!snapshot.hasData) {
+              if (!snapshot.hasData) {
                 return const Padding(
-                  padding: EdgeInsets.only(right: 40,),
+                  padding: EdgeInsets.only(right: 40),
                   child: SizedBox(
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(),
                   ),
                 );
-              } else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty){
+              } else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 24),
                   child: Stack(
@@ -57,119 +90,62 @@ class _MainScreenState extends State<MainScreen> {
                     children: [
                       IconButton(
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (c) => const CartScreen()));
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (c) => const CartScreen()));
                         },
                         icon: const Icon(Icons.shopping_cart_outlined),
                       ),
-
-                        Positioned(
-                          right: 0,
-                          top: 0,
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            constraints: const BoxConstraints(
-                              minWidth: 16,
-                              minHeight: 16,
-                            ),
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
                           ),
                         ),
+                      ),
                     ],
                   ),
                 );
               } else {
                 return Padding(
-                  padding: const EdgeInsets.only(right: 24,),
+                  padding: const EdgeInsets.only(right: 24),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
                       IconButton(
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (c) => const CartScreen()));
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (c) => const CartScreen()));
                         },
                         icon: const Icon(Icons.shopping_cart_outlined),
                       ),
-
-                        Positioned(
-                          right: 0,
-                          top: 0,
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              // color: Colors.blue,
-                              shape: BoxShape.circle,
-                            ),
-                            constraints: const BoxConstraints(
-                              minWidth: 16,
-                              minHeight: 16,
-                            ),
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
                           ),
                         ),
+                      ),
                     ],
                   ),
                 );
               }
             },
           ),
-
-          // StreamBuilder<int>(
-          //   stream: countAllItems('${sharedPreferences!.get('uid')}'),
-          //   builder: (context, snapshot) {
-          //     if(!snapshot.hasData) {
-          //       return const Padding(
-          //         padding: EdgeInsets.only(right: 40,),
-          //         child: SizedBox(
-          //           width: 16,
-          //           height: 16,
-          //           child: CircularProgressIndicator(),
-          //         ),
-          //       );
-          //     }
-          //
-          //     //other code
-          //     int itemCount = snapshot.data ?? 0;
-          //
-          //     return Padding(
-          //       padding: const EdgeInsets.only(right: 24),
-          //       child: Stack(
-          //         children: [
-          //           IconButton(
-          //             onPressed: () {
-          //               Navigator.push(context, MaterialPageRoute(builder: (c) => const CartScreen()));
-          //             },
-          //             icon: const Icon(Icons.shopping_cart_outlined),
-          //           ),
-          //           if(itemCount > 0)
-          //             Positioned(
-          //               right: 0,
-          //               top: 0,
-          //               child: Container(
-          //                 decoration: BoxDecoration(
-          //                   color: Colors.red,
-          //                   borderRadius: BorderRadius.circular(2),
-          //                 ),
-          //                 constraints: const BoxConstraints(
-          //                   minWidth: 16,
-          //                   minHeight: 16,
-          //                 ),
-          //                 child: Text(
-          //                   '$itemCount',
-          //                   style: const TextStyle(
-          //                     color: Colors.white,
-          //                     fontSize: 16,
-          //                   ),
-          //                   textAlign: TextAlign.center,
-          //                 ),
-          //               ),
-          //             ),
-          //               ],
-          //       ),
-          //     );
-          //   },
-          //
-          // ),
-        ] : null,
+        ]
+            : null,
         automaticallyImplyLeading: false,
       ),
       backgroundColor: Colors.grey[200],

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
-import 'package:delivery_service_user/mainScreens/checkout_screen.dart';
+import 'package:delivery_service_user/mainScreens/cart_checkout_screen/checkout_screen.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/add_to_cart_storeInfo.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
