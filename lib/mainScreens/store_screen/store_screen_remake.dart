@@ -24,7 +24,7 @@ class _StoreScreenRemakeState extends State<StoreScreenRemake> {
     return FirestorePagination(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       query: firebaseFirestore.collection('stores'),
-      limit: 20,
+      limit: 10,
       viewType: ViewType.wrap,
       isLive: true,
       itemBuilder: (context, docs, index) {

@@ -21,27 +21,35 @@ class Category {
 }
 
 class Item {
+  String? categoryID;
   String? itemID;
   String? itemName;
   double? itemPrice;
+  String? itemImageURL;
 
   Item({
+    this.categoryID,
     this.itemID,
     this.itemName,
     this.itemPrice,
+    this.itemImageURL,
   });
 
   Item.fromJson(Map<String, dynamic> json) {
+    categoryID = json['categoryID'];
     itemID = json['itemID'];
     itemName = json['itemName'];
     itemPrice = json['itemPrice'];
+    itemImageURL = json['itemImageURL'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['categoryID'] = this.categoryID;
     data['itemID'] = this.itemID;
     data['itemName'] = this.itemName;
     data['itemPrice'] = this.itemPrice;
+    data['itemImageURL'] = this.itemImageURL;
     return data;
   }
 }

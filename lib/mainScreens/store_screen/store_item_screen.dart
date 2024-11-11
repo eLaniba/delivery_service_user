@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
@@ -10,6 +11,7 @@ import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:shimmer/shimmer.dart';
 
 class StoreItemScreen extends StatefulWidget {
   StoreItemScreen({super.key, this.store, this.categoryModel});
@@ -26,168 +28,340 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
   void _addItemToCartDialog(Item itemModel) {
     int itemCount = 1;
 
+    // showDialog(
+    //   context: context,
+    //   builder: (context) {
+    //     return AlertDialog(
+    //       shape: const RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.zero,
+    //       ),
+    //       content: StatefulBuilder(
+    //         builder: (context, setState) {
+    //           return Column(
+    //             mainAxisSize: MainAxisSize.min,
+    //             children: [
+    //               SizedBox(
+    //                 height: 100,
+    //                 width: 100,
+    //                 child: Container(
+    //                   decoration: BoxDecoration(
+    //                     border: Border.all(
+    //                       color: Colors.grey,
+    //                       width: 2,
+    //                     ),
+    //                   ),
+    //                   child: const Center(
+    //                     child: Icon(
+    //                       Icons.image,
+    //                       color: Colors.grey,
+    //                     ),
+    //                   ),
+    //                 ),
+    //               ),
+    //               const Padding(
+    //                 padding: EdgeInsets.only(top: 8),
+    //                 child: Divider(
+    //                   color: Colors.grey,
+    //                 ),
+    //               ),
+    //               Padding(
+    //                 padding: const EdgeInsets.all(4),
+    //                 child: Column(
+    //                   crossAxisAlignment: CrossAxisAlignment.center,
+    //                   children: [
+    //                     Text(
+    //                       '${itemModel.itemName}',
+    //                       maxLines: 3,
+    //                       overflow: TextOverflow.ellipsis,
+    //                     ),
+    //                     const SizedBox(height: 5,),
+    //                     Row(
+    //                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //                       children: [
+    //                         Flexible(
+    //                           child: RichText(
+    //                             text: TextSpan(
+    //                               children: [
+    //                                 TextSpan(
+    //                                   text: '₱ ',
+    //                                   style: TextStyle(
+    //                                     fontSize: 20,
+    //                                     fontWeight: FontWeight.bold,
+    //                                     color: Theme.of(context).colorScheme.primary,
+    //                                   ),
+    //                                 ),
+    //                                 TextSpan(
+    //                                   text: '${itemModel.itemPrice}',
+    //                                   style: TextStyle(
+    //                                     fontSize: 16,
+    //                                     fontWeight: FontWeight.bold,
+    //                                     color: Theme.of(context).colorScheme.primary,
+    //                                   ),
+    //                                 ),
+    //                               ],
+    //                             ),
+    //                             overflow: TextOverflow.ellipsis,
+    //                             maxLines: 3,
+    //                           ),
+    //                         ),
+    //                         Row(
+    //                           children: [
+    //                             IconButton(
+    //                               onPressed: () {
+    //                                 if (itemCount > 1) {
+    //                                   setState(() {
+    //                                     itemCount--;
+    //                                   });
+    //                                 }
+    //                               },
+    //                               icon: const Icon(Icons.remove),
+    //                             ),
+    //                             SizedBox(
+    //                               width: 30,
+    //                               child: TextField(
+    //                                 controller: TextEditingController(text: itemCount.toString()),
+    //                                 keyboardType: TextInputType.number,
+    //                                 textAlign: TextAlign.center,
+    //                                 onChanged: (value) {
+    //                                   if (value.isEmpty) {
+    //                                     itemCount = 0;
+    //                                     return ;
+    //                                   }
+    //                                   if (int.tryParse(value) == null || int.tryParse(value) == 0) {
+    //                                     itemCount = 1;
+    //                                     setState(() {
+    //                                       showDialog(
+    //                                         context: context,
+    //                                         builder: (c) {
+    //                                           return const ErrorDialog(message: 'Quantity must be a whole number(ex: 1, 2, ...)');
+    //                                         },
+    //                                       );
+    //                                     });
+    //                                   } else {
+    //                                     itemCount = int.parse(value);
+    //                                   }
+    //                                 },
+    //                               ),
+    //                             ),
+    //                             IconButton(
+    //                               onPressed: () {
+    //                                 if (itemCount == 1) {
+    //                                   setState((){
+    //                                     itemCount = 1;
+    //                                     return;
+    //                                   });
+    //                                 }
+    //                                 setState(() {
+    //                                   itemCount++;
+    //                                 });
+    //                               },
+    //                               icon: const Icon(Icons.add),
+    //                             ),
+    //                           ],
+    //                         ),
+    //                       ],
+    //                     ),
+    //                   ],
+    //                 ),
+    //               ),
+    //             ],
+    //           );
+    //         },
+    //       ),
+    //       actions: [
+    //         TextButton(
+    //           onPressed: () {
+    //             Navigator.of(context).pop();
+    //           },
+    //           child: const Text('Cancel'),
+    //         ),
+    //         TextButton(
+    //           onPressed: () {
+    //             if (itemCount == 0) {
+    //               setState(() {
+    //                 showDialog(
+    //                   context: context,
+    //                   builder: (c) {
+    //                     return const ErrorDialog(message: 'Please enter a quantity(ex: 1, 2, ...)');
+    //                   },
+    //                 );
+    //               });
+    //             }
+    //
+    //             double itemTotal = itemCount * itemModel.itemPrice!;
+    //
+    //             _addItemToCartFirestore(
+    //               widget.store!,
+    //               itemModel,
+    //               AddToCartItem(
+    //                 itemID: itemModel.itemID,
+    //                 itemName: itemModel.itemName,
+    //                 itemPrice: itemModel.itemPrice,
+    //                 itemQnty: itemCount,
+    //                 itemTotal: itemTotal,
+    //               ),
+    //             );
+    //           },
+    //           child: const Text('Add to Cart'),
+    //         ),
+    //       ],
+    //     );
+    //   },
+    // );
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
           ),
           content: StatefulBuilder(
             builder: (context, setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    height: 100,
-                    width: 100,
-                    child: Container(
+              return SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Item Image
+                    Container(
+                      width: 240,
+                      height: 250,
+                      margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.grey,
-                          width: 2,
-                        ),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.image,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 8),
-                    child: Divider(
-                      color: Colors.grey,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          '${itemModel.itemName}',
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 5,),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: '₱ ',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context).colorScheme.primary,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: '${itemModel.itemPrice}',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context).colorScheme.primary,
-                                      ),
-                                    ),
-                                  ],
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: itemModel.itemImageURL != null
+                            ? CachedNetworkImage(
+                          imageUrl: '${itemModel.itemImageURL}',
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: SizedBox(
+                              child: Center(
+                                child: Icon(
+                                    PhosphorIcons.image(
+                                        PhosphorIconsStyle.fill
+                                    )
                                 ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 3,
                               ),
                             ),
-                            Row(
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    if (itemCount > 1) {
-                                      setState(() {
-                                        itemCount--;
-                                      });
-                                    }
-                                  },
-                                  icon: const Icon(Icons.remove),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              Container(
+                                color: white80,
+                                child: Icon(
+                                  PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
+                                  color: Colors.white,
+                                  size: 48,
                                 ),
-                                SizedBox(
-                                  width: 30,
-                                  child: TextField(
-                                    controller: TextEditingController(text: itemCount.toString()),
-                                    keyboardType: TextInputType.number,
-                                    textAlign: TextAlign.center,
-                                    onChanged: (value) {
-                                      if (value.isEmpty) {
-                                        itemCount = 0;
-                                        return ;
-                                      }
-                                      if (int.tryParse(value) == null || int.tryParse(value) == 0) {
-                                        itemCount = 1;
-                                        setState(() {
-                                          showDialog(
-                                            context: context,
-                                            builder: (c) {
-                                              return const ErrorDialog(message: 'Quantity must be a whole number(ex: 1, 2, ...)');
-                                            },
-                                          );
-                                        });
-                                      } else {
-                                        itemCount = int.parse(value);
-                                      }
-                                    },
-                                  ),
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    if (itemCount == 1) {
-                                      setState((){
-                                        itemCount = 1;
-                                        return;
-                                      });
-                                    }
-                                    setState(() {
-                                      itemCount++;
-                                    });
-                                  },
-                                  icon: const Icon(Icons.add),
-                                ),
-                              ],
+                              ),
+                        )
+                            : Container(
+                          color: white80,
+                          child: Icon(
+                            PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Item Name and Price
+                    Text(
+                      '${itemModel.itemName}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 4,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Divider(color: Colors.grey),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '₱ ',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                            TextSpan(
+                              text: itemModel.itemPrice!.toStringAsFixed(2),
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                             ),
                           ],
                         ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // Quantity Selector
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            if (itemCount > 1) {
+                              setState(() => itemCount--);
+                            }
+                          },
+                          icon: Icon(Icons.remove, color: Theme.of(context).colorScheme.primary),
+                        ),
+                        SizedBox(
+                          width: 50,
+                          child: TextField(
+                            controller: TextEditingController(text: itemCount.toString()),
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.center,
+                            onChanged: (value) {
+                              int? newValue = int.tryParse(value);
+                              setState(() {
+                                itemCount = (newValue != null && newValue > 0) ? newValue : 1;
+                              });
+                            },
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => setState(() => itemCount++),
+                          icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
+                        ),
                       ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                  ],
+                ),
               );
             },
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: const Text('Cancel'),
             ),
-            TextButton(
+            ElevatedButton(
               onPressed: () {
                 if (itemCount == 0) {
-                  setState(() {
-                    showDialog(
-                      context: context,
-                      builder: (c) {
-                        return const ErrorDialog(message: 'Please enter a quantity(ex: 1, 2, ...)');
-                      },
-                    );
-                  });
+                  showDialog(
+                    context: context,
+                    builder: (c) => const ErrorDialog(message: 'Please enter a valid quantity.'),
+                  );
+                  return;
                 }
 
                 double itemTotal = itemCount * itemModel.itemPrice!;
-
                 _addItemToCartFirestore(
                   widget.store!,
                   itemModel,
@@ -199,14 +373,26 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                     itemTotal: itemTotal,
                   ),
                 );
+                Navigator.of(context).pop();
               },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                backgroundColor: Theme.of(context).primaryColor, // Set background color to red
+                foregroundColor: Colors.white, // Set text color to white
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4), // Set a smaller border radius
+                ),
+              ),
               child: const Text('Add to Cart'),
             ),
           ],
         );
       },
     );
+
   }
+
+
 
   void _addItemToCartFirestore(Stores store, Item itemModel, AddToCartItem addCartItemModel) async {
 
@@ -540,11 +726,13 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 4,
+                    mainAxisSpacing: 4,
+                    mainAxisExtent: 230
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (BuildContext context, int index) {
                       //code here
-                      Item sItem = Item.fromJson(
+                      Item item = Item.fromJson(
                         itemSnapshot.data!.docs[index].data()! as Map<String, dynamic>
                       );
 
@@ -552,57 +740,133 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                       return Card(
                         margin: const EdgeInsets.all(8),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(0),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         elevation: 2,
                         child: InkWell(
                           onTap: () {
-                            _addItemToCartDialog(sItem);
+                            _addItemToCartDialog(item);
                           },
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Item image
                               Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.grey,
-                                      width: 2,
+                                child: Stack(
+                                  children: [
+                                    Center(
+                                      child: Container(
+                                        height: 180,
+                                        width: double.infinity,
+                                        // margin: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(4),
+                                            topRight: Radius.circular(4),
+                                          ),
+                                          child: item.itemImageURL != null
+                                              ? CachedNetworkImage(
+                                            imageUrl: '${item.itemImageURL}',
+                                            fit: BoxFit.cover,
+                                            placeholder: (context, url) => Shimmer.fromColors(
+                                              baseColor: Colors.grey[300]!,
+                                              highlightColor: Colors.grey[100]!,
+                                              child: Center(
+                                                child: Icon(
+                                                  PhosphorIcons.image(
+                                                      PhosphorIconsStyle.fill),
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ),
+                                            errorWidget: (context, url, error) =>
+                                                Container(
+                                                  color: Colors.grey[200],
+                                                  child: Icon(
+                                                    PhosphorIcons.imageBroken(
+                                                        PhosphorIconsStyle.fill),
+                                                    color: Colors.grey,
+                                                    size: 48,
+                                                  ),
+                                                ),
+                                          )
+                                              : Container(
+                                            color: Colors.grey[200],
+                                            child: Icon(
+                                              PhosphorIcons.imageBroken(
+                                                  PhosphorIconsStyle.fill),
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.image,
-                                      color: Colors.grey,
-                                    ),
+                                    // Labels
+                                    // Positioned(
+                                    //   top: 8,
+                                    //   right: 8,
+                                    //   child: Container(
+                                    //     padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                    //     decoration: BoxDecoration(
+                                    //       color: Colors.redAccent,
+                                    //       borderRadius: BorderRadius.circular(4),
+                                    //     ),
+                                    //     child: const Text(
+                                    //       'SALE',
+                                    //       style: TextStyle(
+                                    //         color: Colors.white,
+                                    //         fontSize: 10,
+                                    //         fontWeight: FontWeight.bold,
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                  ],
+                                ),
+                              ),
+                              // Item name and price
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                child: Text(
+                                  '${item.itemName}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.all(8),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      '${sItem.itemName}',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 5,),
-                                    Text(
-                                      '₱ ${sItem.itemPrice!.toStringAsFixed(2)}',
+                                      '₱ ${item.itemPrice!.toStringAsFixed(2)}',
                                       style: TextStyle(
                                         color: Theme.of(context).colorScheme.primary,
                                         fontWeight: FontWeight.bold,
+                                        fontSize: 16,
                                       ),
+                                    ),
+                                    const Icon(
+                                      Icons.shopping_cart_outlined,
+                                      color: Colors.grey,
+                                      size: 20,
                                     ),
                                   ],
                                 ),
                               ),
+                              const SizedBox(height: 8),
                             ],
                           ),
                         ),
                       );
+
                     },
                     childCount: itemSnapshot.data!.docs.length,
                   ),

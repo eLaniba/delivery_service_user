@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_item_screen.dart';
 import 'package:delivery_service_user/models/category_item.dart';
@@ -6,6 +7,7 @@ import 'package:delivery_service_user/services/count_cart_listener.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../global/global.dart';
 
@@ -210,29 +212,71 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
         slivers: [
           SliverToBoxAdapter(
             child: Container(
-              padding: const EdgeInsets.all(16),
+              height: 200,
+              width: double.infinity,
+              child: widget.stores!.storeImageURL != null
+                  ? CachedNetworkImage(
+                imageUrl: '${widget.stores!.storeImageURL}',
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: SizedBox(
+                    child: Center(
+                      child: Icon(
+                        PhosphorIcons.image(
+                          PhosphorIconsStyle.fill
+                        )
+                      ),
+                    ),
+                  ),
+                ),
+                errorWidget: (context, url, error) =>
+                    Container(
+                      color: white80,
+                      child: Icon(
+                        PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
+                        color: Colors.white,
+                        size: 48,
+                      ),
+                    ),
+              )
+                  : Container(
+                color: white80,
+                child: Icon(
+                  PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               // color: Colors.grey,
               child: Column(
                 children: [
-                  Container(
-                    height: 100,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 2),
-                    ),
-                  ),
-                  const SizedBox(height: 8,),
                   Text(
                     '${widget.stores!.storeName}',
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
+                    textAlign: TextAlign.center,
+                  ),
+                  Text(
+                    '${widget.stores!.storePhone}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                   Text(
                     '${widget.stores!.storeAddress}',
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 16,
                     ),
                     textAlign: TextAlign.center,
                   ),
