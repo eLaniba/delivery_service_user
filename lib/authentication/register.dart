@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
+import 'package:delivery_service_user/services/geopoint_json.dart';
 import 'package:delivery_service_user/widgets/custom_text_field.dart';
 import 'package:delivery_service_user/widgets/custom_text_field_validations.dart';
 import 'package:delivery_service_user/widgets/error_dialog.dart';
@@ -131,12 +132,14 @@ class _RegisterState extends State<Register> {
     // });
 
     //Save data locally
+    String locationString = geoPointToJson(geoPoint!);
     sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences!.setString("name", nameController.text.trim());
     await sharedPreferences!.setString("uid", currentUser.uid);
     await sharedPreferences!.setString("email", currentUser.email.toString());
     await sharedPreferences!.setString("phone", phoneController.text.trim());
     await sharedPreferences!.setString("address", completeAddress);
+    await sharedPreferences!.setString("location", locationString);
   }
 
   @override

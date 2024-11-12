@@ -33,6 +33,7 @@ class NewOrder{
   String? riderName;
   String? riderPhone;
   bool? riderConfirmDelivery;
+  GeoPoint? riderLocation;
 
   //Constructor for Order
   NewOrder({
@@ -66,6 +67,7 @@ class NewOrder{
     this.riderName,
     this.riderPhone,
     this.riderConfirmDelivery,
+    this.riderLocation,
   });
 
   double calculateOrderTotal(List<AddToCartItem>? items) {
@@ -106,6 +108,7 @@ class NewOrder{
     riderName = json['riderName'];
     riderPhone = json['riderPhone'];
     riderConfirmDelivery = json['riderConfirmDelivery'];
+    riderLocation = json['riderLocation'];
   }
 
   Map<String, dynamic> toJson() {
@@ -138,6 +141,7 @@ class NewOrder{
     data['riderName'] = this.riderName;
     data['riderPhone'] = this.riderPhone;
     data['riderConfirmDelivery'] = this.riderConfirmDelivery;
+    data['riderLocation'] = this.riderLocation;
 
     return data;
   }

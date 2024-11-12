@@ -393,6 +393,13 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
   }
 
   void _addItemToCartFirestore(Stores store, Item itemModel, AddToCartItem addCartItemModel) async {
+    showDialog(
+      context: context,
+      builder: (c) {
+        return const LoadingDialog(message: "Adding item to cart");
+      },
+
+    );
 
     //Reference for the cart Collection in Firestore
     CollectionReference cartCollection = FirebaseFirestore.instance.collection('users').doc(sharedPreferences!.getString('uid')).collection('cart');
@@ -411,23 +418,15 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
 
     if(itemSnapshot.exists) {
       try {
-        Navigator.of(context).pop();
         int newItemQnty = addCartItemModel.itemQnty! + itemSnapshot.get('itemQnty') as int;
         double newItemTotal = addCartItemModel.itemTotal! + itemSnapshot.get('itemTotal');
-
-        showDialog(
-          context: context,
-          builder: (c) {
-            return const LoadingDialog(message: "Adding item to cart");
-          },
-
-        );
 
         await itemReference.doc('${itemModel.itemID}').update({
           'itemQnty' : newItemQnty,
           'itemTotal' : newItemTotal,
         });
 
+        Navigator.of(context).pop();
         Navigator.of(context).pop();
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -439,6 +438,7 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
         );
 
       } catch (e) {
+        Navigator.of(context).pop();
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
