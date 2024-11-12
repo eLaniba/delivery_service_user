@@ -45,7 +45,7 @@ class _CartScreen2State extends State<CartScreen2> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "${widget.addToCartStoreInfo!.sellerName}",
+          "${widget.addToCartStoreInfo!.storeName}",
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -65,7 +65,7 @@ class _CartScreen2State extends State<CartScreen2> {
                 .collection('users')
                 .doc('${sharedPreferences!.getString('uid')}')
                 .collection('cart')
-                .doc(widget.addToCartStoreInfo!.sellerUID)
+                .doc(widget.addToCartStoreInfo!.storeID)
                 .collection('items')
                 .snapshots(),
             builder: (context, itemSnapshot) {
@@ -91,88 +91,82 @@ class _CartScreen2State extends State<CartScreen2> {
 
                     return Card(
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(2),
+                        borderRadius: BorderRadius.circular(8), // Softer, rounded corners
                       ),
                       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-                      elevation: 1,
+                      elevation: 2,
                       child: InkWell(
                         onTap: () {
                           // Pop-up window for item editing
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(12.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    height: 100,
-                                    width: 100,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Colors.grey,
-                                        width: 1,
-                                      ),
-                                      // borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.image,
-                                        color: Colors.grey,
-                                        size: 50,
-                                      ),
-                                    ),
+                              // Product Image
+                              Container(
+                                height: 80,
+                                width: 80,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(color: Colors.grey[300]!, width: 0.5),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.image,
+                                    color: Colors.grey,
+                                    size: 40,
                                   ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              // Product Details
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${sAddToCartItem.itemName}',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '₱ ${sAddToCartItem.itemPrice!.toStringAsFixed(2)}',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
                                       children: [
                                         Text(
-                                          '${sAddToCartItem.itemName}',
+                                          'Total: ₱ ${sAddToCartItem.itemTotal!.toStringAsFixed(2)}',
                                           style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          '₱ ${sAddToCartItem.itemPrice!.toStringAsFixed(2)}',
-                                          style: const TextStyle(
-                                            fontSize: 16,
+                                            fontSize: 14,
                                             color: Colors.grey,
                                           ),
                                         ),
-                                        const SizedBox(height: 4),
+                                        const Spacer(),
                                         Text(
-                                          '₱ ${sAddToCartItem.itemTotal!.toStringAsFixed(2)}',
-                                          style: TextStyle(
-                                            color: Theme.of(context).colorScheme.primary,
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
+                                          'x${sAddToCartItem.itemQnty}',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey,
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    'x${sAddToCartItem.itemQnty}',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                              // const SizedBox(height: 12),
-                              // DottedLine(
-                              //   dashColor: Theme.of(context).colorScheme.primary,
-                              //   lineThickness: 1.5,
-                              //   dashLength: 6,
-                              // ),
                             ],
                           ),
                         ),
