@@ -4,6 +4,8 @@ import 'package:delivery_service_user/models/add_to_cart_storeInfo.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import 'cart_screen_2.dart';
 
@@ -15,14 +17,23 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  Future<int> _getNumOfItems(DocumentReference storeDocRef) async {
+    // Query the 'items' sub-collection of the store document
+    QuerySnapshot itemsSnapshot = await storeDocRef.collection('items').get();
+    return itemsSnapshot.docs.length;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your cart'),
+        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).primaryColor,
       ),
+      backgroundColor: white80,
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: CustomScrollView(
           slivers: [
             StreamBuilder<QuerySnapshot>(
@@ -71,104 +82,156 @@ class _CartScreenState extends State<CartScreen> {
                                 String,
                                 dynamic>
                         );
+                        var storeDocRef = storeSnapshot.data!.docs[index].reference;
 
                         return Card(
                           // margin: const EdgeInsets.all(8),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          elevation: 2,
+                          elevation: 0,
                           child: InkWell(
                             onTap: () {
                               //code here
                               Navigator.push(context, MaterialPageRoute(builder: (c) => CartScreen2(addToCartStoreInfo: sAddToCartStoreInfo,)));
                             },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
+                            child: ListTile(
+                              title: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  DottedLine(
-                                    dashColor: Theme
-                                        .of(context)
-                                        .colorScheme
-                                        .primary,
-                                    lineThickness: 3,
-                                    dashLength: 16,
+                                  Icon(
+                                    PhosphorIcons.storefront(PhosphorIconsStyle.regular),
                                   ),
-                                  const SizedBox(height: 16),
+                                  Flexible(
+                                    child: Text(
+                                      '${sAddToCartStoreInfo.storeName}',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
 
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      const Icon(Icons.storefront_outlined),
-                                      Expanded(
-                                        child: Text(
-                                          '${sAddToCartStoreInfo.sellerName}',
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                        ),
-                                      ),
-                                      const Icon(Icons.arrow_forward_ios),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(
-                                        width: 50,
-                                        height: 60,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              color: Colors.grey,
-                                              width: 2,
-                                            ),
-                                          ),
-                                          child: const Center(
-                                            child: Icon(
-                                              Icons.image,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const Icon(
-                                        Icons.location_on,
-                                        size: 16,
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          '${sAddToCartStoreInfo.address}',
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        'view item(s)',
+                                ],
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('${sAddToCartStoreInfo.storeAddress}'),
+                                  //Number of Item(s)
+                                  FutureBuilder<int>(
+                                    future: _getNumOfItems(storeDocRef),
+                                    builder: (context, itemSnapshot) {
+                                      if (itemSnapshot.connectionState == ConnectionState.waiting) {
+                                        return Text('...', style: TextStyle(color: grey50),);
+                                      }
+                                      // Update numOfItems
+                                      int numOfItems = itemSnapshot.data!;
+                                      return Text(
+                                        'You have $numOfItems item(s) in this store',
                                         style: TextStyle(
+                                          color: grey50,
                                           fontWeight: FontWeight.bold,
-                                          decoration: TextDecoration.underline,
                                         ),
-                                      ),
-                                    ],
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
+                              trailing: Icon(
+                                PhosphorIcons.caretRight(PhosphorIconsStyle.regular),
+                                // color: Color.fromARGB(255, 215, 219, 221),
+                                size: 20,
+                              ),
                             ),
+                            // child: Padding(
+                            //   padding: const EdgeInsets.all(8.0),
+                            //   child: Column(
+                            //     crossAxisAlignment: CrossAxisAlignment.start,
+                            //     mainAxisSize: MainAxisSize.min,
+                            //     children: [
+                            //       DottedLine(
+                            //         dashColor: Theme
+                            //             .of(context)
+                            //             .colorScheme
+                            //             .primary,
+                            //         lineThickness: 3,
+                            //         dashLength: 16,
+                            //       ),
+                            //       const SizedBox(height: 16),
+                            //
+                            //       Row(
+                            //         mainAxisAlignment: MainAxisAlignment.start,
+                            //         children: [
+                            //           const Icon(Icons.storefront_outlined),
+                            //           Expanded(
+                            //             child: Text(
+                            //               '${sAddToCartStoreInfo.sellerName}',
+                            //               style: const TextStyle(
+                            //                 fontSize: 16,
+                            //                 fontWeight: FontWeight.bold,
+                            //               ),
+                            //               overflow: TextOverflow.ellipsis,
+                            //               maxLines: 1,
+                            //             ),
+                            //           ),
+                            //           const Icon(Icons.arrow_forward_ios),
+                            //         ],
+                            //       ),
+                            //       const SizedBox(height: 8),
+                            //       Row(
+                            //         mainAxisSize: MainAxisSize.min,
+                            //         mainAxisAlignment: MainAxisAlignment.start,
+                            //         crossAxisAlignment: CrossAxisAlignment.start,
+                            //         children: [
+                            //           SizedBox(
+                            //             width: 50,
+                            //             height: 60,
+                            //             child: Container(
+                            //               decoration: BoxDecoration(
+                            //                 border: Border.all(
+                            //                   color: Colors.grey,
+                            //                   width: 2,
+                            //                 ),
+                            //               ),
+                            //               child: const Center(
+                            //                 child: Icon(
+                            //                   Icons.image,
+                            //                   color: Colors.grey,
+                            //                 ),
+                            //               ),
+                            //             ),
+                            //           ),
+                            //           const Icon(
+                            //             Icons.location_on,
+                            //             size: 16,
+                            //           ),
+                            //           Expanded(
+                            //             child: Text(
+                            //               '${sAddToCartStoreInfo.address}',
+                            //               overflow: TextOverflow.ellipsis,
+                            //               maxLines: 2,
+                            //             ),
+                            //           ),
+                            //         ],
+                            //       ),
+                            //       const Row(
+                            //         mainAxisAlignment: MainAxisAlignment.end,
+                            //         children: [
+                            //           Text(
+                            //             'view item(s)',
+                            //             style: TextStyle(
+                            //               fontWeight: FontWeight.bold,
+                            //               decoration: TextDecoration.underline,
+                            //             ),
+                            //           ),
+                            //         ],
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
                           ),
                         );
                       },

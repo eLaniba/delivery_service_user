@@ -1,22 +1,27 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class AddToCartStoreInfo {
   //Seller Info
-  String? sellerUID;
-  String? sellerName;
-  String? phone;
-  String? address;
+  String? storeID;
+  String? storeName;
+  String? storePhone;
+  String? storeAddress;
+  GeoPoint? storeLocation;
 
   AddToCartStoreInfo({
-    this.sellerUID,
-    this.sellerName,
-    this.phone,
-    this.address,
+    this.storeID,
+    this.storeName,
+    this.storePhone,
+    this.storeAddress,
+    this.storeLocation,
   });
 
   AddToCartStoreInfo.fromJson(Map<String, dynamic> json) {
-    sellerUID = json["sellerUID"];
-    sellerName = json["sellerName"];
-    phone = json["phone"];
-    address = json["address"];
+    storeID = json["storeID"];
+    storeName = json["storeName"];
+    storePhone = json["storePhone"];
+    storeAddress = json["storeAddress"];
+    storeLocation = json["storeLocation"];
   }
 
 

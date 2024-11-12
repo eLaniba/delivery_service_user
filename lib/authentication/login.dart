@@ -3,6 +3,7 @@ import 'package:delivery_service_user/authentication/auth_screen.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_screen.dart';
+import 'package:delivery_service_user/services/geopoint_json.dart';
 import 'package:delivery_service_user/widgets/custom_text_field.dart';
 import 'package:delivery_service_user/widgets/custom_text_field_validations.dart';
 import 'package:delivery_service_user/widgets/error_dialog.dart';
@@ -61,11 +62,18 @@ class _LoginState extends State<Login> {
         .get()
         .then((snapshot) async {
       if (snapshot.exists) {
+        // Retrieve the GeoPoint
+        GeoPoint userLocation = snapshot.data()!["userLocation"];
+
+        // Convert GeoPoint to JSON string
+        String locationString = geoPointToJson(userLocation);
+
         await sharedPreferences!.setString("uid", currentUser.uid);
         await sharedPreferences!.setString("name", snapshot.data()!["userName"]);
         await sharedPreferences!.setString("email", snapshot.data()!["userEmail"]);
         await sharedPreferences!.setString("phone", snapshot.data()!["userPhone"]);
         await sharedPreferences!.setString("address", snapshot.data()!["userAddress"]);
+        await sharedPreferences!.setString("location", locationString);
 
         Navigator.pop(context);
         Navigator.push(context, MaterialPageRoute(builder: (c) => const MainScreen()));

@@ -206,7 +206,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                             text: TextSpan(
                                               children: [
                                                 TextSpan(
-                                                  text: '${widget.addToCartStoreInfo!.sellerName} ',
+                                                  text: '${widget.addToCartStoreInfo!.storeName} ',
                                                   style: const TextStyle(
                                                     fontSize: 16,
                                                     fontWeight: FontWeight.bold,
@@ -214,7 +214,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                                   ),
                                                 ),
                                                 TextSpan(
-                                                  text: '${widget.addToCartStoreInfo!.phone}',
+                                                  text: '${widget.addToCartStoreInfo!.storePhone}',
                                                   style: const TextStyle(
                                                     color: Colors.black54,
                                                   ),
@@ -227,7 +227,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                     ),
                                     Flexible(
                                       child: Text(
-                                        '${widget.addToCartStoreInfo!.address}',
+                                        '${widget.addToCartStoreInfo!.storeAddress}',
                                         style: const TextStyle(
                                           fontSize: 16,
                                         ),
@@ -284,7 +284,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                   .collection('users')
                   .doc('${sharedPreferences!.getString('uid')}')
                   .collection('cart')
-                  .doc(widget.addToCartStoreInfo!.sellerUID)
+                  .doc(widget.addToCartStoreInfo!.storeID)
                   .collection('items')
                   .snapshots(),
               builder: (context, itemSnapshot) {
@@ -432,10 +432,10 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
               orderTotal: totalOrderPrice,
 
               //Store Info
-              storeID: widget.addToCartStoreInfo!.sellerUID,
-              storeName: widget.addToCartStoreInfo!.sellerName,
-              storePhone: widget.addToCartStoreInfo!.phone,
-              storeAddress: widget.addToCartStoreInfo!.address,
+              storeID: widget.addToCartStoreInfo!.storeID,
+              storeName: widget.addToCartStoreInfo!.storeName,
+              storePhone: widget.addToCartStoreInfo!.storePhone,
+              storeAddress: widget.addToCartStoreInfo!.storeAddress,
 
               items: widget.items,
 

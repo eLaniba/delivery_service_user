@@ -368,12 +368,12 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                   AddToCartItem(
                     itemID: itemModel.itemID,
                     itemName: itemModel.itemName,
+                    itemImageURL: itemModel.itemImageURL,
                     itemPrice: itemModel.itemPrice,
                     itemQnty: itemCount,
                     itemTotal: itemTotal,
                   ),
                 );
-                Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -391,8 +391,6 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
     );
 
   }
-
-
 
   void _addItemToCartFirestore(Stores store, Item itemModel, AddToCartItem addCartItemModel) async {
 
@@ -433,10 +431,10 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
         Navigator.of(context).pop();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Item added to cart successfully!'),
-            backgroundColor: Colors.blue, // Optional: Set background color
-            duration: Duration(seconds: 3), // Optional: How long the snackbar is shown
+           SnackBar(
+            content: const Text('Item added to cart successfully!'),
+            backgroundColor: Colors.black.withOpacity(0.8), // Optional: Set background color
+            duration: const Duration(seconds: 3), // Optional: How long the snackbar is shown
           ),
         );
 

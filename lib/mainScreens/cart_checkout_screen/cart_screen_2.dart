@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/cart_checkout_screen/checkout_screen.dart';
@@ -6,6 +7,8 @@ import 'package:delivery_service_user/models/add_to_cart_storeInfo.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:shimmer/shimmer.dart';
 
 class CartScreen2 extends StatefulWidget {
   CartScreen2({
@@ -45,19 +48,17 @@ class _CartScreen2State extends State<CartScreen2> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "${widget.addToCartStoreInfo!.sellerName}",
+          "${widget.addToCartStoreInfo!.storeName}",
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
           overflow: TextOverflow.ellipsis,
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Colors.black),
-        centerTitle: true,
+        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).primaryColor,
       ),
-      backgroundColor: Colors.grey[100],
+      backgroundColor: white80,
       body: CustomScrollView(
         slivers: [
           StreamBuilder<QuerySnapshot>(
@@ -65,7 +66,7 @@ class _CartScreen2State extends State<CartScreen2> {
                 .collection('users')
                 .doc('${sharedPreferences!.getString('uid')}')
                 .collection('cart')
-                .doc(widget.addToCartStoreInfo!.sellerUID)
+                .doc(widget.addToCartStoreInfo!.storeID)
                 .collection('items')
                 .snapshots(),
             builder: (context, itemSnapshot) {
@@ -91,91 +92,187 @@ class _CartScreen2State extends State<CartScreen2> {
 
                     return Card(
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(2),
+                        borderRadius: BorderRadius.circular(8), // Softer, rounded corners
                       ),
-                      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-                      elevation: 1,
+                      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      elevation: 0,
                       child: InkWell(
                         onTap: () {
                           // Pop-up window for item editing
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Column(
+                        child: ListTile(
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: sAddToCartItem.itemImageURL != null
+                                ? CachedNetworkImage(
+                              imageUrl: '${sAddToCartItem.itemImageURL}',
+                              width: 60,
+                              height: 60,
+                              fit: BoxFit.cover,
+                              fadeInDuration: Duration.zero,
+                              fadeOutDuration: Duration.zero,
+                              placeholder: (context, url) =>
+                                  Shimmer.fromColors(
+                                    baseColor: Colors.grey[300]!,
+                                    highlightColor: Colors.grey[100]!,
+                                    child: SizedBox(
+                                      width: 48,
+                                      height: 48,
+                                      // color: Colors.white,
+                                      child: Center(
+                                        child: Icon(
+                                          PhosphorIcons.image(
+                                              PhosphorIconsStyle.fill),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              // Placeholder while image is loading
+                              errorWidget: (context, url, error) =>
+                                  Icon(Icons.error),
+                            )
+                                : Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Color.fromARGB(255, 215, 219, 221),
+                                  width: 2,
+                                ),
+                                borderRadius:
+                                BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.image_outlined,
+                                color: Color.fromARGB(255, 215, 219, 221),
+                              ),
+                            ),
+                          ),
+                          title: Text('${sAddToCartItem.itemName}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Text('₱ ${sAddToCartItem.itemPrice!.toStringAsFixed(2)}'),
                               Row(
                                 children: [
-                                  Container(
-                                    height: 100,
-                                    width: 100,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Colors.grey,
-                                        width: 1,
-                                      ),
-                                      // borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.image,
-                                        color: Colors.grey,
-                                        size: 50,
-                                      ),
+                                  const Text(
+                                    'Total: ',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          '${sAddToCartItem.itemName}',
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          '₱ ${sAddToCartItem.itemPrice!.toStringAsFixed(2)}',
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          '₱ ${sAddToCartItem.itemTotal!.toStringAsFixed(2)}',
-                                          style: TextStyle(
-                                            color: Theme.of(context).colorScheme.primary,
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
                                   Text(
-                                    'x${sAddToCartItem.itemQnty}',
-                                    style: const TextStyle(
-                                      fontSize: 18,
+                                    '₱${sAddToCartItem.itemTotal!.toStringAsFixed(2)}',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Theme.of(context).primaryColor,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ],
                               ),
-                              // const SizedBox(height: 12),
-                              // DottedLine(
-                              //   dashColor: Theme.of(context).colorScheme.primary,
-                              //   lineThickness: 1.5,
-                              //   dashLength: 6,
-                              // ),
                             ],
                           ),
+                          trailing: Text(
+                            'x${sAddToCartItem.itemQnty}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: grey50
+                            ),
+                          ),
                         ),
+                        // child: Padding(
+                        //   padding: const EdgeInsets.all(12.0),
+                        //   child: Row(
+                        //     crossAxisAlignment: CrossAxisAlignment.center,
+                        //     children: [
+                        //       // Product Image
+                        //       Container(
+                        //         height: 80,
+                        //         width: 80,
+                        //         decoration: BoxDecoration(
+                        //           color: Colors.grey[200],
+                        //           borderRadius: BorderRadius.circular(4),
+                        //           border: Border.all(color: Colors.grey[300]!, width: 0.5),
+                        //         ),
+                        //         child: const Center(
+                        //           child: Icon(
+                        //             Icons.image,
+                        //             color: Colors.grey,
+                        //             size: 40,
+                        //           ),
+                        //         ),
+                        //       ),
+                        //       const SizedBox(width: 12),
+                        //       // Product Details
+                        //       Expanded(
+                        //         child: Column(
+                        //           crossAxisAlignment: CrossAxisAlignment.start,
+                        //           children: [
+                        //             Text(
+                        //               '${sAddToCartItem.itemName}',
+                        //               style: const TextStyle(
+                        //                 fontSize: 16,
+                        //                 fontWeight: FontWeight.bold,
+                        //               ),
+                        //               maxLines: 1,
+                        //               overflow: TextOverflow.ellipsis,
+                        //             ),
+                        //             const SizedBox(height: 4),
+                        //             Text(
+                        //               '₱ ${sAddToCartItem.itemPrice!.toStringAsFixed(2)}',
+                        //               style: TextStyle(
+                        //                 fontSize: 14,
+                        //               ),
+                        //             ),
+                        //             const SizedBox(height: 4),
+                        //             Row(
+                        //               children: [
+                        //                 //Total Text
+                        //                 Text(
+                        //                   'Total: ',
+                        //                   style: TextStyle(
+                        //                     fontSize: 16,
+                        //                     fontWeight: FontWeight.bold,
+                        //                     color: grey50,
+                        //                   ),
+                        //                 ),
+                        //                 //Peso Amount
+                        //                 Flexible(
+                        //                   child: Text(
+                        //                     '₱${sAddToCartItem.itemTotal!.toStringAsFixed(2)}',
+                        //                     style: TextStyle(
+                        //                       fontSize: 16,
+                        //                       fontWeight: FontWeight.bold,
+                        //                       color: Theme.of(context).colorScheme.primary,
+                        //                     ),
+                        //                     maxLines: 1,
+                        //                     overflow: TextOverflow.ellipsis,
+                        //                   ),
+                        //                 ),
+                        //                 const Spacer(),
+                        //                 Text(
+                        //                   'x${sAddToCartItem.itemQnty}',
+                        //                   style: const TextStyle(
+                        //                     fontSize: 14,
+                        //                     color: Colors.grey,
+                        //                   ),
+                        //                 ),
+                        //               ],
+                        //             ),
+                        //           ],
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
                       ),
                     );
                   }, childCount: itemSnapshot.data!.docs.length),

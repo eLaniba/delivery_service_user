@@ -9,14 +9,13 @@ class NewOrder{
   Timestamp? orderDelivered;
   double? orderTotal;
 
-
   //Store information
   String? storeID;
   String? storeName;
   String? storePhone;
   String? storeAddress;
-  // double? storeLat;
-  // double? storeLng;
+  bool? storeConfirmDelivery;
+  GeoPoint? storeLocation;
 
   //
   List<AddToCartItem>? items;
@@ -27,8 +26,7 @@ class NewOrder{
   String? userPhone;
   String? userAddress;
   bool? userConfirmDelivery;
-  // double? userLat;
-  // double? userLng;
+  GeoPoint? userLocation;
 
   //Rider information
   String? riderID;
@@ -50,8 +48,8 @@ class NewOrder{
     this.storeName,
     this.storePhone,
     this.storeAddress,
-    // this.storeLat,
-    // this.storeLng,
+    this.storeConfirmDelivery,
+    this.storeLocation,
 
     this.items,
 
@@ -61,8 +59,7 @@ class NewOrder{
     this.userPhone,
     this.userAddress,
     this.userConfirmDelivery,
-    // this.userLat,
-    // this.userLng,
+    this.userLocation,
 
     //Rider information
     this.riderID,
@@ -91,8 +88,8 @@ class NewOrder{
     storeName = json['storeName'];
     storePhone = json['storePhone'];
     storeAddress = json['storeAddress'];
-    // storeLat = json['storeLat'];
-    // storeLng = json['storeLng'];
+    storeConfirmDelivery = json['storeConfirmDelivery'];
+    storeLocation = json['storeLocation'];
 
     if (json['items'] != null) {
       items = List<AddToCartItem>.from(json['items'].map((item) => AddToCartItem.fromJson(item)));
@@ -102,12 +99,13 @@ class NewOrder{
     userName = json['userName'];
     userPhone = json['userPhone'];
     userAddress = json['userAddress'];
-    // userLat = json['userLat'];
-    // userLng = json['userLng'];
+    userConfirmDelivery = json['userConfirmDelivery'];
+    userLocation = json['userLocation'];
 
     riderID = json['riderID'];
     riderName = json['riderName'];
     riderPhone = json['riderPhone'];
+    riderConfirmDelivery = json['riderConfirmDelivery'];
   }
 
   Map<String, dynamic> toJson() {
@@ -122,8 +120,8 @@ class NewOrder{
     data['storeName'] = this.storeName;
     data['storePhone'] = this.storePhone;
     data['storeAddress'] = this.storeAddress;
-    // data['storeLat'] = this.storeLat;
-    // data['storeLng'] = this.storeLng;
+    data['storeConfirmDelivery'] = this.storeConfirmDelivery;
+    data['storeLocation'] = this.storeLocation;
 
     if (this.items != null) {
       data['items'] = this.items!.map((item) => item.toJson()).toList();
@@ -133,12 +131,13 @@ class NewOrder{
     data['userName'] = this.userName;
     data['userPhone'] = this.userPhone;
     data['userAddress'] = this.userAddress;
-    // data['userLat'] = this.userLat;
-    // data['userLng'] = this.userLng;
+    data['userConfirmDelivery'] = this.userConfirmDelivery;
+    data['userLocation'] = this.userLocation;
 
     data['riderID'] = this.riderID;
     data['riderName'] = this.riderName;
     data['riderPhone'] = this.riderPhone;
+    data['riderConfirmDelivery'] = this.riderConfirmDelivery;
 
     return data;
   }
