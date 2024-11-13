@@ -49,6 +49,8 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
       var _newOrderRef = await FirebaseFirestore.instance.collection('active_orders').add(order.toJson());
       await _newOrderRef.update({'orderID': _newOrderRef.id});
 
+      deleteItemsFromCart(order.storeID.toString());
+
       Navigator.of(context).pop();
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -60,6 +62,37 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
       );
     } catch (e) {
       rethrow;
+    }
+  }
+
+  Future<void> deleteItemsFromCart(String storeID) async {
+    try{
+      //Reference to the store
+      final storeDocument = firebaseFirestore
+          .collection('users')
+          .doc(sharedPreferences!.getString('uid'))
+          .collection('cart')
+          .doc(storeID);
+      //Reference to the store/items collection
+      final itemsCollection = firebaseFirestore
+          .collection('users')
+          .doc(sharedPreferences!.getString('uid'))
+          .collection('cart')
+          .doc(storeID)
+          .collection('items');
+
+      //Get all items in the items sub-collection
+      final itemsSnapshot = await itemsCollection.get();
+
+      //Delete each item Documents inside the items collection
+      for (var itemDocument in itemsSnapshot.docs) {
+        await itemDocument.reference.delete();
+      }
+
+      //Delete the store document inside the cart collection
+      storeDocument.delete();
+    } catch(e) {
+
     }
   }
 
