@@ -360,6 +360,7 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                   );
                   return;
                 }
+                Navigator.of(context).pop();
 
                 double itemTotal = itemCount * itemModel.itemPrice!;
                 _addItemToCartFirestore(
@@ -427,8 +428,6 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
         });
 
         Navigator.of(context).pop();
-        Navigator.of(context).pop();
-
         ScaffoldMessenger.of(context).showSnackBar(
            SnackBar(
             content: const Text('Item added to cart successfully!'),
@@ -438,7 +437,6 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
         );
 
       } catch (e) {
-        Navigator.of(context).pop();
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -452,22 +450,22 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
       try {
         Navigator.of(context).pop();
 
-        showDialog(
-          context: context,
-          builder: (c) {
-            return const LoadingDialog(message: "Adding item to cart");
-          },
-        );
+        // showDialog(
+        //   context: context,
+        //   builder: (c) {
+        //     return const LoadingDialog(message: "Adding item to cart");
+        //   },
+        // );
 
         await itemReference.doc('${itemModel.itemID}').set(addCartItemModel.toJson());
 
         Navigator.of(context).pop();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Item added to cart successfully!'),
-            backgroundColor: Colors.blue, // Optional: Set background color
-            duration: Duration(seconds: 3), // Optional: How long the snackbar is shown
+          SnackBar(
+            content: const Text('Item added to cart successfully!'),
+              backgroundColor: Colors.black.withOpacity(0.8),
+            duration: const Duration(seconds: 3),
           ),
         );
       } catch (e) {

@@ -52,14 +52,19 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
       deleteItemsFromCart(order.storeID.toString());
 
       Navigator.of(context).pop();
+      Navigator.of(context).pop();
+      Navigator.of(context).pop();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Order placed successfully!'),
-          backgroundColor: Colors.blue,
-          duration: Duration(seconds: 5),
-        ),
-      );
+      Future.delayed(Duration.zero, () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Order placed successfully!'),
+            backgroundColor: Colors.black.withOpacity(0.8),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      });
+
     } catch (e) {
       rethrow;
     }

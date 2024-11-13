@@ -1,9 +1,12 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_screen_2.dart';
 import 'package:delivery_service_user/models/new_order.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:shimmer/shimmer.dart';
 
 class OrderScreen extends StatefulWidget {
   const OrderScreen({super.key});
@@ -131,10 +134,44 @@ class _OrderScreenState extends State<OrderScreen> {
                                           height: 80,
                                           width: 80,
                                           color: Colors.grey[200],
-                                          child: const Center(
-                                            child: Icon(
-                                              Icons.image,
-                                              color: Colors.grey,
+                                          child: ClipRRect(
+                                            borderRadius: const BorderRadius.only(
+                                              topLeft: Radius.circular(4),
+                                              topRight: Radius.circular(4),
+                                            ),
+                                            child: order.items![index].itemImageURL != null
+                                                ? CachedNetworkImage(
+                                              imageUrl: '${order.items![index].itemImageURL}',
+                                              fit: BoxFit.fill,
+                                              placeholder: (context, url) => Shimmer.fromColors(
+                                                baseColor: Colors.grey[300]!,
+                                                highlightColor: Colors.grey[100]!,
+                                                child: Center(
+                                                  child: Icon(
+                                                    PhosphorIcons.image(
+                                                        PhosphorIconsStyle.fill),
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ),
+                                              errorWidget: (context, url, error) =>
+                                                  Container(
+                                                    color: Colors.grey[200],
+                                                    child: Icon(
+                                                      PhosphorIcons.imageBroken(
+                                                          PhosphorIconsStyle.fill),
+                                                      color: Colors.grey,
+                                                      size: 48,
+                                                    ),
+                                                  ),
+                                            )
+                                                : Container(
+                                              color: Colors.grey[200],
+                                              child: Icon(
+                                                PhosphorIcons.imageBroken(
+                                                    PhosphorIconsStyle.fill),
+                                                color: Colors.grey,
+                                              ),
                                             ),
                                           ),
                                         ),

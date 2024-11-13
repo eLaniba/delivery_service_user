@@ -25,6 +25,8 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your cart'),
@@ -93,7 +95,14 @@ class _CartScreenState extends State<CartScreen> {
                           child: InkWell(
                             onTap: () {
                               //code here
-                              Navigator.push(context, MaterialPageRoute(builder: (c) => CartScreen2(addToCartStoreInfo: sAddToCartStoreInfo,)));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (c) => CartScreen2(
+                                    addToCartStoreInfo: sAddToCartStoreInfo,
+                                  ),
+                                ),
+                              );
                             },
                             child: ListTile(
                               title: Row(

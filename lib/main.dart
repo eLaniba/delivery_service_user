@@ -1,4 +1,6 @@
 import 'package:delivery_service_user/authentication/auth_screen.dart';
+import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_screen.dart';
+import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_screen_2.dart';
 import 'package:delivery_service_user/mainScreens/cart_checkout_screen/checkout_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_screen.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
@@ -33,6 +35,13 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      initialRoute: 'mainScreen',
+      routes: {
+        '/main': (context) => MainScreen(),
+        '/cart': (context) => CartScreen(),
+        '/cart2': (context) => CartScreen2(),
+        '/checkout': (context) => CheckOutScreen(),
+      },
       title: 'User',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSwatch(

@@ -90,8 +90,7 @@ class _MainScreenState extends State<MainScreen> {
                     children: [
                       IconButton(
                         onPressed: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (c) => const CartScreen()));
+                          Navigator.pushNamed(context, '/cart');
                         },
                         icon: const Icon(Icons.shopping_cart_outlined),
                       ),
