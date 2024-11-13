@@ -1,3 +1,6 @@
+
+import 'dart:typed_data';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
@@ -9,6 +12,7 @@ import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:http/http.dart' as http;
 
 import '../../global/global.dart';
 
@@ -48,6 +52,49 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
     try {
       var _newOrderRef = await FirebaseFirestore.instance.collection('active_orders').add(order.toJson());
       await _newOrderRef.update({'orderID': _newOrderRef.id});
+
+      // Retrieve the Firestore document once before the loop
+      DocumentSnapshot docSnapshot = await firebaseFirestore.doc(_newOrderRef.path).get();
+      List<dynamic> itemsFromFirestore = docSnapshot['items'];
+
+      //Uploading Item image to Cloud Storage
+      for(var item in widget.items!) {
+        try{
+          //Step 1: Fetch the image data from the URL
+          final response = await http.get(Uri.parse(item.itemImageURL!));
+
+          if (response.statusCode == 200) {
+            //Step 2: Get the image data as bytes
+            Uint8List imageData = response.bodyBytes;
+
+            //Step 3: Upload the image data to the new path in Cloud Storage
+            final destinationRef = firebaseStorage.ref().child('active_orders/${_newOrderRef.id}/items/${item.itemID}.jpg');
+            await destinationRef.putData(imageData);
+
+            //Step 4: Get the new image URL
+            String newImageURL = await destinationRef.getDownloadURL();
+
+            //Step 5: Update the specific item's image URL in the `itemsFromFirestore` list
+              //Find the item in the array by itemID and update its image URL
+            for(var i = 0; i < itemsFromFirestore.length; i++) {
+              if(itemsFromFirestore[i]['itemID'] == item.itemID) {
+                itemsFromFirestore[i]['itemImageURL'] = newImageURL;
+                break;
+              }
+            }
+            print('Image uploaded and Firestore document updated with new image URL for itemID: ${item.itemID}');
+          }
+        } catch(e) {
+          print("Internet error occurs: $e");
+        }
+      }
+
+      //Save the updated items array back to Firestore
+      await firebaseFirestore.doc(_newOrderRef.path).update({
+        'items': itemsFromFirestore,
+      });
+
+      print('Firestore document updated with new image URLs for all items');
 
       deleteItemsFromCart(order.storeID.toString());
 
@@ -128,25 +175,28 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
             ),
           ),
           // Items List
+          // SliverToBoxAdapter(
+          //   child: StreamBuilder<QuerySnapshot>(
+          //     stream: FirebaseFirestore.instance
+          //         .collection('users')
+          //         .doc(sharedPreferences!.getString('uid'))
+          //         .collection('cart')
+          //         .doc(widget.addToCartStoreInfo!.storeID)
+          //         .collection('items')
+          //         .snapshots(),
+          //     builder: (context, snapshot) {
+          //       if (!snapshot.hasData) {
+          //         return const Center(child: CircularProgressIndicator());
+          //       } else if (snapshot.data!.docs.isNotEmpty) {
+          //         return _buildItemsList(snapshot.data!.docs, widget.items!);
+          //       } else {
+          //         return const Center(child: Text('No items added in this store'));
+          //       }
+          //     },
+          //   ),
+          // ),
           SliverToBoxAdapter(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(sharedPreferences!.getString('uid'))
-                  .collection('cart')
-                  .doc(widget.addToCartStoreInfo!.storeID)
-                  .collection('items')
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.data!.docs.isNotEmpty) {
-                  return _buildItemsList(snapshot.data!.docs);
-                } else {
-                  return const Center(child: Text('No items added in this store'));
-                }
-              },
-            ),
+            child: _buildItemsList(widget.items!),
           ),
           // Order Summary
           SliverFillRemaining(
@@ -269,16 +319,16 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
     );
   }
 
-  Widget _buildItemsList(List<DocumentSnapshot> docs) {
+  Widget _buildItemsList(List<AddToCartItem> items) {
     return Container(
       height: 160,
       padding: const EdgeInsets.symmetric(vertical: 8),
       color: Colors.red,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: docs.length,
+        itemCount: items.length,
         itemBuilder: (context, index) {
-          AddToCartItem item = AddToCartItem.fromJson(docs[index].data() as Map<String, dynamic>);
+          // AddToCartItem item = AddToCartItem.fromJson(items[index].data() as Map<String, dynamic>);
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 8),
             child: Container(
@@ -294,9 +344,9 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: item.itemImageURL != null
+                      child: items[index].itemImageURL != null
                           ? CachedNetworkImage(
-                        imageUrl: '${item.itemImageURL}',
+                        imageUrl: '${items[index].itemImageURL}',
                         width: 150,
                         height: 60,
                         fit: BoxFit.cover,
@@ -333,7 +383,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                           borderRadius:
                           BorderRadius.circular(8),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.image_outlined,
                           color: Color.fromARGB(255, 215, 219, 221),
                         ),
@@ -345,11 +395,11 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                     text: TextSpan(
                       children: [
                         TextSpan(
-                          text: '₱ ${item.itemPrice!.toStringAsFixed(2)}',
+                          text: '₱ ${items[index].itemPrice!.toStringAsFixed(2)}',
                           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                         ),
                         TextSpan(
-                          text: ' x${item.itemQnty}',
+                          text: ' x${items[index].itemQnty}',
                           style: const TextStyle(fontSize: 12, color: Colors.grey),
                         ),
                       ],
@@ -357,7 +407,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '₱ ${item.itemTotal!.toStringAsFixed(2)}',
+                    '₱ ${items[index].itemTotal!.toStringAsFixed(2)}',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
                   ),
                 ],

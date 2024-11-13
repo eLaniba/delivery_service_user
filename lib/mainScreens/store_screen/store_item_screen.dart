@@ -409,7 +409,7 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
     DocumentReference storeReference = cartCollection.doc(store.storeID);
 
     //Add a fields to the new store document: sellerUID, sellerName, phone, address
-    await storeReference.set(store.addSellerToCart());
+    await storeReference.set(store.addStoreToCart());
 
     //Add the item Collection inside the store Document || this is the items Collection reference
     CollectionReference itemReference = storeReference.collection('items');

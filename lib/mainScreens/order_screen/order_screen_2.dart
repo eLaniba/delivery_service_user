@@ -36,6 +36,12 @@ class _OrderScreen2State extends State<OrderScreen2> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Order Details'),
+        actions: [
+          Icon(PhosphorIcons.package(PhosphorIconsStyle.regular)),
+          const SizedBox(width: 8,),
+          Icon(PhosphorIcons.mapTrifold(PhosphorIconsStyle.regular)),
+          const SizedBox(width: 18,)
+        ],
       ),
       backgroundColor: Colors.grey[200],
       body: Stack(

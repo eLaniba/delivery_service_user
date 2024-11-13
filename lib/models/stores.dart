@@ -37,7 +37,7 @@ class Stores {
     return data;
   }
 
-  Map<String, dynamic> addSellerToCart() {
+  Map<String, dynamic> addStoreToCart() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data["storeID"] = this.storeID;
     data["storeName"] = this.storeName;
