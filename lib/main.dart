@@ -35,13 +35,6 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: 'mainScreen',
-      routes: {
-        '/main': (context) => MainScreen(),
-        '/cart': (context) => CartScreen(),
-        '/cart2': (context) => CartScreen2(),
-        '/checkout': (context) => CheckOutScreen(),
-      },
       title: 'User',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSwatch(

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery_service_user/mainScreens/order_screen/live_location_tracking_page.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/new_order.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
@@ -31,16 +32,112 @@ class _OrderScreen2State extends State<OrderScreen2> {
     return fromattedOrderTime;
   }
 
+  void completeOrderDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+          ),
+          title: const Text('Confirm Delivery?'),
+          content: const Text(
+              'By pressing this button, you confirm that you have paid the full amount for your order and that you have received the items from the rider. \n\nPlease ensure all details are correct before confirming.'
+            // textAlign: TextAlign.center,
+          ),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                //Confirm
+                //Cancel
+                ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.inversePrimary,
+                  ),
+                  child: const Center(
+                    child: SizedBox(
+                      width: 56,
+                      child: Center(child: Text('Cancel')),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 25,),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Dismiss dialog on Cancel
+                  },
+                  style: TextButton.styleFrom(
+                    splashFactory: NoSplash.splashFactory,
+                  ),
+                  child: const Text('Confirm'),
+                ),
+              ],
+            ),
+          ],
+        );
+        return const AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 20,),
+              Text(
+                "Requesting confirmation from the customer, please wait...",
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void completeOrder() {
+    DocumentReference orderDocument = FirebaseFirestore.instance.collection('active_orders').doc('${widget.orderDetail!.orderID}');
+    try{
+      orderDocument.update({
+        'riderConfirmDelivery': true,
+      });
+    } catch(e) {
+      rethrow;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Order Details'),
         actions: [
-          Icon(PhosphorIcons.package(PhosphorIconsStyle.regular)),
-          const SizedBox(width: 8,),
-          Icon(PhosphorIcons.mapTrifold(PhosphorIconsStyle.regular)),
-          const SizedBox(width: 18,)
+          IconButton(
+            onPressed: () {},
+            icon: Icon(PhosphorIcons.package(PhosphorIconsStyle.regular)),
+            padding: const EdgeInsets.all(0),
+          ),
+
+          if(widget.orderDetail!.orderStatus == 'Delivering')
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LiveLocationTrackingPage(
+                      order: widget.orderDetail!, // Example destination
+                    ),
+                  ),
+                );
+              },
+              icon: Icon(PhosphorIcons.mapTrifold(PhosphorIconsStyle.regular)),
+              padding: const EdgeInsets.all(0),
+            ),
+            const SizedBox(width: 18,)
         ],
       ),
       backgroundColor: Colors.grey[200],
@@ -95,6 +192,15 @@ class _OrderScreen2State extends State<OrderScreen2> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  //Order Information Text
+                                  const Text(
+                                    'Order Information',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  //Order Status
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     // crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,6 +227,7 @@ class _OrderScreen2State extends State<OrderScreen2> {
                                     ],
                                   ),
                                   const SizedBox(height: 4,),
+                                  //Order ID
                                   RichText(
                                     text: TextSpan(
                                         children: [
@@ -143,6 +250,7 @@ class _OrderScreen2State extends State<OrderScreen2> {
                                     ),
                                   ),
                                   const SizedBox(height: 4,),
+                                  //Order Time
                                   RichText(
                                     text: TextSpan(
                                         children: [
@@ -164,6 +272,7 @@ class _OrderScreen2State extends State<OrderScreen2> {
                                         ]
                                     ),
                                   ),
+                                  //Payment Method
                                   const Text(
                                     'Payment method',
                                     style: TextStyle(
@@ -171,6 +280,7 @@ class _OrderScreen2State extends State<OrderScreen2> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                  //Cash on Delivery
                                   const Row(
                                     children: [
                                       SizedBox(
@@ -202,15 +312,23 @@ class _OrderScreen2State extends State<OrderScreen2> {
                             // height: 180,
                             color: Colors.white,
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  //Order from Text
+                                  const Text(
+                                    'Order from',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                   //Store Name
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       const SizedBox(
                                         child: Icon(
@@ -270,46 +388,60 @@ class _OrderScreen2State extends State<OrderScreen2> {
                             color: Colors.white,
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const SizedBox(
-                                    child: Icon(
-                                      Icons.sports_motorsports_outlined,
-                                      // color: Colors.orange,
-                                      size: 16,
+                                  //Ridertext
+                                  const Text(
+                                    'Rider',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const SizedBox(
-                                    width: 8,
-                                  ),
-                                  Flexible(
-                                    child: Text(
-                                      widget.orderDetail!.riderID != null
-                                          ? '${widget.orderDetail!.riderName}'
-                                          : 'Processing...',
-                                      style:const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
+                                  //Rider Icon, Name, and Phone
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      const SizedBox(
+                                        child: Icon(
+                                          Icons.sports_motorsports_outlined,
+                                          // color: Colors.orange,
+                                          size: 16,
+                                        ),
                                       ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 4,
-                                  ),
+                                      const SizedBox(
+                                        width: 8,
+                                      ),
+                                      Flexible(
+                                        child: Text(
+                                          widget.orderDetail!.riderID != null
+                                              ? '${widget.orderDetail!.riderName}'
+                                              : 'Processing...',
+                                          style:const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 4,
+                                      ),
 
-                                  if (widget.orderDetail!.riderID != null)
-                                    Text(
-                                      '${widget.orderDetail!.riderPhone}',
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                      ),
-                                    )
-                                  else
-                                    const Text(''),
+                                      if (widget.orderDetail!.riderID != null)
+                                        Text(
+                                          '${widget.orderDetail!.riderPhone}',
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                          ),
+                                        )
+                                      else
+                                        const Text(''),
+                                    ],
+                                  ),
                                 ],
                               ),
                             ),
@@ -467,7 +599,7 @@ class _OrderScreen2State extends State<OrderScreen2> {
           color: Colors.black,
           child: TextButton(
             onPressed: () {
-              //cod here
+              completeOrderDialog();
             },
             child: const Text(
               'Complete Order',
