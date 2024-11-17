@@ -1,27 +1,22 @@
 import 'package:delivery_service_user/authentication/auth_screen.dart';
-import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_screen.dart';
-import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_screen_2.dart';
-import 'package:delivery_service_user/mainScreens/cart_checkout_screen/checkout_screen.dart';
-import 'package:delivery_service_user/mainScreens/store_screen/store_screen.dart';
-import 'package:delivery_service_user/mainScreens/main_screen.dart';
-import 'package:delivery_service_user/sampleFeatures/order_data.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
 import 'global/global.dart';
-import 'sampleFeatures/Sample.dart';
+
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
+  // WidgetsFlutterBinding.ensureInitialized();
+  //Using Flutter Native Splash
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   sharedPreferences = await SharedPreferences.getInstance();
-
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
   runApp(const MyApp());
 }
 
@@ -31,6 +26,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    FlutterNativeSplash.remove();
     const customTextColor = Color.fromARGB(255, 52, 49, 49); // RGB(52, 49, 49)
 
     return MaterialApp(
