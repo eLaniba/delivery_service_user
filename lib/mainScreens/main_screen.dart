@@ -90,21 +90,24 @@ class _MainScreenState extends State<MainScreen> {
                     children: [
                       IconButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/cart');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const CartScreen()), // Your search screen
+                          );
                         },
                         icon: const Icon(Icons.shopping_cart_outlined),
                       ),
                       Positioned(
-                        right: 0,
-                        top: 0,
+                        right: 10,
+                        top: 5,
                         child: Container(
                           decoration: const BoxDecoration(
-                            color: Colors.red,
+                            color: Colors.white,
                             shape: BoxShape.circle,
                           ),
                           constraints: const BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
+                            minWidth: 8,
+                            minHeight: 8,
                           ),
                         ),
                       ),

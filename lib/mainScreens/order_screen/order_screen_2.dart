@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery_service_user/mainScreens/main_screen.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/live_location_tracking_page.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/new_order.dart';
+import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -50,11 +52,22 @@ class _OrderScreen2State extends State<OrderScreen2> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                //Confirm
                 //Cancel
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: TextButton.styleFrom(
+                    splashFactory: NoSplash.splashFactory,
+                  ),
+                  child: const Text('Cancel'),
+                ),
+                const SizedBox(width: 25,),
+                //Confirm
                 ElevatedButton(
                   onPressed: () async {
                     Navigator.pop(context);
+                    confirmDelivery();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
@@ -63,19 +76,9 @@ class _OrderScreen2State extends State<OrderScreen2> {
                   child: const Center(
                     child: SizedBox(
                       width: 56,
-                      child: Center(child: Text('Cancel')),
+                      child: Center(child: Text('Confirm')),
                     ),
                   ),
-                ),
-                const SizedBox(width: 25,),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Dismiss dialog on Cancel
-                  },
-                  style: TextButton.styleFrom(
-                    splashFactory: NoSplash.splashFactory,
-                  ),
-                  child: const Text('Confirm'),
                 ),
               ],
             ),
@@ -99,15 +102,68 @@ class _OrderScreen2State extends State<OrderScreen2> {
     );
   }
 
-  void completeOrder() {
+  // void completeOrder() {
+  //   showDialog(context: context, builder: builder)
+  //
+  //   DocumentReference orderDocument = FirebaseFirestore.instance.collection('active_orders').doc('${widget.orderDetail!.orderID}');
+  //   try{
+  //     orderDocument.update({
+  //       'riderConfirmDelivery': true,
+  //     });
+  //   } catch(e) {
+  //     rethrow;
+  //   }
+  // }
+  Future<void> confirmDelivery() async {
+    showDialog(context: context, builder: (BuildContext context) {
+      return const LoadingDialog(
+        message: 'Confirming order',
+      );
+    });
+
     DocumentReference orderDocument = FirebaseFirestore.instance.collection('active_orders').doc('${widget.orderDetail!.orderID}');
     try{
-      orderDocument.update({
-        'riderConfirmDelivery': true,
+      await orderDocument.update({
+        'userConfirmDelivery': true,
       });
     } catch(e) {
       rethrow;
     }
+
+    Navigator.pop(context);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (c) {
+            return const AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.check_circle_outline_rounded,
+                    color: Colors.green,
+                    size: 50,
+                  ),
+                  SizedBox(height: 20,),
+                  Text(
+                    "Customer delivery confirmed. Return to the store to complete the order.",
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      });
+    });
+
+    Future.delayed(const Duration(seconds: 3), () {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const MainScreen()));
+    });
   }
 
   @override
@@ -148,13 +204,15 @@ class _OrderScreen2State extends State<OrderScreen2> {
               StreamBuilder<DocumentSnapshot>(
                 stream: FirebaseFirestore.instance.collection('active_orders').doc('${widget.orderDetail!.orderID}').snapshots(),
                 builder: (context, snapshot) {
-                  if(!snapshot.hasData) {
+                  if(snapshot.connectionState == ConnectionState.waiting) {
                     return SliverFillRemaining(
                       child: Center(
                         child: circularProgress(),
                       ),
                     );
-                  } else if(!snapshot.hasData || !snapshot.data!.exists) {
+                  }
+
+                  if(!snapshot.hasData || !snapshot.data!.exists) {
                     return const SliverFillRemaining(
                       hasScrollBody: false,
                       child: Column(
@@ -175,6 +233,11 @@ class _OrderScreen2State extends State<OrderScreen2> {
                         ],
                       ),
                     );
+                  }
+
+                  NewOrder order = NewOrder.fromJson(snapshot.data!.data() as Map<String, dynamic>);
+                  if(order.userConfirmDelivery == true && order.riderConfirmDelivery == true) {
+
                   }
 
                   return SliverToBoxAdapter(

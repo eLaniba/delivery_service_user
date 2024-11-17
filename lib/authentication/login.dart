@@ -76,11 +76,11 @@ class _LoginState extends State<Login> {
         await sharedPreferences!.setString("location", locationString);
 
         Navigator.pop(context);
-        Navigator.push(context, MaterialPageRoute(builder: (c) => const MainScreen()));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const MainScreen()));
       } else {
         firebaseAuth.signOut();
         Navigator.pop(context);
-        Navigator.push(context, MaterialPageRoute(builder: (c) => const AuthScreen()));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const AuthScreen()));
 
         showDialog(
             context: context,

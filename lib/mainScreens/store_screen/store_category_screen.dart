@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_item_screen.dart';
 import 'package:delivery_service_user/models/category_item.dart';
 import 'package:delivery_service_user/models/stores.dart';
@@ -77,16 +78,16 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
                 .collection('cart')
                 .snapshots(),
             builder: (context, snapshot) {
-              if(!snapshot.hasData) {
+              if (!snapshot.hasData) {
                 return const Padding(
-                  padding: EdgeInsets.only(right: 40,),
+                  padding: EdgeInsets.only(right: 40),
                   child: SizedBox(
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(),
                   ),
                 );
-              } else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty){
+              } else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 24),
                   child: Stack(
@@ -94,22 +95,24 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
                     children: [
                       IconButton(
                         onPressed: () {
-
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const CartScreen()), // Your search screen
+                          );
                         },
                         icon: const Icon(Icons.shopping_cart_outlined),
                       ),
-
                       Positioned(
-                        right: 0,
-                        top: 0,
+                        right: 10,
+                        top: 5,
                         child: Container(
                           decoration: const BoxDecoration(
-                            color: Colors.red,
+                            color: Colors.white,
                             shape: BoxShape.circle,
                           ),
                           constraints: const BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
+                            minWidth: 8,
+                            minHeight: 8,
                           ),
                         ),
                       ),
@@ -118,23 +121,22 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
                 );
               } else {
                 return Padding(
-                  padding: const EdgeInsets.only(right: 24,),
+                  padding: const EdgeInsets.only(right: 24),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
                       IconButton(
                         onPressed: () {
-
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (c) => const CartScreen()));
                         },
                         icon: const Icon(Icons.shopping_cart_outlined),
                       ),
-
                       Positioned(
                         right: 0,
                         top: 0,
                         child: Container(
                           decoration: const BoxDecoration(
-                            // color: Colors.blue,
                             shape: BoxShape.circle,
                           ),
                           constraints: const BoxConstraints(
