@@ -144,128 +144,131 @@ class _RegisterState extends State<Register> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Text(
-              "Create an account,",
-              style: TextStyle(
-                fontSize: 24,
-              ),
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-
-            const SizedBox(
-              height: 16,
-            ),
-
-            //sample
-            Form(
-              key: _formKey,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 40.0, right: 40.0, bottom: 16.0),
-                child: Column(
-                  children: [
-                    CustomTextField(
-                      labelText: 'Name',
-                      controller: nameController,
-                      isObscure: false,
-                      validator: validateName,
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    CustomTextField(
-                      labelText: 'Email',
-                      controller: emailController,
-                      isObscure: false,
-                      validator: validateEmail,
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    CustomTextField(
-                      labelText: 'Password',
-                      controller: passwordController,
-                      isObscure: true,
-                      validator: validatePassword,
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    CustomTextField(
-                        labelText: 'Confirm password',
-                        controller: confirmPasswordController,
-                        isObscure: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty || value.trim() != passwordController.text.trim()) {
-                            return 'Password did not match';
-                          }
-                          return null;
-                        }
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    CustomTextField(
-                      labelText: 'Phone',
-                      controller: phoneController,
-                      isObscure: false,
-                      validator: validatePhone,
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomTextField(
-                            labelText: 'Your location',
-                            controller: locationController,
-                            isObscure: false,
-                            enabled: true,
-                            validator: validateLocation,
-                          ),
-                        ),
-
-                        IconButton(
-                          onPressed: getCurrentLocation,
-                          icon: const Icon(Icons.location_on),
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          if (_formKey.currentState!.validate()) {
-                            //Register
-                            registerNow();
-                          }
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(context).colorScheme.inversePrimary,
-                        padding: const EdgeInsets.only(left: 64, right: 64),
-                      ),
-                      child: const Text("Register"),
-                    ),
-                  ],
+    return Scaffold(
+      appBar: AppBar(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                "Create an account,",
+                style: TextStyle(
+                  fontSize: 24,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(
+                height: 16,
+              ),
+
+              const SizedBox(
+                height: 16,
+              ),
+
+              //sample
+              Form(
+                key: _formKey,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 40.0, right: 40.0, bottom: 16.0),
+                  child: Column(
+                    children: [
+                      CustomTextField(
+                        labelText: 'Name',
+                        controller: nameController,
+                        isObscure: false,
+                        validator: validateName,
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      CustomTextField(
+                        labelText: 'Email',
+                        controller: emailController,
+                        isObscure: false,
+                        validator: validateEmail,
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      CustomTextField(
+                        labelText: 'Password',
+                        controller: passwordController,
+                        isObscure: true,
+                        validator: validatePassword,
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      CustomTextField(
+                          labelText: 'Confirm password',
+                          controller: confirmPasswordController,
+                          isObscure: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty || value.trim() != passwordController.text.trim()) {
+                              return 'Password did not match';
+                            }
+                            return null;
+                          }
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      CustomTextField(
+                        labelText: 'Phone',
+                        controller: phoneController,
+                        isObscure: false,
+                        validator: validatePhone,
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomTextField(
+                              labelText: 'Your location',
+                              controller: locationController,
+                              isObscure: false,
+                              enabled: true,
+                              validator: validateLocation,
+                            ),
+                          ),
+
+                          IconButton(
+                            onPressed: getCurrentLocation,
+                            icon: const Icon(Icons.location_on),
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            if (_formKey.currentState!.validate()) {
+                              //Register
+                              registerNow();
+                            }
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          foregroundColor: Theme.of(context).colorScheme.inversePrimary,
+                          padding: const EdgeInsets.only(left: 64, right: 64),
+                        ),
+                        child: const Text("Register"),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -51,6 +51,7 @@ class _LoginState extends State<Login> {
     });
 
     if(currentUser != null) {
+      Navigator.pop(context);
       readAndSetDataLocally(currentUser!);
     }
   }
@@ -75,18 +76,19 @@ class _LoginState extends State<Login> {
         await sharedPreferences!.setString("address", snapshot.data()!["userAddress"]);
         await sharedPreferences!.setString("location", locationString);
 
-        Navigator.pop(context);
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const MainScreen()));
+        // Navigate to the main screen if the login is successful
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen()),
+        );
+
       } else {
         firebaseAuth.signOut();
-        Navigator.pop(context);
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const AuthScreen()));
-
         showDialog(
             context: context,
             builder: (c) {
               return const ErrorDialog(
-                  message: "You have been logged out"
+                  message: "Login failed",
               );
             }
         );
@@ -102,6 +104,7 @@ class _LoginState extends State<Login> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Image.asset('assets/splash_image.png'),
             const Text(
               "Welcome,",
               style: TextStyle(
