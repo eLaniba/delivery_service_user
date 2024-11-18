@@ -56,6 +56,7 @@ dependencies:
   google_maps_flutter: ^2.9.0
   flutter_polyline_points: 2.0.0
   flutter_native_splash: ^2.4.2
+  flutter_launcher_icons: ^0.14.1
 
 dev_dependencies:
   flutter_test:
@@ -83,6 +84,7 @@ flutter:
   assets:
     - assets/custom_icons/
     - assets/splash_image.png
+    - assets/icons/shopping_bag.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
