@@ -27,7 +27,9 @@ class StoreItemScreen extends StatefulWidget {
 class _StoreItemScreenState extends State<StoreItemScreen> {
 
   void _addItemToCartDialog(Item itemModel) {
+    TextEditingController qnty = TextEditingController();
     int itemCount = 1;
+    qnty.text = itemCount.toString();
 
     // showDialog(
     //   context: context,
@@ -240,31 +242,25 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                           placeholder: (context, url) => Shimmer.fromColors(
                             baseColor: Colors.grey[300]!,
                             highlightColor: Colors.grey[100]!,
-                            child: SizedBox(
+                            child: const SizedBox(
                               child: Center(
-                                child: Icon(
-                                    PhosphorIcons.image(
-                                        PhosphorIconsStyle.fill
-                                    )
-                                ),
+                                child: Icon(Icons.image),
                               ),
                             ),
                           ),
-                          errorWidget: (context, url, error) =>
-                              Container(
-                                color: white80,
-                                child: Icon(
-                                  PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
-                                  color: Colors.white,
-                                  size: 48,
-                                ),
-                              ),
+                          errorWidget: (context, url, error) => Container(
+                            color: Colors.grey[300],
+                            child: const Icon(
+                              Icons.broken_image,
+                              size: 48,
+                            ),
+                          ),
                         )
                             : Container(
-                          color: white80,
-                          child: Icon(
-                            PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
-                            color: Colors.white,
+                          color: Colors.grey[300],
+                          child: const Icon(
+                            Icons.broken_image,
+                            size: 48,
                           ),
                         ),
                       ),
@@ -310,24 +306,45 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        // Subtract button
                         IconButton(
                           onPressed: () {
                             if (itemCount > 1) {
-                              setState(() => itemCount--);
+                              setState(() {
+                                itemCount--;
+                                qnty.text = itemCount.toString();
+                              });
                             }
                           },
                           icon: Icon(Icons.remove, color: Theme.of(context).colorScheme.primary),
                         ),
+                        // Item field
                         SizedBox(
                           width: 50,
                           child: TextField(
-                            controller: TextEditingController(text: itemCount.toString()),
+                            controller: qnty,
                             keyboardType: TextInputType.number,
                             textAlign: TextAlign.center,
                             onChanged: (value) {
-                              int? newValue = int.tryParse(value);
+                              String filteredValue = value.replaceAll(RegExp(r'[^0-9]'), '');
                               setState(() {
-                                itemCount = (newValue != null && newValue > 0) ? newValue : 1;
+                                // Update itemCount directly based on filteredValue
+                                itemCount = filteredValue.isEmpty ? 0 : int.parse(filteredValue);
+                                qnty.text = filteredValue; // Ensure the TextField updates with valid digits
+                                qnty.selection = TextSelection.fromPosition(
+                                  TextPosition(offset: qnty.text.length),
+                                );
+                              });
+                            },
+                            onEditingComplete: () {
+                              setState(() {
+                                // Enforce a valid item count and update the TextField accordingly
+                                if (itemCount < 1) {
+                                  itemCount = 1;
+                                } else if (itemCount > 99) {
+                                  itemCount = 99;
+                                }
+                                qnty.text = itemCount.toString();
                               });
                             },
                             decoration: const InputDecoration(
@@ -335,8 +352,16 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                             ),
                           ),
                         ),
+                        // Add button
                         IconButton(
-                          onPressed: () => setState(() => itemCount++),
+                          onPressed: () {
+                            if (itemCount < 99) {
+                              setState(() {
+                                itemCount++;
+                                qnty.text = itemCount.toString();
+                              });
+                            }
+                          },
                           icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
                         ),
                       ],
@@ -352,40 +377,93 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Cancel'),
             ),
-            ElevatedButton(
+            // Dynamically change button based on itemCount
+            itemCount > 0
+                ? ElevatedButton(
               onPressed: () {
-                if (itemCount == 0) {
+                if (itemCount < 1) {
+                  setState(() {
+                    itemCount = 1;
+                    qnty.text = '$itemCount';
+                  });
+
+                  // Show a short dialog with 2 seconds delay
                   showDialog(
                     context: context,
-                    builder: (c) => const ErrorDialog(message: 'Please enter a valid quantity.'),
+                    barrierDismissible: false, // Prevent dismissing the dialog by tapping outside
+                    builder: (context) {
+                      // Return a simple dialog with a message
+                      return const AlertDialog(
+                        content: Text('Minimum of 1 item quantity', textAlign: TextAlign.center,),
+                      );
+                    },
                   );
-                  return;
-                }
-                Navigator.of(context).pop();
 
-                double itemTotal = itemCount * itemModel.itemPrice!;
-                _addItemToCartFirestore(
-                  widget.store!,
-                  itemModel,
-                  AddToCartItem(
-                    itemID: itemModel.itemID,
-                    itemName: itemModel.itemName,
-                    itemImageURL: itemModel.itemImageURL,
-                    itemPrice: itemModel.itemPrice,
-                    itemQnty: itemCount,
-                    itemTotal: itemTotal,
-                  ),
-                );
+                  // Close the dialog after 2 seconds
+                  Future.delayed(Duration(seconds: 2), () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  });
+                } else if (itemCount > 99) {
+                  setState(() {
+                    itemCount = 99;
+                    qnty.text = '$itemCount';
+                  });
+                  // Show a short dialog with 2 seconds delay
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false, // Prevent dismissing the dialog by tapping outside
+                    builder: (context) {
+                      // Return a simple dialog with a message
+                      return const AlertDialog(
+                        content: Text('Maximum of 99 item quantity', textAlign: TextAlign.center,),
+                      );
+                    },
+                  );
+
+                  // Close the dialog after 2 seconds
+                  Future.delayed(Duration(seconds: 2), () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  });
+                } else {
+                  double itemTotal = itemCount * itemModel.itemPrice!;
+                  Navigator.of(context).pop();
+                  _addItemToCartFirestore(
+                    widget.store!,
+                    itemModel,
+                    AddToCartItem(
+                      itemID: itemModel.itemID,
+                      itemName: itemModel.itemName,
+                      itemImageURL: itemModel.itemImageURL,
+                      itemPrice: itemModel.itemPrice,
+                      itemQnty: itemCount,
+                      itemTotal: itemTotal,
+                    ),
+                  );
+                }
               },
+
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                backgroundColor: Theme.of(context).primaryColor, // Set background color to red
-                foregroundColor: Colors.white, // Set text color to white
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4), // Set a smaller border radius
+                  borderRadius: BorderRadius.circular(4),
                 ),
               ),
               child: const Text('Add to Cart'),
+            )
+                : Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.grey, // Greyed-out background
+                borderRadius: BorderRadius.circular(4), // Rounded corners
+              ),
+              child: const Text(
+                'Add to Cart',
+                style: TextStyle(
+                  color: Colors.white, // Text color to white
+                ),
+              ),
             ),
           ],
         );
@@ -449,8 +527,6 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
       }
     } else {
       try {
-        Navigator.of(context).pop();
-
         // showDialog(
         //   context: context,
         //   builder: (c) {

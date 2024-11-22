@@ -150,7 +150,7 @@ class _OrderScreen2State extends State<OrderScreen2> {
                   ),
                   SizedBox(height: 20,),
                   Text(
-                    "Customer delivery confirmed. Return to the store to complete the order.",
+                    "Order complete! Thank you for your purchase!",
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -236,9 +236,6 @@ class _OrderScreen2State extends State<OrderScreen2> {
                   }
 
                   NewOrder order = NewOrder.fromJson(snapshot.data!.data() as Map<String, dynamic>);
-                  if(order.userConfirmDelivery == true && order.riderConfirmDelivery == true) {
-
-                  }
 
                   return SliverToBoxAdapter(
                     child: Padding(
@@ -454,7 +451,7 @@ class _OrderScreen2State extends State<OrderScreen2> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  //Ridertext
+                                  //Rider text
                                   const Text(
                                     'Rider',
                                     style: TextStyle(

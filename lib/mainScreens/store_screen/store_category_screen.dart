@@ -212,6 +212,7 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
       ),
       body: CustomScrollView(
         slivers: [
+          //Store image
           SliverToBoxAdapter(
             child: Container(
               height: 200,
@@ -252,6 +253,7 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
               ),
             ),
           ),
+          //Store Name, Phone, Address
           SliverToBoxAdapter(
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -286,7 +288,7 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
               ),
             ),
           ),
-
+          //Categories
           SliverPersistentHeader(
             pinned: true,
             delegate: _SliverAppBarDelegate(
@@ -307,7 +309,7 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
               ),
             ),
           ),
-
+          //Store category list
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection("stores")
@@ -412,7 +414,6 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
     );
   }
 }
-
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   final double minHeight;
