@@ -118,8 +118,8 @@ class _RegisterState extends State<Register> {
       "userPhone": phoneController.text.trim(),
       "status": "approved",
       //temporarily add the Address info here instead of as a collection
-      // "userAddress": locationController.text.trim(),
-      // "userLocation": geoPoint,
+      "userAddress": locationController.text.trim(),
+      "userLocation": geoPoint,
     });
 
     //Setting up default address' reference
