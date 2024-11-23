@@ -1,5 +1,6 @@
 import 'package:delivery_service_user/authentication/auth_screen_remake.dart';
 import 'package:delivery_service_user/global/global.dart';
+import 'package:delivery_service_user/mainScreens/profile_screen/address_screen.dart';
 import 'package:delivery_service_user/services/auth_service.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:flutter/material.dart';
@@ -32,9 +33,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: ElevatedButton(
-        onPressed: Logout,
-        child: const Text('Logout'),),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton(
+            onPressed: Logout,
+            child: const Text('Logout'),),
+          SizedBox(height: 8,),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AddressScreen()),
+              );
+            },
+            child: const Text('Address'),),
+        ],
+      ),
     );
   }
 }

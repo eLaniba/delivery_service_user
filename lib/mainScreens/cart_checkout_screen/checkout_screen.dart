@@ -151,7 +151,11 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Checkout')),
+      appBar: AppBar(
+        title: const Text('Checkout'),
+        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).primaryColor,
+      ),
       backgroundColor: Colors.grey[100],
       body: CustomScrollView(
         slivers: [
@@ -160,11 +164,28 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
             padding: const EdgeInsets.symmetric(vertical: 8),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildInfoContainer(
-                  icon: Icons.location_on,
-                  title: '${sharedPreferences!.get('name')}',
-                  subtitle: '${sharedPreferences!.get('phone')}\n${sharedPreferences!.get('address')}',
+
+                InkWell(
+                  onTap: () {
+
+                  },
+                  child: Container(
+                    color: Colors.white,
+                    child: Row(
+                      children: [
+                        Flexible(child: _buildInfoContainer(
+                          icon: Icons.location_on,
+                          title: '${sharedPreferences!.get('name')}',
+                          subtitle: '${sharedPreferences!.get('phone')}\n${sharedPreferences!.get('address')}',
+                        ),),
+                        Icon(
+                          PhosphorIcons.caretRight(PhosphorIconsStyle.regular),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
+
                 _buildInfoContainer(
                   icon: Icons.storefront,
                   title: widget.addToCartStoreInfo!.storeName!,
@@ -196,7 +217,25 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
           //   ),
           // ),
           SliverToBoxAdapter(
-            child: _buildItemsList(widget.items!),
+            child: Container(
+              color: Colors.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(left: 16, top: 8),
+                    child: Text(
+                      'Item(s)',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  _buildItemsList(widget.items!),
+                ],
+              ),
+            ),
           ),
           // Order Summary
           SliverFillRemaining(
@@ -231,8 +270,11 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
       ),
       bottomNavigationBar: BottomAppBar(
         child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            color: Theme.of(context).primaryColor,
+          ),
           height: 60,
-          color: Theme.of(context).primaryColor,
           child: TextButton(
             onPressed: () {
               DateTime now = DateTime.now();
@@ -301,7 +343,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       color: Colors.white,
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(top: 4,),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -321,97 +363,78 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
 
   Widget _buildItemsList(List<AddToCartItem> items) {
     return Container(
-      height: 160,
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      color: Colors.red,
+      // padding: const EdgeInsets.symmetric(vertical: 8),
+      color: Colors.white,
       child: ListView.builder(
-        scrollDirection: Axis.horizontal,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(), // Ensures it's scrollable inside other scrollable widgets
         itemCount: items.length,
         itemBuilder: (context, index) {
-          // AddToCartItem item = AddToCartItem.fromJson(items[index].data() as Map<String, dynamic>);
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-            child: Container(
-              width: 120,
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 80,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: items[index].itemImageURL != null
-                          ? CachedNetworkImage(
-                        imageUrl: '${items[index].itemImageURL}',
-                        width: 150,
-                        height: 60,
-                        fit: BoxFit.cover,
-                        fadeInDuration: Duration.zero,
-                        fadeOutDuration: Duration.zero,
-                        placeholder: (context, url) =>
-                            Shimmer.fromColors(
-                              baseColor: Colors.grey[300]!,
-                              highlightColor: Colors.grey[100]!,
-                              child: SizedBox(
-                                width: 48,
-                                height: 48,
-                                // color: Colors.white,
-                                child: Center(
-                                  child: Icon(
-                                    PhosphorIcons.image(
-                                        PhosphorIconsStyle.fill),
-                                  ),
-                                ),
-                              ),
-                            ),
-                        // Placeholder while image is loading
-                        errorWidget: (context, url, error) =>
-                            Icon(Icons.error),
-                      )
-                          : Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Color.fromARGB(255, 215, 219, 221),
-                            width: 2,
-                          ),
-                          borderRadius:
-                          BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.image_outlined,
-                          color: Color.fromARGB(255, 215, 219, 221),
-                        ),
-                      ),
+          return ListTile(
+            // contentPadding: const EdgeInsets.all(8),
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: items[index].itemImageURL != null
+                  ? CachedNetworkImage(
+                imageUrl: '${items[index].itemImageURL}',
+                width: 60,
+                height: 70,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    width: 60,
+                    height: 70,
+                    color: Colors.white,
+                    child: const Center(
+                      child: Icon(Icons.image),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '₱ ${items[index].itemPrice!.toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                        ),
-                        TextSpan(
-                          text: ' x${items[index].itemQnty}',
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                      ],
-                    ),
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              )
+                  : Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: const Color.fromARGB(255, 215, 219, 221),
+                    width: 2,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '₱ ${items[index].itemTotal!.toStringAsFixed(2)}',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
-                  ),
-                ],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.image_outlined,
+                  color: Color.fromARGB(255, 215, 219, 221),
+                ),
               ),
+            ),
+            title: Text(
+              items[index].itemName ?? 'Unknown Item',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '₱ ${items[index].itemPrice!.toStringAsFixed(2)}',
+                  style: const TextStyle(color: Colors.black),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '₱ ${items[index].itemTotal!.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ],
+            ),
+            trailing: Text(
+              'x${items[index].itemQnty}',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           );
         },

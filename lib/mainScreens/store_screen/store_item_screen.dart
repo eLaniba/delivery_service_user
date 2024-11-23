@@ -377,9 +377,7 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Cancel'),
             ),
-            // Dynamically change button based on itemCount
-            itemCount > 0
-                ? ElevatedButton(
+            ElevatedButton(
               onPressed: () {
                 if (itemCount < 1) {
                   setState(() {
@@ -452,19 +450,6 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
               ),
               child: const Text('Add to Cart'),
             )
-                : Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.grey, // Greyed-out background
-                borderRadius: BorderRadius.circular(4), // Rounded corners
-              ),
-              child: const Text(
-                'Add to Cart',
-                style: TextStyle(
-                  color: Colors.white, // Text color to white
-                ),
-              ),
-            ),
           ],
         );
       },

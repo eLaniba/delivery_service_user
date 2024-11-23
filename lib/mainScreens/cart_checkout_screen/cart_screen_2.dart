@@ -4,9 +4,14 @@ import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/cart_checkout_screen/checkout_screen.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/add_to_cart_storeInfo.dart';
+import 'package:delivery_service_user/widgets/confirmation_dialog.dart';
+import 'package:delivery_service_user/widgets/item_quantity_changer.dart';
+import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:dotted_line/dotted_line.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -34,6 +39,55 @@ class _CartScreen2State extends State<CartScreen2> {
       total += item.itemTotal!;
     }
     return total;
+  }
+
+  Future<void> deleteItem(AddToCartItem item) async {
+    showDialog(
+      context: context,
+      builder: (c) {
+        return const LoadingDialog(message: "Deleting item");
+      },
+    );
+
+    try {
+      //Deleting the item image from the Firebase Cloud Storage
+      final imageRef = FirebaseStorage.instance.refFromURL(item.itemImageURL.toString());
+      await imageRef.delete();
+
+      //Deleting item document after deleting the image
+      await firebaseFirestore
+          .collection("users")
+          .doc(sharedPreferences!.getString('uid'))
+          .collection("cart")
+          .doc(widget.addToCartStoreInfo!.storeID)
+          .collection("items")
+          .doc(item.itemID)
+          .delete();
+
+      Navigator.of(context).pop();
+
+      // Show a success Snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Item deleted.'),
+          backgroundColor: Colors.black.withOpacity(0.8),
+          duration: const Duration(seconds: 5), // Optional: How long the snackbar is shown
+        ),
+      );
+
+    } catch (e) {
+      Navigator.of(context).pop();
+
+      // Show an error Snackbar if something goes wrong
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to add item: $e'),
+          backgroundColor: Colors.red, // Optional: Set background color for error
+          duration: Duration(seconds: 5), // Optional: How long the snackbar is shown
+        ),
+      );
+    }
+
   }
 
   @override
@@ -77,205 +131,158 @@ class _CartScreen2State extends State<CartScreen2> {
               } else if (itemSnapshot.hasError) {
                 return Center(child: Text('Error: ${itemSnapshot.error}'));
               } else if (itemSnapshot.hasData && itemSnapshot.data!.docs.isNotEmpty) {
-                return SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    AddToCartItem sAddToCartItem = AddToCartItem.fromJson(
-                        itemSnapshot.data!.docs[index].data()! as Map<String, dynamic>);
+                return SliverPadding(
+                  padding: const EdgeInsets.only(top: 4),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      AddToCartItem sAddToCartItem = AddToCartItem.fromJson(
+                          itemSnapshot.data!.docs[index].data()! as Map<String, dynamic>);
 
-                    // Check if the item has already been processed
-                    if (!processedItemIDs.contains(sAddToCartItem.itemID)) {
-                      // Add item to the list and track its ID
-                      listAddToCartItem.add(sAddToCartItem);
-                      processedItemIDs.add(sAddToCartItem.itemID!);
-                      print('List added: ${sAddToCartItem.itemID}');
-                    }
+                      // Check if the item has already been processed
+                      if (!processedItemIDs.contains(sAddToCartItem.itemID)) {
+                        // Add item to the list and track its ID
+                        listAddToCartItem.add(sAddToCartItem);
+                        processedItemIDs.add(sAddToCartItem.itemID!);
+                        print('List added: ${sAddToCartItem.itemID}');
+                      }
 
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8), // Softer, rounded corners
-                      ),
-                      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                      elevation: 0,
-                      child: InkWell(
-                        onTap: () {
-                          // Pop-up window for item editing
-                        },
-                        child: ListTile(
-                          leading: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: sAddToCartItem.itemImageURL != null
-                                ? CachedNetworkImage(
-                              imageUrl: '${sAddToCartItem.itemImageURL}',
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
-                              fadeInDuration: Duration.zero,
-                              fadeOutDuration: Duration.zero,
-                              placeholder: (context, url) =>
-                                  Shimmer.fromColors(
-                                    baseColor: Colors.grey[300]!,
-                                    highlightColor: Colors.grey[100]!,
-                                    child: SizedBox(
-                                      width: 48,
-                                      height: 48,
-                                      // color: Colors.white,
-                                      child: Center(
-                                        child: Icon(
-                                          PhosphorIcons.image(
-                                              PhosphorIconsStyle.fill),
+                      return Slidable(
+                        key: ValueKey(sAddToCartItem.itemID),
+                        startActionPane: ActionPane(
+                          motion: const ScrollMotion(),
+                          children: [
+                            SlidableAction(
+                              onPressed: (context) async {
+                                bool? confirm = await ConfirmationDialog.show(
+                                  context,
+                                  'Are you sure you want to delete this item?',
+                                );
+                                if(confirm!) {
+                                  deleteItem(sAddToCartItem);
+                                }
+                              },
+                              backgroundColor: Theme.of(context).colorScheme.error,
+                              foregroundColor: Theme.of(context).colorScheme.inversePrimary,
+                              icon: PhosphorIcons.trash(PhosphorIconsStyle.regular),
+                              label: 'Delete',
+                              borderRadius: const BorderRadius.only(
+                                topRight: Radius.circular(8),
+                                bottomRight: Radius.circular(8),
+                              ),
+                            ),
+                          ],
+                        ),
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8), // Softer, rounded corners
+                          ),
+                          margin: const EdgeInsets.only(top: 4, right: 8, left: 8, bottom: 4),
+                          elevation: 0,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                // Leading image
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: sAddToCartItem.itemImageURL != null
+                                      ? CachedNetworkImage(
+                                    imageUrl: '${sAddToCartItem.itemImageURL}',
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                    fadeInDuration: Duration.zero,
+                                    fadeOutDuration: Duration.zero,
+                                    placeholder: (context, url) => Shimmer.fromColors(
+                                      baseColor: Colors.grey[300]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      child: SizedBox(
+                                        width: 48,
+                                        height: 48,
+                                        child: Center(
+                                          child: Icon(
+                                            PhosphorIcons.image(PhosphorIconsStyle.fill),
+                                          ),
                                         ),
                                       ),
                                     ),
+                                    errorWidget: (context, url, error) => Icon(Icons.error),
+                                  )
+                                      : Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: const Color.fromARGB(255, 215, 219, 221),
+                                        width: 2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(
+                                      Icons.image_outlined,
+                                      color: Color.fromARGB(255, 215, 219, 221),
+                                    ),
                                   ),
-                              // Placeholder while image is loading
-                              errorWidget: (context, url, error) =>
-                                  Icon(Icons.error),
-                            )
-                                : Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Color.fromARGB(255, 215, 219, 221),
-                                  width: 2,
                                 ),
-                                borderRadius:
-                                BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.image_outlined,
-                                color: Color.fromARGB(255, 215, 219, 221),
-                              ),
-                            ),
-                          ),
-                          title: Text('${sAddToCartItem.itemName}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('₱ ${sAddToCartItem.itemPrice!.toStringAsFixed(2)}'),
-                              Row(
-                                children: [
-                                  const Text(
-                                    'Total: ',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                const SizedBox(width: 12),
+                                // Title, subtitle, and price
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${sAddToCartItem.itemName}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text('₱ ${sAddToCartItem.itemPrice!.toStringAsFixed(2)}'),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            'Total: ',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            '₱${sAddToCartItem.itemTotal!.toStringAsFixed(2)}',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Theme.of(context).primaryColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                  Text(
-                                    '₱${sAddToCartItem.itemTotal!.toStringAsFixed(2)}',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Theme.of(context).primaryColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                ),
+                                // Trailing quantity changer
+                                SizedBox(
+                                  width: 120, // Adjust based on your design needs
+                                  child: ItemQuantityChanger(
+                                    storeID: widget.addToCartStoreInfo!.storeID.toString(),
+                                    addToCartItem: sAddToCartItem,
+                                    onQuantityChanged: (newQnty) {
+                                      print('Updated quantity: $newQnty');
+                                    },
                                   ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          trailing: Text(
-                            'x${sAddToCartItem.itemQnty}',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: grey50
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                        // child: Padding(
-                        //   padding: const EdgeInsets.all(12.0),
-                        //   child: Row(
-                        //     crossAxisAlignment: CrossAxisAlignment.center,
-                        //     children: [
-                        //       // Product Image
-                        //       Container(
-                        //         height: 80,
-                        //         width: 80,
-                        //         decoration: BoxDecoration(
-                        //           color: Colors.grey[200],
-                        //           borderRadius: BorderRadius.circular(4),
-                        //           border: Border.all(color: Colors.grey[300]!, width: 0.5),
-                        //         ),
-                        //         child: const Center(
-                        //           child: Icon(
-                        //             Icons.image,
-                        //             color: Colors.grey,
-                        //             size: 40,
-                        //           ),
-                        //         ),
-                        //       ),
-                        //       const SizedBox(width: 12),
-                        //       // Product Details
-                        //       Expanded(
-                        //         child: Column(
-                        //           crossAxisAlignment: CrossAxisAlignment.start,
-                        //           children: [
-                        //             Text(
-                        //               '${sAddToCartItem.itemName}',
-                        //               style: const TextStyle(
-                        //                 fontSize: 16,
-                        //                 fontWeight: FontWeight.bold,
-                        //               ),
-                        //               maxLines: 1,
-                        //               overflow: TextOverflow.ellipsis,
-                        //             ),
-                        //             const SizedBox(height: 4),
-                        //             Text(
-                        //               '₱ ${sAddToCartItem.itemPrice!.toStringAsFixed(2)}',
-                        //               style: TextStyle(
-                        //                 fontSize: 14,
-                        //               ),
-                        //             ),
-                        //             const SizedBox(height: 4),
-                        //             Row(
-                        //               children: [
-                        //                 //Total Text
-                        //                 Text(
-                        //                   'Total: ',
-                        //                   style: TextStyle(
-                        //                     fontSize: 16,
-                        //                     fontWeight: FontWeight.bold,
-                        //                     color: grey50,
-                        //                   ),
-                        //                 ),
-                        //                 //Peso Amount
-                        //                 Flexible(
-                        //                   child: Text(
-                        //                     '₱${sAddToCartItem.itemTotal!.toStringAsFixed(2)}',
-                        //                     style: TextStyle(
-                        //                       fontSize: 16,
-                        //                       fontWeight: FontWeight.bold,
-                        //                       color: Theme.of(context).colorScheme.primary,
-                        //                     ),
-                        //                     maxLines: 1,
-                        //                     overflow: TextOverflow.ellipsis,
-                        //                   ),
-                        //                 ),
-                        //                 const Spacer(),
-                        //                 Text(
-                        //                   'x${sAddToCartItem.itemQnty}',
-                        //                   style: const TextStyle(
-                        //                     fontSize: 14,
-                        //                     color: Colors.grey,
-                        //                   ),
-                        //                 ),
-                        //               ],
-                        //             ),
-                        //           ],
-                        //         ),
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
-                      ),
-                    );
-                  }, childCount: itemSnapshot.data!.docs.length),
+                      );
+                    }, childCount: itemSnapshot.data!.docs.length),
+                  ),
                 );
               } else {
                 return const SliverToBoxAdapter(
@@ -289,7 +296,10 @@ class _CartScreen2State extends State<CartScreen2> {
       bottomNavigationBar: BottomAppBar(
         child: Container(
           height: 60,
-          color: Colors.black,
+          decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+            borderRadius: BorderRadius.circular(4),
+          ),
           child: TextButton(
             onPressed: () async {
               Navigator.push(

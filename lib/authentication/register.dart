@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery_service_user/authentication/login_remake.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
 import 'package:delivery_service_user/services/geopoint_json.dart';
 import 'package:delivery_service_user/widgets/custom_text_field.dart';
@@ -117,19 +118,18 @@ class _RegisterState extends State<Register> {
       "userPhone": phoneController.text.trim(),
       "status": "approved",
       //temporarily add the Address info here instead of as a collection
-      "userAddress": locationController.text.trim(),
-      "userLocation": geoPoint,
+      // "userAddress": locationController.text.trim(),
+      // "userLocation": geoPoint,
     });
 
     //Setting up default address' reference
     CollectionReference addressCollection = FirebaseFirestore.instance.collection("users").doc(currentUser.uid).collection("address");
 
     //Add address, latitude, and longitude (will be added 2nd semester)
-    // await addressCollection.add({
-    //   'lat' : position!.latitude,
-    //   'lng' : position!.longitude,
-    //   'add_en' : completeAddress,
-    // });
+    await addressCollection.add({
+      "addressEng": locationController.text,
+      "location": geoPoint,
+    });
 
     //Save data locally
     String locationString = geoPointToJson(geoPoint!);
@@ -145,7 +145,9 @@ class _RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).primaryColor,
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 16),
@@ -161,16 +163,10 @@ class _RegisterState extends State<Register> {
               const SizedBox(
                 height: 16,
               ),
-
-              const SizedBox(
-                height: 16,
-              ),
-
-              //sample
               Form(
                 key: _formKey,
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 40.0, right: 40.0, bottom: 16.0),
+                  padding: const EdgeInsets.only(left: 40.0, right: 40.0,),
                   child: Column(
                     children: [
                       CustomTextField(
@@ -267,6 +263,30 @@ class _RegisterState extends State<Register> {
                   ),
                 ),
               ),
+              const SizedBox(height: 16,),
+              //Already have an account? Sign up
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text("Already have an account?"),
+                  TextButton(
+                    onPressed: () {
+                      // Add your navigation or action here for Sign Up
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginRemake()),
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      splashFactory: NoSplash.splashFactory,
+                      foregroundColor: Colors.red,
+                      padding: EdgeInsets.zero,
+                    ),
+                    child: const Text('Sign In',),
+                  ),
+                ],
+              )
             ],
           ),
         ),

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery_service_user/authentication/register.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
 import 'package:delivery_service_user/services/auth_service.dart';
@@ -228,6 +229,31 @@ class _LoginRemakeState extends State<LoginRemake> {
                   ),
                 ),
               ),
+              const SizedBox(height: 16,),
+              //Don't have an account? Sign up
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text("Don't have an account?"),
+                  TextButton(
+                    onPressed: () {
+                      // Add your navigation or action here for Sign Up
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const Register()),
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      splashFactory: NoSplash.splashFactory,
+                      foregroundColor: Colors.red,
+                      padding: EdgeInsets.zero,
+                    ),
+                    child: const Text('Sign Up',),
+                  ),
+                ],
+              )
+
             ],
           ),
         ),
