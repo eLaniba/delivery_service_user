@@ -126,9 +126,13 @@ class _RegisterState extends State<Register> {
     CollectionReference addressCollection = FirebaseFirestore.instance.collection("users").doc(currentUser.uid).collection("address");
 
     //Add address, latitude, and longitude (will be added 2nd semester)
-    await addressCollection.add({
+    DocumentReference addressDoc = await addressCollection.add({
       "addressEng": locationController.text,
       "location": geoPoint,
+    });
+
+    await addressDoc.update({
+      'addressID': addressDoc.id,
     });
 
     //Save data locally
@@ -138,6 +142,7 @@ class _RegisterState extends State<Register> {
     await sharedPreferences!.setString("uid", currentUser.uid);
     await sharedPreferences!.setString("email", currentUser.email.toString());
     await sharedPreferences!.setString("phone", phoneController.text.trim());
+    await sharedPreferences!.setString("addressID", addressDoc.id);
     await sharedPreferences!.setString("address", completeAddress);
     await sharedPreferences!.setString("location", locationString);
   }

@@ -3,8 +3,10 @@ import 'dart:typed_data';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery_service_user/mainScreens/cart_checkout_screen/select_address_screen.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/add_to_cart_storeInfo.dart';
+import 'package:delivery_service_user/models/address.dart';
 import 'package:delivery_service_user/models/new_order.dart';
 import 'package:delivery_service_user/services/geopoint_json.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
@@ -28,6 +30,10 @@ class CheckOutScreen extends StatefulWidget {
 
 class _CheckOutScreenState extends State<CheckOutScreen> {
   double totalOrderPrice = 0;
+  Address _currentAddress = Address(
+    addressEng: sharedPreferences!.getString('address'),
+    location: parseGeoPointFromJson(sharedPreferences!.getString('location').toString()),
+  );
 
   @override
   void initState() {
@@ -117,6 +123,19 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
     }
   }
 
+  void _navigateToSelectAddressScreen() async {
+    final selectedAddress = await Navigator.push(context, MaterialPageRoute(builder: (context) => SelectAddressScreen()));
+
+    if(selectedAddress != null && selectedAddress is Address) {
+      await sharedPreferences!.setString("address", selectedAddress.addressEng.toString());
+      await sharedPreferences!.setString("location", geoPointToJson(selectedAddress.location!));
+      setState(() {
+        // _currentAddress = selectedAddress;
+
+      });
+    }
+  }
+
   Future<void> deleteItemsFromCart(String storeID) async {
     try{
       //Reference to the store
@@ -167,7 +186,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
 
                 InkWell(
                   onTap: () {
-
+                    _navigateToSelectAddressScreen();
                   },
                   child: Container(
                     color: Colors.white,

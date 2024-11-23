@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
+import 'package:delivery_service_user/mainScreens/profile_screen/add_new_address_screen.dart';
 import 'package:delivery_service_user/models/address.dart';
+import 'package:delivery_service_user/services/geopoint_json.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -31,34 +33,52 @@ class _AddressScreenState extends State<AddressScreen> {
               .snapshots(),
           builder: (context, addressSnapshot) {
             if(addressSnapshot.connectionState == ConnectionState.waiting) {
-              return const Expanded(child: Center(child: CircularProgressIndicator(),));
+              return const Center(child: CircularProgressIndicator(),);
             } else if(addressSnapshot.hasError) {
-              return Expanded(child: Center(child: Text('Error: ${addressSnapshot.error}'),));
+              return Center(child: Text('Error: ${addressSnapshot.error}'),);
             } else if(addressSnapshot.hasData && addressSnapshot.data!.docs.isNotEmpty) {
-              return Expanded(
-                child: ListView.builder(
-                  itemCount: addressSnapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    Address address = Address.fromJson(
-                      addressSnapshot.data!.docs[index].data()!
-                          as Map<String, dynamic>,
-                    );
+              return ListView.builder(
+                itemCount: addressSnapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  Address address = Address.fromJson(
+                    addressSnapshot.data!.docs[index].data()!
+                        as Map<String, dynamic>,
+                  );
 
-                    return ListTile(
-                      leading: Icon(
-                        PhosphorIcons.mapPin(PhosphorIconsStyle.fill),
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      title: Text('${address.addressEng}'),
-                      trailing: Icon(PhosphorIcons.caretRight(PhosphorIconsStyle.regular)),
-                    );
-                  },
-                ),
+                  return ListTile(
+                    leading: Icon(
+                      PhosphorIcons.mapPin(PhosphorIconsStyle.fill),
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    title: Text('${address.addressEng}'),
+                    trailing: Icon(PhosphorIcons.caretRight(PhosphorIconsStyle.regular)),
+                  );
+                },
               );
             } else {
-              return const Expanded(child: Center(child: Text('No address found'),));
+              return const Center(child: Text('No address found'),);
             }
           },
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            color: Theme.of(context).primaryColor,
+          ),
+          height: 60,
+          child: TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (c) => AddNewAddressScreen(),),);
+            },
+            child: const Text(
+              'Add New Address',
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
+          ),
         ),
       ),
     );
