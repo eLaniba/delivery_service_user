@@ -26,12 +26,11 @@ class OrderScreen2 extends StatefulWidget {
 }
 
 class _OrderScreen2State extends State<OrderScreen2> {
-
   String orderDateRead() {
     DateTime orderTimeRead = widget.orderDetail!.orderTime!.toDate();
 
-    String fromattedOrderTime = DateFormat('MMMM d, y h:mm a').format(orderTimeRead);
-    return fromattedOrderTime;
+    String formattedOrderTime = DateFormat('MMMM d, y h:mm a').format(orderTimeRead);
+    return formattedOrderTime;
   }
 
   void completeOrderDialog() {

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
+import 'package:delivery_service_user/mainScreens/order_screen/order_details_screen.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_screen_2.dart';
 import 'package:delivery_service_user/models/new_order.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
@@ -42,7 +43,8 @@ class _OrderScreenState extends State<OrderScreen> {
                     elevation: 2,
                     child: InkWell(
                       onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (c) => OrderScreen2(orderDetail: order,)));
+                        // Navigator.push(context, MaterialPageRoute(builder: (c) => OrderScreen2(orderDetail: order,)));
+                        Navigator.push(context, MaterialPageRoute(builder: (c) => OrderDetailsScreen(order: order,)));
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(8),
