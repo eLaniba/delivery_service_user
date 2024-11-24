@@ -41,6 +41,19 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
     totalOrderPrice = calculateOrderTotal(widget.items);
   }
 
+  void _navigateToSelectAddressScreen() async {
+    final selectedAddress = await Navigator.push(context, MaterialPageRoute(builder: (context) => SelectAddressScreen()));
+
+    if(selectedAddress != null && selectedAddress is Address) {
+      await sharedPreferences!.setString("address", selectedAddress.addressEng.toString());
+      await sharedPreferences!.setString("location", geoPointToJson(selectedAddress.location!));
+      setState(() {
+        // _currentAddress = selectedAddress;
+
+      });
+    }
+  }
+
   double calculateOrderTotal(List<AddToCartItem>? items) {
     double total = 0;
     for (var item in items!) {
@@ -56,7 +69,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
     );
 
     try {
-      var _newOrderRef = await FirebaseFirestore.instance.collection('active_orders').add(order.toJson());
+      var _newOrderRef = await firebaseFirestore.collection('active_orders').add(order.toJson());
       await _newOrderRef.update({'orderID': _newOrderRef.id});
 
       // Retrieve the Firestore document once before the loop
@@ -64,7 +77,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
       List<dynamic> itemsFromFirestore = docSnapshot['items'];
 
       //Uploading Item image to Cloud Storage
-      for(var item in widget.items!) {
+      for(var item in itemsFromFirestore) {
         try{
           //Step 1: Fetch the image data from the URL
           final response = await http.get(Uri.parse(item.itemImageURL!));
@@ -120,19 +133,6 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
 
     } catch (e) {
       rethrow;
-    }
-  }
-
-  void _navigateToSelectAddressScreen() async {
-    final selectedAddress = await Navigator.push(context, MaterialPageRoute(builder: (context) => SelectAddressScreen()));
-
-    if(selectedAddress != null && selectedAddress is Address) {
-      await sharedPreferences!.setString("address", selectedAddress.addressEng.toString());
-      await sharedPreferences!.setString("location", geoPointToJson(selectedAddress.location!));
-      setState(() {
-        // _currentAddress = selectedAddress;
-
-      });
     }
   }
 

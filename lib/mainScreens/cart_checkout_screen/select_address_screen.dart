@@ -14,10 +14,6 @@ class SelectAddressScreen extends StatefulWidget {
 class _SelectAddressScreenState extends State<SelectAddressScreen> {
   Address? selectedAddress;
 
-  void _selectAddress() {
-
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

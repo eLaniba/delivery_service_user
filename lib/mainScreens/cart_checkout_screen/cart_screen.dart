@@ -51,18 +51,18 @@ class _CartScreenState extends State<CartScreen> {
                 }
 
                 if (storeSnapshot.data!.docs.isEmpty) {
-                  return const SliverFillRemaining(
+                  return SliverFillRemaining(
                     hasScrollBody: false,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.remove_shopping_cart_outlined,
-                          color: Colors.grey,
+                          PhosphorIcons.empty(PhosphorIconsStyle.regular),
                           size: 48,
+                          color: Colors.grey,
                         ),
-                        Text(
+                        const Text(
                           'Cart is empty',
                           style: TextStyle(
                             color: Colors.grey,
@@ -130,14 +130,16 @@ class _CartScreenState extends State<CartScreen> {
                                 children: [
                                   Text('${sAddToCartStoreInfo.storeAddress}'),
                                   //Number of Item(s)
-                                  FutureBuilder<int>(
-                                    future: _getNumOfItems(storeDocRef),
+                                  StreamBuilder<QuerySnapshot>(
+                                    stream: storeDocRef.collection('items').snapshots(),
                                     builder: (context, itemSnapshot) {
-                                      if (itemSnapshot.connectionState == ConnectionState.waiting) {
-                                        return Text('...', style: TextStyle(color: grey50),);
+                                      if (!itemSnapshot.hasData) {
+                                        return Text(
+                                          '...',
+                                          style: TextStyle(color: grey50),
+                                        );
                                       }
-                                      // Update numOfItems
-                                      int numOfItems = itemSnapshot.data!;
+                                      int numOfItems = itemSnapshot.data!.docs.length;
                                       return Text(
                                         'You have $numOfItems item(s) in this store',
                                         style: TextStyle(

@@ -224,7 +224,26 @@ class _OrderScreenState extends State<OrderScreen> {
                     childCount: orderSnapshot.data!.docs.length),
               );
             } else {
-              return const SliverToBoxAdapter(child: Center(child: Text('Press  ➕  to add new product category')));
+              return SliverFillRemaining(
+                hasScrollBody: false,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      PhosphorIcons.empty(PhosphorIconsStyle.regular),
+                      size: 48,
+                      color: Colors.grey,
+                    ),
+                    const Text(
+                      'No active order exist',
+                      style: TextStyle(
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              );
             }
           },
         ),

@@ -86,6 +86,7 @@ flutter:
     - assets/custom_icons/
     - assets/splash_image.png
     - assets/icons/shopping_bag.png
+    - assets/icons/square_rotated.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

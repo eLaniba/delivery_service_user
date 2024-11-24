@@ -36,6 +36,7 @@ class _StoreScreenRemakeState extends State<StoreScreenRemake> {
           child: Container(
             // padding: EdgeInsets.all(8.0),
             // margin: EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
+            margin: const EdgeInsets.only(bottom: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               color: Colors.white,
@@ -128,24 +129,52 @@ class _StoreScreenRemakeState extends State<StoreScreenRemake> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Network image
-                Container(
-                  height: 150,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(8),
-                      topRight: Radius.circular(8)
-                    ),
-                    image: DecorationImage(
-                      image: NetworkImage('${stores.storeImageURL}'),
-                      fit: BoxFit.cover,
+              SizedBox(
+              height: 150,
+              width: double.infinity,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  topRight: Radius.circular(8),
+                ),
+                child: stores.storeImageURL != null
+                    ? CachedNetworkImage(
+                  imageUrl: '${stores.storeImageURL}',
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: SizedBox(
+                      height: 200,
+                      child: Center(
+                        child: Icon(
+                          PhosphorIcons.image(PhosphorIconsStyle.fill),
+                        ),
+                      ),
                     ),
                   ),
+                  errorWidget: (context, url, error) => Container(
+                    color: white80,
+                    child: Icon(
+                      PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
+                      color: Colors.white,
+                      size: 48,
+                    ),
+                  ),
+                )
+                    : Container(
+                  color: white80,
+                  child: Icon(
+                    PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
+                    color: Colors.white,
+                  ),
                 ),
-                const SizedBox(height: 8,),
+              ),
+            ),
+            const SizedBox(height: 8,),
                 //Store Info
                 Padding(
-                  padding: const EdgeInsets.only(left: 8, bottom: 16),
+                  padding: const EdgeInsets.all(8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

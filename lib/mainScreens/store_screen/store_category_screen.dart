@@ -214,7 +214,7 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
         slivers: [
           //Store image
           SliverToBoxAdapter(
-            child: Container(
+            child: SizedBox(
               height: 200,
               width: double.infinity,
               child: widget.stores!.storeImageURL != null

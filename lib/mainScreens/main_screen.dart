@@ -158,17 +158,23 @@ class _MainScreenState extends State<MainScreen> {
           });
         },
         currentIndex: widgetIndex,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_2_outlined),
+            icon: widgetIndex == 0
+              ? Icon(PhosphorIcons.user(PhosphorIconsStyle.fill))
+              : Icon(PhosphorIcons.user(PhosphorIconsStyle.regular)),
             label: 'Profile',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.store_outlined),
+            icon: widgetIndex == 1
+                ? Icon(PhosphorIcons.storefront(PhosphorIconsStyle.fill))
+                : Icon(PhosphorIcons.storefront(PhosphorIconsStyle.regular)),
             label: 'Stores',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.inventory_2_outlined),
+            icon: widgetIndex == 2
+                ? Icon(PhosphorIcons.package(PhosphorIconsStyle.fill))
+                : Icon(PhosphorIcons.package(PhosphorIconsStyle.regular)),
             label: 'Orders',
           ),
 

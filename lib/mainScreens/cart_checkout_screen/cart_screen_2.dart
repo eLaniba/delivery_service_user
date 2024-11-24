@@ -51,8 +51,8 @@ class _CartScreen2State extends State<CartScreen2> {
 
     try {
       //Deleting the item image from the Firebase Cloud Storage
-      final imageRef = FirebaseStorage.instance.refFromURL(item.itemImageURL.toString());
-      await imageRef.delete();
+      // final imageRef = FirebaseStorage.instance.refFromURL(item.itemImageURL.toString());
+      // await imageRef.delete();
 
       //Deleting item document after deleting the image
       await firebaseFirestore
@@ -131,12 +131,15 @@ class _CartScreen2State extends State<CartScreen2> {
               } else if (itemSnapshot.hasError) {
                 return Center(child: Text('Error: ${itemSnapshot.error}'));
               } else if (itemSnapshot.hasData && itemSnapshot.data!.docs.isNotEmpty) {
+                //Clear list for rebuild
+                listAddToCartItem.clear();
+                processedItemIDs.clear();
+
                 return SliverPadding(
                   padding: const EdgeInsets.only(top: 4),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate((context, index) {
-                      AddToCartItem sAddToCartItem = AddToCartItem.fromJson(
-                          itemSnapshot.data!.docs[index].data()! as Map<String, dynamic>);
+                      AddToCartItem sAddToCartItem = AddToCartItem.fromJson(itemSnapshot.data!.docs[index].data()! as Map<String, dynamic>,);
 
                       // Check if the item has already been processed
                       if (!processedItemIDs.contains(sAddToCartItem.itemID)) {
@@ -284,11 +287,31 @@ class _CartScreen2State extends State<CartScreen2> {
                     }, childCount: itemSnapshot.data!.docs.length),
                   ),
                 );
-              } else {
-                return const SliverToBoxAdapter(
-                  child: Center(child: Text('No items added in this store')),
-                );
+              } else if (itemSnapshot.hasData && itemSnapshot.data!.docs.isEmpty) {
+                //Delete the store cart document and navigate back
+                WidgetsBinding.instance.addPostFrameCallback((_) async {
+                  try{
+                    await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc('${sharedPreferences!.getString('uid')}')
+                        .collection('cart')
+                        .doc(widget.addToCartStoreInfo!.storeID)
+                        .delete();
+
+                    //Pop out of the current screen
+                    Navigator.pop(context);
+                  } catch(e) {
+                    // Handle errors gracefully
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error clearing cart: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                });
               }
+              return const SliverToBoxAdapter();
             },
           ),
         ],
