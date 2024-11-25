@@ -100,19 +100,6 @@ class _OrderScreen2State extends State<OrderScreen2> {
       },
     );
   }
-
-  // void completeOrder() {
-  //   showDialog(context: context, builder: builder)
-  //
-  //   DocumentReference orderDocument = FirebaseFirestore.instance.collection('active_orders').doc('${widget.orderDetail!.orderID}');
-  //   try{
-  //     orderDocument.update({
-  //       'riderConfirmDelivery': true,
-  //     });
-  //   } catch(e) {
-  //     rethrow;
-  //   }
-  // }
   Future<void> confirmDelivery() async {
     showDialog(context: context, builder: (BuildContext context) {
       return const LoadingDialog(
@@ -164,6 +151,20 @@ class _OrderScreen2State extends State<OrderScreen2> {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const MainScreen()));
     });
   }
+
+
+  // void completeOrder() {
+  //   showDialog(context: context, builder: builder)
+  //
+  //   DocumentReference orderDocument = FirebaseFirestore.instance.collection('active_orders').doc('${widget.orderDetail!.orderID}');
+  //   try{
+  //     orderDocument.update({
+  //       'riderConfirmDelivery': true,
+  //     });
+  //   } catch(e) {
+  //     rethrow;
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

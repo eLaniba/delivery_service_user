@@ -43,7 +43,7 @@ Widget orderStatusWidget(String orderStatus) {
           ),
           const SizedBox(width: 4.0), // Space between icon and text
           const Text(
-            "Accepted ",
+            "The store accepted your order ",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ],
@@ -53,7 +53,7 @@ Widget orderStatusWidget(String orderStatus) {
   else if (orderStatus == 'Preparing') {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.orange,
+        color: Colors.blue,
         borderRadius: BorderRadius.circular(50.0), // Fully rounded corners
       ),
       padding: const EdgeInsets.symmetric(horizontal:4.0, vertical: 2.0),
@@ -67,7 +67,7 @@ Widget orderStatusWidget(String orderStatus) {
           ),
           const SizedBox(width: 4.0), // Space between icon and text
           const Text(
-            "Preparing ",
+            "The store is preparing your order ",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ],
@@ -91,7 +91,7 @@ Widget orderStatusWidget(String orderStatus) {
           ),
           const SizedBox(width: 4.0), // Space between icon and text
           const Text(
-            "Waiting ",
+            "Waiting for a rider ",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ],
@@ -115,7 +115,7 @@ Widget orderStatusWidget(String orderStatus) {
           ),
           const SizedBox(width: 4.0), // Space between icon and text
           const Text(
-            "Assigned ",
+            "Rider assigned successfully ",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ],
@@ -125,7 +125,7 @@ Widget orderStatusWidget(String orderStatus) {
   else if (orderStatus == 'Picking up') {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.red,
+        color: Colors.blue,
         borderRadius: BorderRadius.circular(50.0), // Fully rounded corners
       ),
       padding: const EdgeInsets.symmetric(horizontal:4.0, vertical: 2.0),
@@ -133,13 +133,13 @@ Widget orderStatusWidget(String orderStatus) {
         mainAxisSize: MainAxisSize.min, // Wraps tightly around the child
         children: [
           Icon(
-            PhosphorIcons.check(PhosphorIconsStyle.bold),
+            PhosphorIcons.arrowsClockwise(PhosphorIconsStyle.bold),
             color: Colors.white,
             size: 18,
           ),
           const SizedBox(width: 4.0), // Space between icon and text
           const Text(
-            "Picking up ",
+            "Rider is picking your order ",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ],
@@ -163,7 +163,7 @@ Widget orderStatusWidget(String orderStatus) {
           ),
           const SizedBox(width: 4.0), // Space between icon and text
           const Text(
-            "Picked up ",
+            "Rider picked up the order ",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ],
@@ -173,7 +173,7 @@ Widget orderStatusWidget(String orderStatus) {
   else if (orderStatus == 'Delivering') {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.red,
+        color: Colors.blue,
         borderRadius: BorderRadius.circular(50.0), // Fully rounded corners
       ),
       padding: const EdgeInsets.symmetric(horizontal:4.0, vertical: 2.0),
@@ -181,13 +181,13 @@ Widget orderStatusWidget(String orderStatus) {
         mainAxisSize: MainAxisSize.min, // Wraps tightly around the child
         children: [
           Icon(
-            PhosphorIcons.check(PhosphorIconsStyle.bold),
+            PhosphorIcons.arrowsClockwise(PhosphorIconsStyle.bold),
             color: Colors.white,
             size: 18,
           ),
           const SizedBox(width: 4.0), // Space between icon and text
           const Text(
-            "Delivering ",
+            "Rider is on its way! ",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ],
