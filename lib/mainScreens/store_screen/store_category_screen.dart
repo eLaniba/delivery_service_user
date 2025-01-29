@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_item_screen.dart';
 import 'package:delivery_service_user/models/category_item.dart';
@@ -10,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../global/global.dart';
 
 class StoreCategoryScreen extends StatefulWidget {
   StoreCategoryScreen({super.key, this.stores});
@@ -22,18 +22,6 @@ class StoreCategoryScreen extends StatefulWidget {
 }
 
 class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
-
-  Future<bool> checkCategory() async {
-    //Create a Category Collection reference
-    CollectionReference categoriesCollection = FirebaseFirestore.instance
-        .collection('sellers')
-        .doc(widget.stores!.storeID)
-        .collection('categories');
-
-    //Get all documents from Category Collection
-    QuerySnapshot querySnapshot = await categoriesCollection.get();
-    return querySnapshot.docs.isNotEmpty;
-  }
 
   @override
   Widget build(BuildContext context) {

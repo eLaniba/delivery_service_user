@@ -4,6 +4,8 @@ import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/cart_checkout_screen/checkout_screen.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/add_to_cart_storeInfo.dart';
+import 'package:delivery_service_user/widgets/cart_screen_widget.dart';
+import 'package:delivery_service_user/widgets/cart_screen_widget_reverse.dart';
 import 'package:delivery_service_user/widgets/confirmation_dialog.dart';
 import 'package:delivery_service_user/widgets/item_quantity_changer.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
@@ -50,9 +52,24 @@ class _CartScreen2State extends State<CartScreen2> {
     );
 
     try {
+      print('LOCATION - users/${sharedPreferences!.getString('uid')}/cart/${widget.addToCartStoreInfo!.storeID}/items/${item.itemID}');
       //Deleting the item image from the Firebase Cloud Storage
-      // final imageRef = FirebaseStorage.instance.refFromURL(item.itemImageURL.toString());
+      // final imageRef = firebaseStorage.ref(item.itemImagePath);
       // await imageRef.delete();
+
+      //Retrieve back the itemQnty from Cart to Store
+      DocumentReference itemFromStore = firebaseFirestore.collection('stores').doc(widget.addToCartStoreInfo!.storeID).collection('items').doc(item.itemID);
+
+      //Check if item exist in the Store items collection
+      DocumentSnapshot itemSnapshot = await itemFromStore.get();
+      if(itemSnapshot.exists) {
+          await itemFromStore.update({
+            //Can you help me get the itemQnty inside the itemSnapshot document?
+            'itemStock': FieldValue.increment(item.itemQnty!),
+          });
+      } else {
+        print("Item not found in store, skipping stock restoration.");
+      }
 
       //Deleting item document after deleting the image
       await firebaseFirestore
@@ -63,8 +80,9 @@ class _CartScreen2State extends State<CartScreen2> {
           .collection("items")
           .doc(item.itemID)
           .delete();
-
-      Navigator.of(context).pop();
+      if(mounted) {
+        Navigator.of(context).pop();
+      }
 
       // Show a success Snackbar
       ScaffoldMessenger.of(context).showSnackBar(
@@ -76,17 +94,21 @@ class _CartScreen2State extends State<CartScreen2> {
       );
 
     } catch (e) {
-      Navigator.of(context).pop();
+      print("Error deleting item: $e");
 
       // Show an error Snackbar if something goes wrong
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to add item: $e'),
+          content: Text('Failed to delete item: $e'),
           backgroundColor: Colors.red, // Optional: Set background color for error
           duration: Duration(seconds: 5), // Optional: How long the snackbar is shown
         ),
       );
     }
+
+  }
+
+  void updateQuantity() {
 
   }
 
@@ -314,6 +336,9 @@ class _CartScreen2State extends State<CartScreen2> {
               return const SliverToBoxAdapter();
             },
           ),
+          // SliverToBoxAdapter(
+          //   child: CartScreenWidget(userID: sharedPreferences!.getString('uid')!, storeID: widget.addToCartStoreInfo!.storeID!,),
+          // ),
         ],
       ),
       bottomNavigationBar: BottomAppBar(

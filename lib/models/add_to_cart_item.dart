@@ -2,6 +2,7 @@ class AddToCartItem {
   //Seller Item
   String? itemID;
   String? itemName;
+  String? itemImagePath;
   String? itemImageURL;
   double? itemPrice;
   int? itemQnty;
@@ -10,6 +11,7 @@ class AddToCartItem {
   AddToCartItem({
     this.itemID,
     this.itemName,
+    this.itemImagePath,
     this.itemImageURL,
     this.itemPrice,
     this.itemQnty,
@@ -20,6 +22,7 @@ class AddToCartItem {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['itemID'] = this.itemID;
     data['itemName'] = this.itemName;
+    data['itemImagePath'] = this.itemImagePath;
     data['itemImageURL'] = this.itemImageURL;
     data['itemPrice'] = this.itemPrice;
     data['itemQnty'] = this.itemQnty;
@@ -30,6 +33,7 @@ class AddToCartItem {
   AddToCartItem.fromJson(Map<String, dynamic> json) {
     itemID = json['itemID'];
     itemName = json['itemName'];
+    itemImagePath = json['itemImagePath'];
     itemImageURL = json['itemImageURL'];
     itemPrice = json['itemPrice'];
     itemQnty = json['itemQnty'];

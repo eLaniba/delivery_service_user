@@ -6,6 +6,7 @@ import 'package:delivery_service_user/mainScreens/profile_screen/profile_screen.
 import 'package:delivery_service_user/mainScreens/store_screen/store_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_screen_remake.dart';
 import 'package:delivery_service_user/services/count_cart_listener.dart';
+import 'package:delivery_service_user/widgets/search_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -36,7 +37,7 @@ class _MainScreenState extends State<MainScreen> {
             // Navigate to another page (SearchScreen) when the search bar is tapped
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const Scaffold(body: Placeholder(child: Text('hello'),),)), // Your search screen
+              MaterialPageRoute(builder: (context) => const SearchScreen()), // Your search screen
             );
           },
           child: Container(

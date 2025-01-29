@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
@@ -10,6 +12,7 @@ import 'package:delivery_service_user/widgets/error_dialog.dart';
 import 'package:delivery_service_user/widgets/item_dialog.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shimmer/shimmer.dart';
@@ -377,6 +380,7 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Cancel'),
             ),
+            //Add To Cart button
             ElevatedButton(
               onPressed: () {
                 if (itemCount < 1) {
@@ -457,89 +461,256 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
 
   }
 
+  // void _addItemToCartFirestore(Stores store, Item itemModel, AddToCartItem addCartItemModel) async {
+  //   showDialog(
+  //     context: context,
+  //     builder: (c) {
+  //       return const LoadingDialog(message: "Adding item to cart");
+  //     },
+  //   );
+  //
+  //   //Check if itemStock in the store is greater than
+  //   DocumentReference itemStoreReference = firebaseFirestore.collection('stores').doc(store.storeID).collection('items').doc(itemModel.itemID);
+  //   //Check if the item document exist in the Store
+  //   DocumentSnapshot itemStoreSnapshot = await itemStoreReference.get();
+  //
+  //   //Reference for the cart Collection in Firestore
+  //   CollectionReference cartCollection = FirebaseFirestore.instance.collection('users').doc(sharedPreferences!.getString('uid')).collection('cart');
+  //
+  //   //Adding the store inside the cart Collection as Document
+  //   DocumentReference storeCartReference = cartCollection.doc(store.storeID);
+  //
+  //   //Add a fields to the new store document: sellerUID, sellerName, phone, address
+  //   await storeCartReference.set(store.addStoreToCart());
+  //
+  //   //Add the item Collection inside the store Document || this is the items Collection reference
+  //   CollectionReference itemCartReference = storeCartReference.collection('items');
+  //
+  //   //Check if the item document exist
+  //   DocumentSnapshot itemCartSnapshot = await itemCartReference.doc('${itemModel.itemID}').get();
+  //
+  //   if(itemCartSnapshot.exists) {
+  //     try {
+  //       //We need to check the store item location to check if there's an available stock
+  //       //TODOLIST
+  //
+  //       int newItemQnty = addCartItemModel.itemQnty! + itemCartSnapshot.get('itemQnty') as int;
+  //       double newItemTotal = addCartItemModel.itemTotal! + itemCartSnapshot.get('itemTotal');
+  //
+  //       await itemCartReference.doc('${itemModel.itemID}').update({
+  //         'itemQnty' : newItemQnty,
+  //         'itemTotal' : newItemTotal,
+  //       });
+  //
+  //       Navigator.of(context).pop();
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //          SnackBar(
+  //           content: const Text('Item added to cart successfully!'),
+  //           backgroundColor: Colors.black.withOpacity(0.8), // Optional: Set background color
+  //           duration: const Duration(seconds: 3), // Optional: How long the snackbar is shown
+  //         ),
+  //       );
+  //
+  //     } catch (e) {
+  //       Navigator.of(context).pop();
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text('Failed to add item to cart: $e'),
+  //           backgroundColor: Colors.red, // Optional: Set background color for error
+  //           duration: const Duration(seconds: 3), // Optional: How long the snackbar is shown
+  //         ),
+  //       );
+  //     }
+  //   } else {
+  //     try {
+  //       // showDialog(
+  //       //   context: context,
+  //       //   builder: (c) {
+  //       //     return const LoadingDialog(message: "Adding item to cart");
+  //       //   },
+  //       // );
+  //
+  //       //Uploading the fields in the Cart Collection
+  //       await itemCartReference.doc('${itemModel.itemID}').set(addCartItemModel.toJson());
+  //
+  //       //Reference to the new image path
+  //       Reference oldImageLocation = firebaseStorage.ref(itemModel.itemImagePath);
+  //       //String variable of the newImageLocation for the reference in Storage as well as imagePath in the document
+  //       final String newImagePath = 'users/${sharedPreferences!.getString('uid')}/cart/${store.storeID}/items/${itemModel.itemID}.jpg';
+  //       Reference newImageLocation = firebaseStorage.ref(newImagePath);
+  //
+  //       //Download the Item Image from the Store
+  //       final Uint8List? fileData = await oldImageLocation.getData();
+  //
+  //       if (fileData != null) {
+  //         //Upload to the new Image Location (User's Cart)
+  //         UploadTask uploadTask = newImageLocation.putData(fileData);
+  //         TaskSnapshot snapshot = await uploadTask;
+  //
+  //         //Get the new image URL
+  //         String newImageURL = await snapshot.ref.getDownloadURL();
+  //
+  //         //Update the document to the new itemImagePath and itemImageURL
+  //         await itemCartReference.doc('${itemModel.itemID}').update({
+  //           'itemImagePath': newImagePath,
+  //           'itemImageURL': newImageURL,
+  //         });
+  //
+  //       }
+  //
+  //       Navigator.of(context).pop();
+  //
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: const Text('Item added to cart successfully!'),
+  //             backgroundColor: Colors.black.withOpacity(0.8),
+  //           duration: const Duration(seconds: 3),
+  //         ),
+  //       );
+  //     } catch (e) {
+  //       String errorMessage;
+  //
+  //       if (e is Exception) {
+  //         errorMessage = e.toString();
+  //       } else {
+  //         errorMessage = 'Failed to add item to cart: $e';
+  //       }
+  //
+  //       Navigator.of(context).pop();
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text(errorMessage),
+  //           backgroundColor: Colors.red, // Optional: Set background color for error
+  //           duration: const Duration(seconds: 3), // Optional: How long the snackbar is shown
+  //         ),
+  //       );
+  //     }
+  //   }
+  // }
+
+  void updateItem() {
+    print("YESSSS");
+  }
+
   void _addItemToCartFirestore(Stores store, Item itemModel, AddToCartItem addCartItemModel) async {
     showDialog(
       context: context,
       builder: (c) {
         return const LoadingDialog(message: "Adding item to cart");
       },
-
     );
 
-    //Reference for the cart Collection in Firestore
-    CollectionReference cartCollection = FirebaseFirestore.instance.collection('users').doc(sharedPreferences!.getString('uid')).collection('cart');
+    try {
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        // References
+        DocumentReference itemStoreReference = FirebaseFirestore.instance
+            .collection('stores')
+            .doc(store.storeID)
+            .collection('items')
+            .doc(itemModel.itemID);
 
-    //Adding the store inside the cart Collection as Document
-    DocumentReference storeReference = cartCollection.doc(store.storeID);
+        DocumentReference storeCartReference = FirebaseFirestore.instance
+            .collection('users')
+            .doc(sharedPreferences!.getString('uid'))
+            .collection('cart')
+            .doc(store.storeID);
 
-    //Add a fields to the new store document: sellerUID, sellerName, phone, address
-    await storeReference.set(store.addStoreToCart());
+        DocumentReference itemCartReference = storeCartReference
+            .collection('items')
+            .doc(itemModel.itemID);
 
-    //Add the item Collection inside the store Document || this is the items Collection reference
-    CollectionReference itemReference = storeReference.collection('items');
+        // ** Step 1: Read all required documents first (before any writes) **
+        DocumentSnapshot itemStoreSnapshot = await transaction.get(itemStoreReference);
+        DocumentSnapshot itemCartSnapshot = await transaction.get(itemCartReference);
 
-    //Check if the item document exist
-    DocumentSnapshot itemSnapshot = await itemReference.doc('${itemModel.itemID}').get();
+        // Check if the item exists in the store
+        if (!itemStoreSnapshot.exists) {
+          throw Exception('Item does not exist in the store.');
+        }
 
-    if(itemSnapshot.exists) {
-      try {
-        int newItemQnty = addCartItemModel.itemQnty! + itemSnapshot.get('itemQnty') as int;
-        double newItemTotal = addCartItemModel.itemTotal! + itemSnapshot.get('itemTotal');
+        int itemStock = itemStoreSnapshot.get('itemStock') as int;
 
-        await itemReference.doc('${itemModel.itemID}').update({
-          'itemQnty' : newItemQnty,
-          'itemTotal' : newItemTotal,
+        // Check if stock is enough
+        if (itemStock < addCartItemModel.itemQnty!) {
+          throw Exception('Not enough stock available in the store.');
+        }
+
+        // ** Step 2: Now, perform all writes after reading everything **
+
+        // Deduct stock from the store item
+        transaction.update(itemStoreReference, {
+          'itemStock': itemStock - addCartItemModel.itemQnty!,
         });
 
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(
-            content: const Text('Item added to cart successfully!'),
-            backgroundColor: Colors.black.withOpacity(0.8), // Optional: Set background color
-            duration: const Duration(seconds: 3), // Optional: How long the snackbar is shown
-          ),
-        );
+        // Ensure store info is added to cart
+        transaction.set(storeCartReference, store.addStoreToCart(), SetOptions(merge: true));
 
-      } catch (e) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to add item to cart: $e'),
-            backgroundColor: Colors.red, // Optional: Set background color for error
-            duration: const Duration(seconds: 3), // Optional: How long the snackbar is shown
-          ),
-        );
+        if (itemCartSnapshot.exists) {
+          // Update item quantity and total price in cart
+          int newItemQnty = addCartItemModel.itemQnty! + itemCartSnapshot.get('itemQnty') as int;
+          double newItemTotal = addCartItemModel.itemTotal! + itemCartSnapshot.get('itemTotal');
+
+          transaction.update(itemCartReference, {
+            'itemQnty': newItemQnty,
+            'itemTotal': newItemTotal,
+          });
+        } else {
+          // Add new item to cart
+          transaction.set(itemCartReference, addCartItemModel.toJson());
+        }
+      });
+
+      // Move image after the transaction completes successfully
+      Reference oldImageLocation = firebaseStorage.ref(itemModel.itemImagePath);
+      final String newImagePath = 'users/${sharedPreferences!.getString('uid')}/cart/${store.storeID}/items/${itemModel.itemID}.jpg';
+      Reference newImageLocation = firebaseStorage.ref(newImagePath);
+
+      final Uint8List? fileData = await oldImageLocation.getData();
+      if (fileData != null) {
+        UploadTask uploadTask = newImageLocation.putData(fileData);
+        TaskSnapshot snapshot = await uploadTask;
+
+        String newImageURL = await snapshot.ref.getDownloadURL();
+
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(sharedPreferences!.getString('uid'))
+            .collection('cart')
+            .doc(store.storeID)
+            .collection('items')
+            .doc(itemModel.itemID)
+            .update({
+          'itemImagePath': newImagePath,
+          'itemImageURL': newImageURL,
+        });
       }
-    } else {
-      try {
-        // showDialog(
-        //   context: context,
-        //   builder: (c) {
-        //     return const LoadingDialog(message: "Adding item to cart");
-        //   },
-        // );
 
-        await itemReference.doc('${itemModel.itemID}').set(addCartItemModel.toJson());
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Item added to cart successfully!'),
+          backgroundColor: Colors.black.withOpacity(0.8),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      String errorMessage;
 
-        Navigator.of(context).pop();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Item added to cart successfully!'),
-              backgroundColor: Colors.black.withOpacity(0.8),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      } catch (e) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to add item to cart: $e'),
-            backgroundColor: Colors.red, // Optional: Set background color for error
-            duration: const Duration(seconds: 3), // Optional: How long the snackbar is shown
-          ),
-        );
+      // Check if the error is a manually thrown exception
+      if (e is Exception) {
+        errorMessage = e.toString().replaceFirst('Exception: ', ''); // Remove "Exception: " prefix
+      } else {
+        errorMessage = "An unexpected error occurred: $e";
       }
+
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -744,9 +915,8 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
             stream: FirebaseFirestore.instance
                 .collection("stores")
                 .doc(widget.store!.storeID)
-                .collection("categories")
-                .doc(widget.categoryModel!.categoryID)
                 .collection('items')
+                .where('categoryID', isEqualTo: widget.categoryModel!.categoryID)
                 .snapshots(),
             builder: (context, itemSnapshot) {
               if (!itemSnapshot.hasData) {
@@ -808,7 +978,7 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Item image
+                              //Item image
                               Expanded(
                                 child: Stack(
                                   children: [
@@ -885,7 +1055,7 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                                   ],
                                 ),
                               ),
-                              // Item name and price
+                              //Item name
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 child: Text(
@@ -898,6 +1068,7 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                                   ),
                                 ),
                               ),
+                              //Item price and cart icon
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 8),
                                 child: Row(
@@ -917,6 +1088,19 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                                       size: 20,
                                     ),
                                   ],
+                                ),
+                              ),
+                              //Item stock
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                child: Text(
+                                  '${item.itemStock} stock available',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 8),
