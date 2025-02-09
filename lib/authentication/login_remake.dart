@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery_service_user/authentication/new_signup/email_verification_page.dart';
 import 'package:delivery_service_user/authentication/register.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
@@ -127,7 +128,7 @@ class _LoginRemakeState extends State<LoginRemake> {
         // Navigate to the main screen if the login is successful
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => MainScreen()),
+          MaterialPageRoute(builder: (context) => const MainScreen()),
         );
       } else {
         //If currentUser does not exist in the Firestore
@@ -162,6 +163,7 @@ class _LoginRemakeState extends State<LoginRemake> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Center(child: Text('Welcome!', style: TextStyle(color: Theme.of(context).colorScheme.inversePrimary), textAlign: TextAlign.center,)),
         backgroundColor: Theme.of(context).primaryColor,
       ),
       body: SingleChildScrollView(
@@ -172,58 +174,96 @@ class _LoginRemakeState extends State<LoginRemake> {
             children: [
               Image.asset(
                 'assets/splash_image.png',
-                height: 100,
-                width: 100,
+                height: 200,
+                width: 200,
               ),
-              const Text(
-                "Welcome,",
-                style: TextStyle(
-                  fontSize: 24,
-                ),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
+              // const Text(
+              //   "Welcome",
+              //   style: TextStyle(
+              //     fontSize: 24,
+              //   ),
+              // ),
+              // const SizedBox(height: 8),
 
               //sample
               Form(
                 key: _formKey,
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 40.0, right: 40.0),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      //Email Text
+                      const Text(
+                        'Email',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      //Email Text Field
                       CustomTextField(
-                        labelText: 'Email',
+                        labelText: 'example@gmail.com',
                         controller: emailController,
                         isObscure: false,
                         validator: validateEmail,
                       ),
-                      const SizedBox(
-                        height: 16,
+                      const SizedBox(height: 8),
+                      //Password Text
+                      const Text(
+                        'Password',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
+                      const SizedBox(height: 8),
+                      //Password Text Field
                       CustomTextField(
                         labelText: 'Password',
                         controller: passwordController,
                         isObscure: true,
                         validator: validatePassword,
                       ),
-                      const SizedBox(
-                        height: 24,
-                      ),
-                      ElevatedButton(
+                      //Forgot password?
+                      TextButton(
                         onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            //Login
-                            login();
-                          }
+                          // Add your navigation or action here for Sign Up
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const EmailVerificationPage()),
+                          );
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.primary,
-                          foregroundColor:
-                          Theme.of(context).colorScheme.inversePrimary,
-                          padding: const EdgeInsets.only(left: 64, right: 64),
+                        style: TextButton.styleFrom(
+                          splashFactory: NoSplash.splashFactory,
+                          foregroundColor: Colors.red,
+                          padding: EdgeInsets.zero,
                         ),
-                        child: const Text("Login"),
+                        child: const Text('Forgot password?'),
+                      ),
+                      const SizedBox(height: 12),
+
+                      //Login Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              //Login
+                              login();
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            foregroundColor: Theme.of(context).colorScheme.inversePrimary,
+                            padding: const EdgeInsets.symmetric(vertical: 14,),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          child: const Text("Login"),
+                        ),
                       ),
                     ],
                   ),
@@ -239,9 +279,9 @@ class _LoginRemakeState extends State<LoginRemake> {
                   TextButton(
                     onPressed: () {
                       // Add your navigation or action here for Sign Up
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const Register()),
+                        MaterialPageRoute(builder: (context) => const EmailVerificationPage()),
                       );
                     },
                     style: TextButton.styleFrom(

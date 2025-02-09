@@ -7,7 +7,6 @@ import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_scre
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/category_item.dart';
 import 'package:delivery_service_user/models/stores.dart';
-import 'package:delivery_service_user/services/count_cart_listener.dart';
 import 'package:delivery_service_user/widgets/error_dialog.dart';
 import 'package:delivery_service_user/widgets/item_dialog.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';

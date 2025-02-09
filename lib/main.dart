@@ -1,4 +1,3 @@
-import 'package:delivery_service_user/authentication/auth_screen.dart';
 import 'package:delivery_service_user/authentication/auth_screen_remake.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';

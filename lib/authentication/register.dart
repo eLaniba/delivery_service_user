@@ -2,22 +2,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/authentication/login_remake.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
 import 'package:delivery_service_user/services/geopoint_json.dart';
+import 'package:delivery_service_user/widgets/confirmation_dialog.dart';
 import 'package:delivery_service_user/widgets/custom_text_field.dart';
 import 'package:delivery_service_user/widgets/custom_text_field_validations.dart';
 import 'package:delivery_service_user/widgets/error_dialog.dart';
+import 'package:delivery_service_user/widgets/sign_up_agreement.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:delivery_service_user/global/global.dart';
-import 'package:delivery_service_user/mainScreens/store_screen/store_screen.dart';
 
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
 
 class Register extends StatefulWidget {
-  const Register({super.key});
+  String? email;
+
+  Register({super.key, this.email});
 
   @override
   State<Register> createState() => _RegisterState();
@@ -25,8 +29,9 @@ class Register extends StatefulWidget {
 
 class _RegisterState extends State<Register> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
+  late TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
@@ -38,36 +43,47 @@ class _RegisterState extends State<Register> {
 
   String completeAddress = "";
 
-  getCurrentLocation() async {
-    try {
-      const LocationSettings locationSettings = LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 100,
-      );
+  // Add the state variable to track password visibility
+  bool _isPasswordHidden = true;
 
-      Position newPosition = await Geolocator.getCurrentPosition(
-        locationSettings: locationSettings,
-      );
 
-      position = newPosition;
-      placeMarks = await placemarkFromCoordinates(
-        position!.latitude,
-        position!.longitude,
-      );
-
-      geoPoint = GeoPoint(position!.latitude, position!.longitude);
-
-      Placemark pMark = placeMarks![1];
-
-      completeAddress = '${pMark.street}, ${pMark.locality}, ${pMark.subAdministrativeArea}, ${pMark.country}';
-
-      locationController.text = completeAddress;
-    } catch (e) {
-      rethrow;
-    }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    emailController.text = widget.email!;
   }
 
-  registerNow() async {
+  // getCurrentLocation() async {
+  //   try {
+  //     const LocationSettings locationSettings = LocationSettings(
+  //       accuracy: LocationAccuracy.high,
+  //       distanceFilter: 100,
+  //     );
+  //
+  //     Position newPosition = await Geolocator.getCurrentPosition(
+  //       locationSettings: locationSettings,
+  //     );
+  //
+  //     position = newPosition;
+  //     placeMarks = await placemarkFromCoordinates(
+  //       position!.latitude,
+  //       position!.longitude,
+  //     );
+  //
+  //     geoPoint = GeoPoint(position!.latitude, position!.longitude);
+  //
+  //     Placemark pMark = placeMarks![1];
+  //
+  //     completeAddress = '${pMark.street}, ${pMark.locality}, ${pMark.subAdministrativeArea}, ${pMark.country}';
+  //
+  //     locationController.text = completeAddress;
+  //   } catch (e) {
+  //     rethrow;
+  //   }
+  // }
+
+  signUp() async {
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -149,150 +165,190 @@ class _RegisterState extends State<Register> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text(
-                "Create an account,",
-                style: TextStyle(
-                  fontSize: 24,
+    return WillPopScope(
+      onWillPop: () async {
+        // Show a warning dialog when the user tries to leave.
+        bool? shouldLeave = await ConfirmationDialog.show(
+          context,
+          'Are you sure you want to leave this page? Your progress may be lost.',
+        );
+        // If the user didn't confirm, don't allow the page to pop.
+        return shouldLeave ?? false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Create new account"),
+          backgroundColor: Theme.of(context).primaryColor,
+          foregroundColor: Theme.of(context).colorScheme.inversePrimary,
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                //Image
+                Image.asset(
+                  'assets/create_account.png',
+                  height: 200,
+                  width: 200,
                 ),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              Form(
-                key: _formKey,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 40.0, right: 40.0,),
+                Text(
+                  "${widget.email}",
+                  style: const TextStyle(
+                    fontSize: 18,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                Form(
+                  key: _formKey,
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      //Full Name Text
+                      const Text(
+                        'Full Name',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      //Full Name Text Field
                       CustomTextField(
-                        labelText: 'Name',
+                        labelText: 'Full name',
                         controller: nameController,
                         isObscure: false,
                         validator: validateName,
                       ),
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      CustomTextField(
-                        labelText: 'Email',
-                        controller: emailController,
-                        isObscure: false,
-                        validator: validateEmail,
-                      ),
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      CustomTextField(
-                        labelText: 'Password',
-                        controller: passwordController,
-                        isObscure: true,
-                        validator: validatePassword,
-                      ),
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      CustomTextField(
-                          labelText: 'Confirm password',
-                          controller: confirmPasswordController,
-                          isObscure: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty || value.trim() != passwordController.text.trim()) {
-                              return 'Password did not match';
-                            }
-                            return null;
-                          }
-                      ),
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      CustomTextField(
-                        labelText: 'Phone',
-                        controller: phoneController,
-                        isObscure: false,
-                        validator: validatePhone,
-                      ),
-                      const SizedBox(
-                        height: 16,
-                      ),
-
+                      const SizedBox(height: 8),
+                      //Mobile Number Text
+                      // const Text(
+                      //   'Mobile Number',
+                      //   style: TextStyle(
+                      //     fontSize: 16,
+                      //     fontWeight: FontWeight.bold,
+                      //   ),
+                      // ),
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Expanded(
-                            child: CustomTextField(
-                              labelText: 'Your location',
-                              controller: locationController,
-                              isObscure: false,
-                              enabled: true,
-                              validator: validateLocation,
+                          const Text(
+                            'Mobile Number',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-
-                          IconButton(
-                            onPressed: getCurrentLocation,
-                            icon: const Icon(Icons.location_on),
-                            color: Theme.of(context).colorScheme.primary,
+                          const SizedBox(width: 8,),
+                          InkWell(
+                            onTap: () {
+                              // Hide any current banner if it's already showing.
+                              ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+                              // Show a MaterialBanner at the top.
+                              ScaffoldMessenger.of(context).showMaterialBanner(
+                                MaterialBanner(
+                                  content: const Text(
+                                    'To verify your account, make sure you use a valid mobile number.',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  backgroundColor: Colors.blue,
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+                                      },
+                                      child: const Text(
+                                        'DISMISS',
+                                        style: TextStyle(fontSize: 16, color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            child: SizedBox(
+                              child: PhosphorIcon(
+                                PhosphorIcons.info(PhosphorIconsStyle.regular),
+                                size: 18,
+                              ),
+                            ),
                           ),
                         ],
                       ),
 
-                      const SizedBox(
-                        height: 16,
+                      const SizedBox(height: 8),
+                      //Mobile Number Text Field
+                      CustomTextField(
+                        labelText: '09104455666',
+                        controller: phoneController,
+                        isObscure: false,
+                        validator: validatePhone,
                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            if (_formKey.currentState!.validate()) {
-                              //Register
-                              registerNow();
-                            }
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.primary,
-                          foregroundColor: Theme.of(context).colorScheme.inversePrimary,
-                          padding: const EdgeInsets.only(left: 64, right: 64),
+                      const SizedBox(height: 8),
+                      //Password Text
+                      const Text(
+                        'Password',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
-                        child: const Text("Register"),
+                      ),
+                      const SizedBox(height: 8),
+                      //Password Text Field
+                      CustomTextField(
+                        labelText: 'Password',
+                        controller: passwordController,
+                        isObscure: _isPasswordHidden,
+                        validator: validatePassword,
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordHidden = !_isPasswordHidden;
+                            });
+                          },
+                          icon: PhosphorIcon(
+                            _isPasswordHidden ? PhosphorIcons.eyeSlash(PhosphorIconsStyle.bold)
+                            : PhosphorIcons.eye(PhosphorIconsStyle.bold),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      // PhosphorIcon(PhosphorIcons.info(PhosphorIconsStyle.regular),),
+                      SignUpAgreement(onTermsTap: (){}, onPrivacyTap: (){}),
+                      const SizedBox(height: 8),
+
+                      //Register Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              if (_formKey.currentState!.validate()) {
+                                //Register
+                                signUp();
+                              }
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            foregroundColor: Theme.of(context).colorScheme.inversePrimary,
+                            padding: const EdgeInsets.symmetric(vertical: 14,),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          child: const Text("Sign Up"),
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 16,),
-              //Already have an account? Sign up
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text("Already have an account?"),
-                  TextButton(
-                    onPressed: () {
-                      // Add your navigation or action here for Sign Up
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LoginRemake()),
-                      );
-                    },
-                    style: TextButton.styleFrom(
-                      splashFactory: NoSplash.splashFactory,
-                      foregroundColor: Colors.red,
-                      padding: EdgeInsets.zero,
-                    ),
-                    child: const Text('Sign In',),
-                  ),
-                ],
-              )
-            ],
+                const SizedBox(height: 16,),
+              ],
+            ),
           ),
         ),
       ),
