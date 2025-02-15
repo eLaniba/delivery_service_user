@@ -7,7 +7,7 @@ import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/new_order.dart';
 import 'package:delivery_service_user/services/util.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
-import 'package:delivery_service_user/widgets/order_status_widget.dart';
+import 'package:delivery_service_user/widgets/status_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';

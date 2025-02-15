@@ -6,7 +6,6 @@ import 'package:delivery_service_user/widgets/error_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'existing_account_login_page.dart';
-import 'full_registration_page.dart';
 
 class EmailVerificationPage extends StatefulWidget {
   const EmailVerificationPage({Key? key}) : super(key: key);
@@ -60,7 +59,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
       showDialog(
         context: context,
         builder: (c) {
-          return ErrorDialog(message: "An unexpected error occurred.");
+          return const ErrorDialog(message: "An unexpected error occurred.");
         },
       );
     } finally {
@@ -141,7 +140,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => Register(email: _emailController.text.trim(),),
+            builder: (context) => Register(user: user!,email: _emailController.text.trim(),),
           ),
         );
       } else {

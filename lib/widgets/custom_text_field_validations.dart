@@ -32,14 +32,19 @@ String? validatePassword(String? value) {
   return null; // Return null if valid
 }
 
-//Validate phone
 String? validatePhone(String? value) {
-  if (value == null || value.isEmpty) {
+  if (value == null || value.trim().isEmpty) {
     return 'Please enter your phone number';
   }
-  final regex = RegExp(r'^\+?[0-9]{10,15}$'); // Adjust regex for phone format
-  if (!regex.hasMatch(value)) {
-    return 'Please enter a valid phone number';
+
+  // Regex breakdown:
+  // ^           : start of string
+  // (\+63|0)?   : optionally match "+63" or "0" at the beginning
+  // \d{10}      : exactly 10 digits
+  // $           : end of string
+  final regex = RegExp(r'^(\+63|0)?\d{10}$');
+  if (!regex.hasMatch(value.trim())) {
+    return 'Please enter a valid phone number.\nAllowed formats:\n• 09106447828\n• +639106447828\n• 9106447828';
   }
   return null; // Return null if valid
 }
@@ -47,7 +52,7 @@ String? validatePhone(String? value) {
 // Validate Location (if required)
 String? validateLocation(String? value) {
   if (value == null || value.isEmpty) {
-    return 'Please press the location icon';
+    return 'Please set up your address';
   }
   return null; // Return null if valid
 }

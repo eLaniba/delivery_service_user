@@ -72,4 +72,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'delivery-service-database.appspot.com',
     iosBundleId: 'com.example.deliveryServiceUser',
   );
+
 }

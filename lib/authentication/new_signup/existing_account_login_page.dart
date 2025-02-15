@@ -10,7 +10,6 @@ import 'package:delivery_service_user/widgets/custom_text_field_validations.dart
 import 'package:delivery_service_user/widgets/error_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'full_registration_page.dart';
 
 class ExistingAccountLoginPage extends StatefulWidget {
   final String email;
@@ -49,7 +48,7 @@ class _ExistingAccountLoginPageState extends State<ExistingAccountLoginPage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (_) => Register(email: widget.email),
+              builder: (_) => Register(user: user, email: widget.email),
             ),
           );
         }

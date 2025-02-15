@@ -268,3 +268,32 @@ Widget orderStatusWidget(String orderStatus) {
   }
   return const SizedBox();
 }
+
+Widget verifiedStatusWidget(bool isVerified) {
+  if (!isVerified) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.circular(50.0), // Fully rounded corners
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      child: const Text(
+        "Not Verified",
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+  else {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.green,
+        borderRadius: BorderRadius.circular(50.0), // Fully rounded corners
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      child: const Text(
+        "Verified",
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+}

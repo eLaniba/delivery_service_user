@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivery_service_user/authentication/login_remake.dart';
+import 'package:delivery_service_user/authentication/new_signup/add_address_screen.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
+import 'package:delivery_service_user/services/auth_service.dart';
 import 'package:delivery_service_user/services/geopoint_json.dart';
+import 'package:delivery_service_user/services/util.dart';
 import 'package:delivery_service_user/widgets/confirmation_dialog.dart';
 import 'package:delivery_service_user/widgets/custom_text_field.dart';
 import 'package:delivery_service_user/widgets/custom_text_field_validations.dart';
@@ -13,75 +16,77 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:delivery_service_user/global/global.dart';
-
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
 
 class Register extends StatefulWidget {
-  String? email;
+  final String? email;
+  final User user;
 
-  Register({super.key, this.email});
+  const Register({super.key, this.email, required this.user});
 
   @override
   State<Register> createState() => _RegisterState();
 }
 
 class _RegisterState extends State<Register> {
+  //AuthService class (see services/auth_service.dart)
+  final AuthService _authService = AuthService();
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   TextEditingController nameController = TextEditingController();
   late TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
-  TextEditingController locationController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
   Position? position;
   List<Placemark>? placeMarks;
-  GeoPoint? geoPoint;
 
-  String completeAddress = "";
+  String? address;
+  GeoPoint? geoPoint;
 
   // Add the state variable to track password visibility
   bool _isPasswordHidden = true;
 
+  // Timer variables for expiration
+  late Timer _expirationTimer;
+  int _remainingSeconds = 300; // Set your expiration time in seconds
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     emailController.text = widget.email!;
+    _startExpirationTimer();
   }
 
-  // getCurrentLocation() async {
-  //   try {
-  //     const LocationSettings locationSettings = LocationSettings(
-  //       accuracy: LocationAccuracy.high,
-  //       distanceFilter: 100,
-  //     );
-  //
-  //     Position newPosition = await Geolocator.getCurrentPosition(
-  //       locationSettings: locationSettings,
-  //     );
-  //
-  //     position = newPosition;
-  //     placeMarks = await placemarkFromCoordinates(
-  //       position!.latitude,
-  //       position!.longitude,
-  //     );
-  //
-  //     geoPoint = GeoPoint(position!.latitude, position!.longitude);
-  //
-  //     Placemark pMark = placeMarks![1];
-  //
-  //     completeAddress = '${pMark.street}, ${pMark.locality}, ${pMark.subAdministrativeArea}, ${pMark.country}';
-  //
-  //     locationController.text = completeAddress;
-  //   } catch (e) {
-  //     rethrow;
-  //   }
-  // }
+  void _startExpirationTimer() {
+    _expirationTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        _remainingSeconds--;
+      });
+      if (_remainingSeconds <= 0) {
+        _expirationTimer.cancel();
+        // Navigate to a session expired screen or close the page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const SessionExpiredScreen()),
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _expirationTimer.cancel();
+    nameController.dispose();
+    emailController.dispose();
+    phoneController.dispose();
+    addressController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   signUp() async {
     showDialog(
@@ -92,7 +97,7 @@ class _RegisterState extends State<Register> {
       },
     );
 
-    //Authenticate User and Save Data to Firestore if != null
+    // Authenticate User and Save Data to Firestore if != null
     authenticateUserAndSignup();
   }
 
@@ -116,51 +121,97 @@ class _RegisterState extends State<Register> {
           });
     });
 
-    if(currentUser != null) {
+    if (currentUser != null) {
       saveDataToFirestore(currentUser!).then((value) {
         Navigator.pop(context);
-        //send the user to homePage
-        Route newRoute = MaterialPageRoute(builder: (c) => MainScreen());
+        // Send the user to homePage
+        Route newRoute = MaterialPageRoute(builder: (c) => const MainScreen());
         Navigator.pushReplacement(context, newRoute);
       });
     }
   }
 
   Future saveDataToFirestore(User currentUser) async {
-    FirebaseFirestore.instance.collection("users").doc(currentUser.uid).set({
-      "userID": currentUser.uid,
-      "userEmail": currentUser.email,
-      "userName": nameController.text.trim(),
-      "userPhone": phoneController.text.trim(),
-      "status": "approved",
-      //temporarily add the Address info here instead of as a collection
-      "userAddress": locationController.text.trim(),
-      "userLocation": geoPoint,
-    });
+    showDialog(
+        context: context,
+        builder: (c) {
+          return const LoadingDialog(
+            message: 'Signing you in',
+          );
+        });
 
-    //Setting up default address' reference
-    CollectionReference addressCollection = FirebaseFirestore.instance.collection("users").doc(currentUser.uid).collection("address");
+    final String userPhone = formatPhoneNumber(phoneController.text.trim());
+    final String userName  = capitalizeEachWord(nameController.text.trim());
 
-    //Add address, latitude, and longitude (will be added 2nd semester)
-    DocumentReference addressDoc = await addressCollection.add({
-      "addressEng": locationController.text,
-      "location": geoPoint,
-    });
+    try {
+      await currentUser.updatePassword(passwordController.text.trim());
 
-    await addressDoc.update({
-      'addressID': addressDoc.id,
-    });
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(currentUser.uid)
+          .set({
+        "userID": currentUser.uid,
+        "userEmail": currentUser.email,
+        "userName": userName,
+        "userPhone": userPhone,
+        "status": "pending",
+        // Temporarily add the Address info here instead of as a collection
+        "userAddress": address,
+        "userLocation": geoPoint,
+        // Bool for Approval in Admin
+        "emailVerified": true,
+        "phoneVerified": false,
+        "idVerified": false,
+      });
 
-    //Save data locally
-    String locationString = geoPointToJson(geoPoint!);
-    sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences!.setString("name", nameController.text.trim());
-    await sharedPreferences!.setString("uid", currentUser.uid);
-    await sharedPreferences!.setString("email", currentUser.email.toString());
-    await sharedPreferences!.setString("phone", phoneController.text.trim());
-    await sharedPreferences!.setString("addressID", addressDoc.id);
-    await sharedPreferences!.setString("address", completeAddress);
-    await sharedPreferences!.setString("location", locationString);
+      // Setting up default address' reference
+      CollectionReference addressCollection = FirebaseFirestore.instance
+          .collection("users")
+          .doc(currentUser.uid)
+          .collection("address");
+
+      // Add address, latitude, and longitude
+      DocumentReference addressDoc = await addressCollection.add({
+        "addressEng": address,
+        "location": geoPoint,
+      });
+
+      await addressDoc.update({
+        'addressID': addressDoc.id,
+      });
+
+      // Save geoPoint data locally
+      String locationString = geoPointToJson(geoPoint!);
+
+      await sharedPreferences!.setString("uid", currentUser.uid);
+      await sharedPreferences!.setString("name", userName);
+      await sharedPreferences!.setString("email", currentUser.email.toString());
+      await sharedPreferences!.setString("phone", userPhone);
+      await sharedPreferences!.setString("address", address!);
+      await sharedPreferences!.setString("location", locationString);
+
+      print('REGISTER SUCCESSFUL, PUSH YOU TO THE APP');
+      // Saving login state locally so user don't have to re-login if the app exits
+      await _authService.setLoginState(true);
+
+      // Close the Loading Dialog
+      Navigator.pop(context);
+      // Navigate to the main screen if the login is successful
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainScreen()),
+      );
+    } catch (e) {
+      // Close the Loading Dialog
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder: (c) {
+          print(e);
+          return ErrorDialog(message: "An unexpected error occurred: $e");
+        },
+      );
+    }
   }
 
   @override
@@ -187,7 +238,16 @@ class _RegisterState extends State<Register> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                //Image
+                // Display the countdown timer
+                Text(
+                  'Session expires in: $_remainingSeconds seconds',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.red,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Image
                 Image.asset(
                   'assets/create_account.png',
                   height: 200,
@@ -206,7 +266,7 @@ class _RegisterState extends State<Register> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      //Full Name Text
+                      // Full Name Text
                       const Text(
                         'Full Name',
                         style: TextStyle(
@@ -215,7 +275,7 @@ class _RegisterState extends State<Register> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      //Full Name Text Field
+                      // Full Name Text Field
                       CustomTextField(
                         labelText: 'Full name',
                         controller: nameController,
@@ -223,14 +283,7 @@ class _RegisterState extends State<Register> {
                         validator: validateName,
                       ),
                       const SizedBox(height: 8),
-                      //Mobile Number Text
-                      // const Text(
-                      //   'Mobile Number',
-                      //   style: TextStyle(
-                      //     fontSize: 16,
-                      //     fontWeight: FontWeight.bold,
-                      //   ),
-                      // ),
+                      // Mobile Number Text + Icon Helper
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
@@ -242,13 +295,15 @@ class _RegisterState extends State<Register> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(width: 8,),
+                          const SizedBox(width: 8),
                           InkWell(
                             onTap: () {
                               // Hide any current banner if it's already showing.
-                              ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+                              ScaffoldMessenger.of(context)
+                                  .hideCurrentMaterialBanner();
                               // Show a MaterialBanner at the top.
-                              ScaffoldMessenger.of(context).showMaterialBanner(
+                              ScaffoldMessenger.of(context)
+                                  .showMaterialBanner(
                                 MaterialBanner(
                                   content: const Text(
                                     'To verify your account, make sure you use a valid mobile number.',
@@ -258,11 +313,14 @@ class _RegisterState extends State<Register> {
                                   actions: [
                                     TextButton(
                                       onPressed: () {
-                                        ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+                                        ScaffoldMessenger.of(context)
+                                            .hideCurrentMaterialBanner();
                                       },
                                       child: const Text(
                                         'DISMISS',
-                                        style: TextStyle(fontSize: 16, color: Colors.white),
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.white),
                                       ),
                                     ),
                                   ],
@@ -271,24 +329,63 @@ class _RegisterState extends State<Register> {
                             },
                             child: SizedBox(
                               child: PhosphorIcon(
-                                PhosphorIcons.info(PhosphorIconsStyle.regular),
+                                PhosphorIcons.info(
+                                    PhosphorIconsStyle.regular),
                                 size: 18,
                               ),
                             ),
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 8),
-                      //Mobile Number Text Field
+                      // Mobile Number Text Field
                       CustomTextField(
-                        labelText: '09104455666',
+                        labelText: '+639102445676',
                         controller: phoneController,
                         isObscure: false,
                         validator: validatePhone,
+                        prefixText: '+63',
                       ),
                       const SizedBox(height: 8),
-                      //Password Text
+                      // Address Text
+                      const Text(
+                        'Address',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Address Text Field
+                      InkWell(
+                        borderRadius: BorderRadius.circular(24),
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        onTap: () async {
+                          final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (c) => AddAddressScreen()));
+
+                          if (result != null) {
+                            setState(() {
+                              address =
+                                  result['addressEng'].toString().trim();
+                              addressController.text = address!;
+                              geoPoint = result['location'];
+                            });
+                          }
+                        },
+                        child: IgnorePointer(
+                          child: CustomTextField(
+                            labelText: 'Set up your address',
+                            controller: addressController,
+                            isObscure: false,
+                            validator: validateLocation,
+                          ),
+                        ),
+                      ),
+                      // Password Text
                       const Text(
                         'Password',
                         style: TextStyle(
@@ -297,7 +394,7 @@ class _RegisterState extends State<Register> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      //Password Text Field
+                      // Password Text Field
                       CustomTextField(
                         labelText: 'Password',
                         controller: passwordController,
@@ -310,32 +407,36 @@ class _RegisterState extends State<Register> {
                             });
                           },
                           icon: PhosphorIcon(
-                            _isPasswordHidden ? PhosphorIcons.eyeSlash(PhosphorIconsStyle.bold)
-                            : PhosphorIcons.eye(PhosphorIconsStyle.bold),
+                            _isPasswordHidden
+                                ? PhosphorIcons.eyeSlash(
+                                PhosphorIconsStyle.bold)
+                                : PhosphorIcons.eye(
+                                PhosphorIconsStyle.bold),
                           ),
                         ),
                       ),
                       const SizedBox(height: 18),
-                      // PhosphorIcon(PhosphorIcons.info(PhosphorIconsStyle.regular),),
-                      SignUpAgreement(onTermsTap: (){}, onPrivacyTap: (){}),
+                      SignUpAgreement(
+                          onTermsTap: () {}, onPrivacyTap: () {}),
                       const SizedBox(height: 8),
-
-                      //Register Button
+                      // Register Button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            setState(() {
-                              if (_formKey.currentState!.validate()) {
-                                //Register
-                                signUp();
-                              }
-                            });
+                            if (_formKey.currentState!.validate()) {
+                              // Signup
+                              saveDataToFirestore(widget.user);
+                            }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.primary,
-                            foregroundColor: Theme.of(context).colorScheme.inversePrimary,
-                            padding: const EdgeInsets.symmetric(vertical: 14,),
+                            backgroundColor:
+                            Theme.of(context).colorScheme.primary,
+                            foregroundColor:
+                            Theme.of(context).colorScheme.inversePrimary,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 14,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(4),
                             ),
@@ -346,10 +447,63 @@ class _RegisterState extends State<Register> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16,),
+                const SizedBox(height: 16),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// A simple screen to show when the session expires.
+class SessionExpiredScreen extends StatelessWidget {
+  const SessionExpiredScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).primaryColor,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            PhosphorIcon(
+              PhosphorIcons.smileyXEyes(PhosphorIconsStyle.light),
+              color: Theme.of(context).primaryColor,
+              size: 64,
+            ),
+            const Text(
+              "Your session has expired.",
+              style: TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                Theme.of(context).colorScheme.primary,
+                foregroundColor:
+                Theme.of(context).colorScheme.inversePrimary,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 14,
+                  horizontal: 8,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              onPressed: () {
+                // Navigate back to a relevant screen, such as the signup screen.
+                Navigator.pop(context);
+              },
+              child: const Text("Back to Login"),
+            )
+          ],
         ),
       ),
     );

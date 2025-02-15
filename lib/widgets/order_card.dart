@@ -1,7 +1,7 @@
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_details_screen.dart';
 import 'package:delivery_service_user/models/new_order.dart';
-import 'package:delivery_service_user/widgets/order_status_widget.dart';
+import 'package:delivery_service_user/widgets/status_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 

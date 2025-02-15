@@ -62,6 +62,7 @@ class CustomTextField extends StatefulWidget {
     this.labelText,
     this.validator,
     this.suffixIcon,
+    this.prefixText,
   });
 
   final String? labelText;
@@ -70,7 +71,8 @@ class CustomTextField extends StatefulWidget {
   bool? enabled = true;
   bool? isObscure = true;
   final String? Function(String?)? validator;
-  Widget? suffixIcon;
+  final Widget? suffixIcon;
+  final String? prefixText;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -87,8 +89,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
       keyboardType: widget.inputType,
       obscureText: widget.isObscure!,
       decoration: InputDecoration(
+        prefixText: widget.prefixText,
         suffixIcon: widget.suffixIcon,
-
         // Smaller label and hint for compact design
         labelText: widget.labelText,
         labelStyle: const TextStyle(
