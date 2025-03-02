@@ -1,4 +1,5 @@
 import 'package:delivery_service_user/authentication/auth_screen_remake.dart';
+import 'package:delivery_service_user/widgets/report_store_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,7 +51,7 @@ class MyApp extends StatelessWidget {
         iconTheme: const IconThemeData(color: customTextColor), // Custom icon color
         useMaterial3: true,
       ),
-      home: const AuthScreenRemake(),
+      home: ReportStorePage(),
     );
   }
 }
