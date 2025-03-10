@@ -22,9 +22,8 @@ class _AddressScreenState extends State<AddressScreen> {
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
-      backgroundColor: Colors.grey[200],
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(8),
         child: StreamBuilder<QuerySnapshot>(
           stream: firebaseFirestore
               .collection('users')
@@ -45,13 +44,20 @@ class _AddressScreenState extends State<AddressScreen> {
                         as Map<String, dynamic>,
                   );
 
-                  return ListTile(
-                    leading: Icon(
-                      PhosphorIcons.mapPin(PhosphorIconsStyle.fill),
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    title: Text('${address.addressEng}'),
-                    trailing: Icon(PhosphorIcons.caretRight(PhosphorIconsStyle.regular)),
+                  return Column(
+                    children: [
+                      ListTile(
+                        leading: Icon(
+                          PhosphorIcons.mapPin(PhosphorIconsStyle.fill),
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        title: Text('${address.addressEng}'),
+                        trailing: Icon(PhosphorIcons.caretRight(PhosphorIconsStyle.regular)),
+                      ),
+                      Divider(
+                        color:gray5,
+                      ),
+                    ],
                   );
                 },
               );

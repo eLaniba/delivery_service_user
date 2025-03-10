@@ -18,7 +18,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobkit_dashed_border/mobkit_dashed_border.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -208,22 +207,22 @@ class _RegisterState extends State<Register> {
     }
   }
 
-  Future<void> _getImage(ImageSource source) async {
-    XFile? imageXFile;
-
-    imageXFile = await ImagePickerService().pickCropImage(
-      cropAspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-      imageSrouce: source,
-    );
-
-    if(imageXFile != null) {
-      setState(() {
-        imageValidation = '';
-        _imgXFile = imageXFile;
-      });
-    }
-
-  }
+  // Future<void> _getImage(ImageSource source) async {
+  //   XFile? imageXFile;
+  //
+  //   imageXFile = await ImagePickerService().pickCropImage(
+  //     cropAspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+  //     imageSrouce: source,
+  //   );
+  //
+  //   if(imageXFile != null) {
+  //     setState(() {
+  //       imageValidation = '';
+  //       _imgXFile = imageXFile;
+  //     });
+  //   }
+  //
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -257,14 +256,14 @@ class _RegisterState extends State<Register> {
                 //   width: 200,
                 // ),
                 //Image Container
-                ImageUploadCard(
-                    imageXFile: _imgXFile,
-                    onTap: () {
-                      showModalBottomSheet(context: context, builder: (BuildContext context) {
-                        return ImageUploadOption(onImageSelected: _getImage);
-                      });
-                    },
-                    label: 'Upload your profile picture'),
+                // ImageUploadCard(
+                //     imageXFile: _imgXFile,
+                //     onTap: () {
+                //       showModalBottomSheet(context: context, builder: (BuildContext context) {
+                //         return ImageUploadOption(onImageSelected: _getImage);
+                //       });
+                //     },
+                //     label: 'Upload your profile picture'),
                 const SizedBox(height: 8,),
                 //Image Validation Text
                 Text(
