@@ -355,6 +355,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               const SizedBox(height: 4,),
               orderTotal(
                 context: context,
+                subTotal: widget.order!.subTotal!,
+                ridersFee: widget.order!.riderFee!,
+                serviceFee: widget.order!.serviceFee!,
                 orderTotal: widget.order!.orderTotal!,
               ),
             ],
@@ -698,14 +701,14 @@ Widget itemList({required List<AddToCartItem> items, required int listLimit}) {
   );
 }
 
-Widget orderTotal({required BuildContext context, required double orderTotal}) {
+Widget orderTotal({required BuildContext context, required double subTotal, required double ridersFee, required serviceFee, required orderTotal}) {
   return Container(
     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
     color: Colors.white,
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        //Subtotal, Rider's Fee, Order Total text
+        //Subtotal, Rider's Fee, Service Fee, Order Total text
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -722,6 +725,16 @@ Widget orderTotal({required BuildContext context, required double orderTotal}) {
             //Rider's fee Text
             Text(
               'Rider\'s fee',
+              style: TextStyle(
+                fontSize: 16,
+                color: gray,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            //Service fee Text
+            Text(
+              'Service fee',
               style: TextStyle(
                 fontSize: 16,
                 color: gray,
@@ -747,7 +760,7 @@ Widget orderTotal({required BuildContext context, required double orderTotal}) {
           children: [
             //Subtotal Text
             Text(
-              '₱ ${orderTotal.toStringAsFixed(2)}',
+              '₱ ${subTotal.toStringAsFixed(2)}',
               style: TextStyle(
                 fontSize: 16,
                 color: gray,
@@ -757,7 +770,17 @@ Widget orderTotal({required BuildContext context, required double orderTotal}) {
             ),
             //Rider's fee Text
             Text(
-              '₱ 0.00',
+              '₱ ${ridersFee.toStringAsFixed(2)}',
+              style: TextStyle(
+                fontSize: 16,
+                color: gray,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            //Service fee Text
+            Text(
+              '₱ ${serviceFee.toStringAsFixed(2)}',
               style: TextStyle(
                 fontSize: 16,
                 color: gray,

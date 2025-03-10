@@ -5,6 +5,7 @@ import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_scre
 import 'package:delivery_service_user/mainScreens/store_screen/store_item_screen.dart';
 import 'package:delivery_service_user/models/category_item.dart';
 import 'package:delivery_service_user/models/stores.dart';
+import 'package:delivery_service_user/services/util.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -206,38 +207,34 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
               width: double.infinity,
               child: widget.stores!.storeImageURL != null
                   ? CachedNetworkImage(
-                imageUrl: '${widget.stores!.storeImageURL}',
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: SizedBox(
-                    child: Center(
-                      child: Icon(
-                        PhosphorIcons.image(
-                          PhosphorIconsStyle.fill
-                        )
+                      imageUrl: '${widget.stores!.storeImageURL}',
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: SizedBox(
+                          child: Center(
+                            child: Icon(
+                                PhosphorIcons.image(PhosphorIconsStyle.fill)),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-                errorWidget: (context, url, error) =>
-                    Container(
+                      errorWidget: (context, url, error) => Container(
+                        color: white80,
+                        child: Icon(
+                          PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
+                          color: Colors.white,
+                          size: 48,
+                        ),
+                      ),
+                    )
+                  : Container(
                       color: white80,
                       child: Icon(
                         PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
                         color: Colors.white,
-                        size: 48,
                       ),
                     ),
-              )
-                  : Container(
-                color: white80,
-                child: Icon(
-                  PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
-                  color: Colors.white,
-                ),
-              ),
             ),
           ),
           //Store Name, Phone, Address
@@ -256,7 +253,7 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
                     textAlign: TextAlign.center,
                   ),
                   Text(
-                    '${widget.stores!.storePhone}',
+                    reformatPhoneNumber(widget.stores!.storePhone!),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

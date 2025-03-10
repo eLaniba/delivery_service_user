@@ -176,7 +176,12 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                         setState(() {
                           _currentPosition = position.target;
                         });
-                        _getAddressFromLatLng(position.target); // Update address as map moves
+                        // _getAddressFromLatLng(position.target); // Update address as map moves
+                      },
+                      onCameraIdle: () {
+                        if (_currentPosition != null) {
+                          _getAddressFromLatLng(_currentPosition!);
+                        }
                       },
                       myLocationEnabled: false, // Disable the blue dot
                       myLocationButtonEnabled: true,
@@ -184,11 +189,14 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                     ),
                   ),
                   // Center pin icon
-                  const Center(
-                    child: Icon(
-                      Icons.location_pin,
-                      size: 50.0,
-                      color: Colors.red,
+                  Center(
+                    child: Transform.translate(
+                      offset: const Offset(0, -25),
+                      child: const Icon(
+                        Icons.location_pin,
+                        size: 50.0,
+                        color: Colors.red,
+                      ),
                     ),
                   ),
                 ],

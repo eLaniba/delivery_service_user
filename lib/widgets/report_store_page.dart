@@ -31,10 +31,15 @@ class _ReportStorePageState extends State<ReportStorePage> {
       if (reason == 'Other') {
         reason = otherReasonController.text;
       }
-      // TODO: Add your submit logic here (e.g., API call or state update)
-      print('Report submitted with reason: $reason');
+
+      try{
+
+      } catch(e) {
+
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Report submitted')),
+        const SnackBar(content: Text('Report submitted.'), backgroundColor: Colors.green,),
       );
     }
   }
@@ -90,7 +95,7 @@ class _ReportStorePageState extends State<ReportStorePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Report Store'),
+        title: const Text('Report Store'),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
@@ -109,26 +114,33 @@ class _ReportStorePageState extends State<ReportStorePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Reason', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 8),
-                  DropdownButtonFormField<String>(
-                    decoration: _inputDecoration('Select a reason'),
-                    value: selectedReason,
-                    items: reasons.map((reason) {
-                      return DropdownMenuItem<String>(
-                        value: reason,
-                        child: Text(reason, style: TextStyle(fontWeight: FontWeight.normal),),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedReason = value;
-                      });
-                    },
-                    validator: (value) =>
-                    value == null ? 'Please select a reason' : null,
+                  const Text('Reason', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                    ),
+                    child: DropdownButtonFormField<String>(
+                      decoration: _inputDecoration('Select a reason'),
+                      value: selectedReason,
+                      items: reasons.map((reason) {
+                        return DropdownMenuItem<String>(
+                          value: reason,
+                          child: Text(reason, style: const TextStyle(fontWeight: FontWeight.normal),),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedReason = value;
+                        });
+                      },
+                      validator: (value) =>
+                      value == null ? 'Please select a reason' : null,
+                    ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   if (selectedReason == 'Other')
                     TextFormField(
                       controller: otherReasonController,
@@ -144,7 +156,7 @@ class _ReportStorePageState extends State<ReportStorePage> {
                       },
                     ),
                   if (selectedReason == 'Other')
-                    SizedBox(height: 24,),
+                    const SizedBox(height: 24,),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -161,7 +173,7 @@ class _ReportStorePageState extends State<ReportStorePage> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
-                      child: Text('Submit'),
+                      child: const Text('Submit'),
                     ),
                   ),
                 ],

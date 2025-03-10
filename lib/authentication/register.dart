@@ -1,19 +1,26 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/authentication/new_signup/add_address_screen.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
 import 'package:delivery_service_user/services/auth_service.dart';
 import 'package:delivery_service_user/services/geopoint_json.dart';
+import 'package:delivery_service_user/services/image_picker_service.dart';
 import 'package:delivery_service_user/services/util.dart';
 import 'package:delivery_service_user/widgets/confirmation_dialog.dart';
 import 'package:delivery_service_user/widgets/custom_text_field.dart';
 import 'package:delivery_service_user/widgets/custom_text_field_validations.dart';
 import 'package:delivery_service_user/widgets/error_dialog.dart';
+import 'package:delivery_service_user/widgets/image_upload_card.dart';
+import 'package:delivery_service_user/widgets/image_upload_option.dart';
 import 'package:delivery_service_user/widgets/sign_up_agreement.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:mobkit_dashed_border/mobkit_dashed_border.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:delivery_service_user/global/global.dart';
@@ -34,6 +41,9 @@ class _RegisterState extends State<Register> {
   final AuthService _authService = AuthService();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  XFile? _imgXFile;
+  String imageValidation = "";
 
   TextEditingController nameController = TextEditingController();
   late TextEditingController emailController = TextEditingController();
@@ -58,23 +68,7 @@ class _RegisterState extends State<Register> {
   void initState() {
     super.initState();
     emailController.text = widget.email!;
-    _startExpirationTimer();
-  }
-
-  void _startExpirationTimer() {
-    _expirationTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _remainingSeconds--;
-      });
-      if (_remainingSeconds <= 0) {
-        _expirationTimer.cancel();
-        // Navigate to a session expired screen or close the page
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const SessionExpiredScreen()),
-        );
-      }
-    });
+    // _startExpirationTimer();
   }
 
   @override
@@ -214,6 +208,23 @@ class _RegisterState extends State<Register> {
     }
   }
 
+  Future<void> _getImage(ImageSource source) async {
+    XFile? imageXFile;
+
+    imageXFile = await ImagePickerService().pickCropImage(
+      cropAspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+      imageSrouce: source,
+    );
+
+    if(imageXFile != null) {
+      setState(() {
+        imageValidation = '';
+        _imgXFile = imageXFile;
+      });
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -238,20 +249,29 @@ class _RegisterState extends State<Register> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Display the countdown timer
-                Text(
-                  'Session expires in: $_remainingSeconds seconds',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.red,
-                  ),
-                ),
                 const SizedBox(height: 16),
                 // Image
-                Image.asset(
-                  'assets/create_account.png',
-                  height: 200,
-                  width: 200,
+                // Image.asset(
+                //   'assets/create_account.png',
+                //   height: 200,
+                //   width: 200,
+                // ),
+                //Image Container
+                ImageUploadCard(
+                    imageXFile: _imgXFile,
+                    onTap: () {
+                      showModalBottomSheet(context: context, builder: (BuildContext context) {
+                        return ImageUploadOption(onImageSelected: _getImage);
+                      });
+                    },
+                    label: 'Upload your profile picture'),
+                const SizedBox(height: 8,),
+                //Image Validation Text
+                Text(
+                  imageValidation,
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.error
+                  ),
                 ),
                 Text(
                   "${widget.email}",

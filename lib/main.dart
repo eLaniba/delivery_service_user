@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
         iconTheme: const IconThemeData(color: customTextColor), // Custom icon color
         useMaterial3: true,
       ),
-      home: ReportStorePage(),
+      home: const AuthScreenRemake(),
     );
   }
 }

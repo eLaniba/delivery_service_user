@@ -1,4 +1,5 @@
 import 'package:delivery_service_user/authentication/register.dart';
+import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/widgets/confirmation_dialog.dart';
 import 'package:delivery_service_user/widgets/custom_text_field.dart';
 import 'package:delivery_service_user/widgets/custom_text_field_validations.dart';
@@ -23,10 +24,58 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   /// Try to create a provisional account and send a verification email.
+  // Future<void> _sendVerificationEmail() async {
+  //   setState(() {
+  //     _isSendingVerification = true;
+  //   });
+  //
+  //   final String email = _emailController.text.trim();
+  //   const String provisionalPassword = "tempPassword123"; // For example only
+  //
+  //   try {
+  //     UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+  //       email: email,
+  //       password: provisionalPassword,
+  //     );
+  //     User? provisionalUser = userCredential.user;
+  //     if (provisionalUser != null) {
+  //       await provisionalUser.sendEmailVerification();
+  //       setState(() {
+  //         _emailSent = true;
+  //       });
+  //     }
+  //   } on FirebaseAuthException catch (e) {
+  //     if (e.code == 'email-already-in-use') {
+  //       // The email already exists.
+  //       _showExistingEmailDialog(email);
+  //     } else {
+  //       // Handle other errors.
+  //       showDialog(
+  //         context: context,
+  //         builder: (c) {
+  //           return ErrorDialog(message: e.message ?? "An error occurred");
+  //         },
+  //       );
+  //     }
+  //   } catch (e) {
+  //     showDialog(
+  //       context: context,
+  //       builder: (c) {
+  //         return const ErrorDialog(message: "An unexpected error occurred.");
+  //       },
+  //     );
+  //   } finally {
+  //     setState(() {
+  //       _isSendingVerification = false;
+  //     });
+  //   }
+  // }
   Future<void> _sendVerificationEmail() async {
+
     setState(() {
       _isSendingVerification = true;
     });
+
     final String email = _emailController.text.trim();
     const String provisionalPassword = "tempPassword123"; // For example only
 
@@ -45,7 +94,51 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
         // The email already exists.
-        _showExistingEmailDialog(email);
+        try {
+          // Sign in to get user ID
+          UserCredential existingUserCredential = await _auth.signInWithEmailAndPassword(
+            email: email,
+            password: provisionalPassword, // Use the provisional password
+          );
+          User? existingUser = existingUserCredential.user;
+
+          if (existingUser != null && existingUser.emailVerified) {
+            String userId = existingUser.uid;
+
+            // Check Firestore if the user document exists
+            final userDoc = await firebaseFirestore.collection('users').doc(userId).get();
+
+            if (!userDoc.exists) {
+              // If the user doesn't exist in Firestore, delete from Auth
+              // await existingUser.delete();
+              // print("Provisional account deleted because it wasn't found in Firestore.");
+
+              //Navigate to the Fill up form
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  // builder: (context) => Register(user: user!,email: _emailController.text.trim(),),
+                  builder: (context) => Register(email: email, user: existingUser,),
+                ),
+              );
+
+            } else {
+              print("User exists in Firestore, account not deleted.");
+              _showExistingEmailDialog(email);
+            }
+          } else {
+            await existingUser!.sendEmailVerification();
+            setState(() {
+              _emailSent = true;
+            });
+          }
+        } catch (signInError) {
+          print("Error signing in to retrieve existing user: $signInError");
+          if(signInError.toString().contains('firebase_auth/invalid-credential')) {
+            print('YESSS DADDYYY!');
+            _showExistingEmailDialog(email);
+          }
+        }
       } else {
         // Handle other errors.
         showDialog(
@@ -81,48 +174,13 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
         ),
         title: const Text("Email Already Exists"),
         content: const Text(
-          "This email is already in use. Would you like to reset your password?",
+          "This email is already in use.",
         ),
         actions: [
           //Cancel
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text("Cancel"),
-          ),
-          //Yes
-          TextButton(
-            onPressed: () async {
-              // Dismiss the dialog using the dialog's context.
-              Navigator.pop(dialogContext);
-              try {
-                await _auth.sendPasswordResetEmail(email: email);
-                // Schedule the navigation and SnackBar using the captured parent context.
-                Future.delayed(Duration.zero, () {
-                  ScaffoldMessenger.of(parentContext).showSnackBar(
-                    SnackBar(
-                      content: Text("We've sent your password reset email to $email"),
-                      backgroundColor: Theme.of(context).primaryColor,
-                    ),
-                  );
-                  Navigator.pushReplacement(
-                    parentContext,
-                    MaterialPageRoute(
-                      builder: (_) => ExistingAccountLoginPage(email: email),
-                    ),
-                  );
-                });
-              } catch (error) {
-                Future.delayed(Duration.zero, () {
-                  ScaffoldMessenger.of(parentContext).showSnackBar(
-                    SnackBar(
-                      content: Text("Error sending reset email: $error"),
-                      backgroundColor: Theme.of(context).primaryColor,
-                    ),
-                  );
-                });
-              }
-            },
-            child: const Text("Yes"),
+            child: const Text("Okay"),
           ),
         ],
       ),
@@ -144,14 +202,16 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
           ),
         );
       } else {
+        ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text("Email not verified yet. Please check your inbox."),
+            content: const Text("Email not verified. Please check your inbox."),
             backgroundColor: Theme.of(context).primaryColor,
           ),
         );
       }
     } catch (e) {
+      ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text("Error checking verification status."),

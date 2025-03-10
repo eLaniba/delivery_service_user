@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_category_screen.dart';
 import 'package:delivery_service_user/models/stores.dart';
+import 'package:delivery_service_user/services/util.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:firebase_pagination/firebase_pagination.dart';
 import 'package:flutter/material.dart';
@@ -132,48 +133,50 @@ class _StoreScreenRemakeState extends State<StoreScreenRemake> {
               height: 150,
               width: double.infinity,
               child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  topRight: Radius.circular(8),
-                ),
-                child: stores.storeImageURL != null
-                    ? CachedNetworkImage(
-                  imageUrl: '${stores.storeImageURL}',
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: SizedBox(
-                      height: 200,
-                      child: Center(
-                        child: Icon(
-                          PhosphorIcons.image(PhosphorIconsStyle.fill),
-                        ),
-                      ),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(8),
+                      topRight: Radius.circular(8),
                     ),
+                    child: stores.storeImageURL != null
+                        ? CachedNetworkImage(
+                            imageUrl: '${stores.storeImageURL}',
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: SizedBox(
+                                height: 200,
+                                child: Center(
+                                  child: Icon(
+                                    PhosphorIcons.image(
+                                        PhosphorIconsStyle.fill),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              color: white80,
+                              child: Icon(
+                                PhosphorIcons.imageBroken(
+                                    PhosphorIconsStyle.fill),
+                                color: Colors.white,
+                                size: 48,
+                              ),
+                            ),
+                          )
+                        : Container(
+                            color: white80,
+                            child: Icon(
+                              PhosphorIcons.imageBroken(
+                                  PhosphorIconsStyle.fill),
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
-                  errorWidget: (context, url, error) => Container(
-                    color: white80,
-                    child: Icon(
-                      PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
-                      color: Colors.white,
-                      size: 48,
-                    ),
-                  ),
-                )
-                    : Container(
-                  color: white80,
-                  child: Icon(
-                    PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
-                    color: Colors.white,
-                  ),
-                ),
-              ),
             ),
-            const SizedBox(height: 8,),
                 //Store Info
                 Padding(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -203,7 +206,7 @@ class _StoreScreenRemakeState extends State<StoreScreenRemake> {
                       ),
                       //Store Phone Number
                       Text(
-                        '${stores.storePhone}',
+                        reformatPhoneNumber(stores.storePhone!),
                         style: const TextStyle(
                           color: Colors.grey,
                         ),

@@ -18,5 +18,6 @@ Color grey20 = const Color.fromARGB(255, 151, 154, 154);
 //From Figma
 Color gray = const Color.fromARGB(255, 142, 142, 147);
 Color gray5 = const Color.fromARGB(255, 229, 229, 234);
+Color gray4 = const Color(0xFFD1D1D6);
 
 String apiKey = 'AIzaSyDN4P2wLPNtH9NqROqux8NVc2XaHGViO2U';

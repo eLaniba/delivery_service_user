@@ -21,17 +21,17 @@ class _MainScreenState extends State<MainScreen> {
   int widgetIndex = 0;
 
   final List<Widget> _screens = [
-    const ProfileScreen(),
     const StoreScreenRemake(),
     const OrderScreen(),
+    const ProfileScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: widgetIndex == 0 ? const Text('Your profile') :
-          widgetIndex == 1 ? GestureDetector(
+        title: widgetIndex == 2 ? const Text('Your profile') :
+          widgetIndex == 0 ? GestureDetector(
           onTap: () {
             // Navigate to another page (SearchScreen) when the search bar is tapped
             Navigator.push(
@@ -63,7 +63,7 @@ class _MainScreenState extends State<MainScreen> {
           const Text('Orders'),
         foregroundColor: Colors.white,
         backgroundColor: Theme.of(context).primaryColor,
-        actions: widgetIndex != 0
+        actions: widgetIndex != 2
             ? [
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
@@ -161,21 +161,21 @@ class _MainScreenState extends State<MainScreen> {
         items: [
           BottomNavigationBarItem(
             icon: widgetIndex == 0
-              ? Icon(PhosphorIcons.user(PhosphorIconsStyle.fill))
-              : Icon(PhosphorIcons.user(PhosphorIconsStyle.regular)),
-            label: 'Profile',
-          ),
-          BottomNavigationBarItem(
-            icon: widgetIndex == 1
                 ? Icon(PhosphorIcons.storefront(PhosphorIconsStyle.fill))
                 : Icon(PhosphorIcons.storefront(PhosphorIconsStyle.regular)),
             label: 'Stores',
           ),
           BottomNavigationBarItem(
-            icon: widgetIndex == 2
+            icon: widgetIndex == 1
                 ? Icon(PhosphorIcons.package(PhosphorIconsStyle.fill))
                 : Icon(PhosphorIcons.package(PhosphorIconsStyle.regular)),
             label: 'Orders',
+          ),
+          BottomNavigationBarItem(
+            icon: widgetIndex == 2
+                ? Icon(PhosphorIcons.user(PhosphorIconsStyle.fill))
+                : Icon(PhosphorIcons.user(PhosphorIconsStyle.regular)),
+            label: 'Profile',
           ),
 
         ],

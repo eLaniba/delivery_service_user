@@ -29,3 +29,17 @@ String formatPhoneNumber(String input) {
   // Return the number with the "+63" prefix appended.
   return '+63$trimmed';
 }
+
+String reformatPhoneNumber(String input) {
+  // Trim any surrounding whitespace.
+  String trimmed = input.trim();
+
+  // Remove a leading "+63" if it exists.
+  if (trimmed.startsWith('+63')) {
+    trimmed = trimmed.substring(3);
+  }
+
+
+  // Return the number with the "+63" prefix appended.
+  return '0$trimmed';
+}

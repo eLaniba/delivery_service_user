@@ -36,7 +36,7 @@ import 'package:delivery_service_user/services/get_delivery_fees.dart';
     double serviceFee = 0;
     double orderTotal = 0;
 
-    final Address _currentAddress = Address(
+    Address _currentAddress = Address(
       addressEng: sharedPreferences!.getString('address'),
       location: parseGeoPointFromJson(sharedPreferences!.getString('location').toString()),
     );
@@ -54,33 +54,41 @@ import 'package:delivery_service_user/services/get_delivery_fees.dart';
       if(selectedAddress != null && selectedAddress is Address) {
         await sharedPreferences!.setString("address", selectedAddress.addressEng.toString());
         await sharedPreferences!.setString("location", geoPointToJson(selectedAddress.location!));
-        setState(() {
-          // _currentAddress = selectedAddress;
-
-        });
+        _currentAddress = Address(
+          addressEng: sharedPreferences!.getString('address'),
+          location: parseGeoPointFromJson(sharedPreferences!.getString('location').toString()),
+        );
+        await _fetchFeesAndCalculate();
+        // setState(() {
+        //   // _currentAddress = selectedAddress;
+        //
+        // });
       }
     }
 
     Future<void> _fetchFeesAndCalculate() async {
-      if(_currentAddress.location == null || widget.addToCartStoreInfo!.storeLocation == null){
-        print('Location data is missing.');
-        return;
-      }
+    if (_currentAddress.location == null ||
+        widget.addToCartStoreInfo!.storeLocation == null) {
+      print('Location data is missing.');
+      return;
+    }
 
-      //Fetch Firestore delivery fees
-      Map<String, double> fees = await getDeliveryFees();
+    //Fetch Firestore delivery fees
+    Map<String, double> fees = await getDeliveryFees();
 
-      //Calculate Rider's Fee
-      double calculatedRiderFee = await calculateRidersFee(
+    //Calculate Rider's Fee
+    double calculatedRiderFee = await calculateRidersFee(
       storeLocation: widget.addToCartStoreInfo!.storeLocation!,
       userLocation: _currentAddress.location!,
+      baseFee: fees['baseFee']!,
+      perKmFee: fees['perKmFee']!,
     );
 
-      setState(() {
-        riderFee = calculatedRiderFee;
-        serviceFee = fees['serviceFee']!;
-        orderTotal = subTotal + riderFee + serviceFee;
-      });
+    setState(() {
+      riderFee = calculatedRiderFee;
+      serviceFee = fees['serviceFee']!;
+      orderTotal = subTotal + riderFee + serviceFee;
+    });
   }
 
     double calculateOrderTotal(List<AddToCartItem>? items) {
@@ -152,10 +160,10 @@ import 'package:delivery_service_user/services/get_delivery_fees.dart';
 
         Future.delayed(Duration.zero, () {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Order placed successfully!'),
-              backgroundColor: Colors.black.withOpacity(0.8),
-              duration: const Duration(seconds: 5),
+            const SnackBar(
+              content: Text('Order placed successfully!'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 5),
             ),
           );
         });
@@ -314,7 +322,10 @@ import 'package:delivery_service_user/services/get_delivery_fees.dart';
                   //Order information
                   orderStatus: 'Pending',
                   orderTime: orderTime,
-                  orderTotal: subTotal,
+                  subTotal: subTotal,
+                  riderFee: riderFee,
+                  serviceFee: serviceFee,
+                  orderTotal: orderTotal,
                   //Store information
                   storeID: widget.addToCartStoreInfo!.storeID,
                   storeName: widget.addToCartStoreInfo!.storeName,

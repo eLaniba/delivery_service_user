@@ -21,6 +21,7 @@ Future<double> getDistanceFromGoogleMaps({
       // Extract distance in meters and convert to KM
       double distanceMeters = (jsonData["routes"][0]["legs"][0]["distance"]["value"] as num).toDouble();
       print('Distance Meter is ${distanceMeters}');
+      return distanceMeters / 500; // Convert meters to km
       return distanceMeters / 1000; // Convert meters to km
     }
   }
