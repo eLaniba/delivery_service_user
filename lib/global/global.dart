@@ -10,14 +10,14 @@ FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
 FirebaseStorage firebaseStorage = FirebaseStorage.instance;
 
 //Colors temporary
-Color white80 = const Color.fromARGB(255, 238, 238, 238);
-Color white70 = const Color.fromARGB(255, 224, 224, 224);
-Color grey50 = const Color.fromARGB(255, 189, 195, 199);
-Color grey20 = const Color.fromARGB(255, 151, 154, 154);
+const Color white80 = Color.fromARGB(255, 238, 238, 238);
+const Color white70 = Color.fromARGB(255, 224, 224, 224);
+const Color grey50 = Color.fromARGB(255, 189, 195, 199);
+const Color grey20 = Color.fromARGB(255, 151, 154, 154);
 
 //From Figma
-Color gray = const Color.fromARGB(255, 142, 142, 147);
-Color gray5 = const Color.fromARGB(255, 229, 229, 234);
-Color gray4 = const Color(0xFFD1D1D6);
+const Color gray = Color.fromARGB(255, 142, 142, 147);
+const Color gray5 = Color.fromARGB(255, 229, 229, 234);
+const Color gray4 = Color(0xFFD1D1D6);
 
 String apiKey = 'AIzaSyDN4P2wLPNtH9NqROqux8NVc2XaHGViO2U';
