@@ -140,62 +140,6 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen> {
             },
           ),
 
-          // StreamBuilder<int>(
-          //   stream: countAllItems('${sharedPreferences!.get('uid')}'),
-          //   builder: (context, snapshot) {
-          //     if(!snapshot.hasData) {
-          //       return const Padding(
-          //         padding: EdgeInsets.only(right: 40,),
-          //         child: SizedBox(
-          //           width: 16,
-          //           height: 16,
-          //           child: CircularProgressIndicator(),
-          //         ),
-          //       );
-          //     }
-          //
-          //     //other code
-          //     int itemCount = snapshot.data ?? 0;
-          //
-          //     return Padding(
-          //       padding: const EdgeInsets.only(right: 24),
-          //       child: Stack(
-          //         children: [
-          //           IconButton(
-          //             onPressed: () {
-          //               Navigator.push(context, MaterialPageRoute(builder: (c) => const CartScreen()));
-          //             },
-          //             icon: const Icon(Icons.shopping_cart_outlined),
-          //           ),
-          //           if(itemCount > 0)
-          //             Positioned(
-          //               right: 0,
-          //               top: 0,
-          //               child: Container(
-          //                 decoration: BoxDecoration(
-          //                   color: Colors.red,
-          //                   borderRadius: BorderRadius.circular(2),
-          //                 ),
-          //                 constraints: const BoxConstraints(
-          //                   minWidth: 16,
-          //                   minHeight: 16,
-          //                 ),
-          //                 child: Text(
-          //                   '$itemCount',
-          //                   style: const TextStyle(
-          //                     color: Colors.white,
-          //                     fontSize: 16,
-          //                   ),
-          //                   textAlign: TextAlign.center,
-          //                 ),
-          //               ),
-          //             ),
-          //               ],
-          //       ),
-          //     );
-          //   },
-          //
-          // ),
         ],
       ),
       body: CustomScrollView(

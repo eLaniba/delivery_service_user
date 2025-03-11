@@ -3,7 +3,6 @@ import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_screen.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_screen.dart';
 import 'package:delivery_service_user/mainScreens/profile_screen/profile_screen.dart';
-import 'package:delivery_service_user/mainScreens/store_screen/store_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_screen_remake.dart';
 import 'package:delivery_service_user/widgets/search_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
