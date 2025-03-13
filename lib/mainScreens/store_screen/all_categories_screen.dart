@@ -1,3 +1,4 @@
+import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/models/category_item.dart';
 import 'package:delivery_service_user/models/stores.dart';
 import 'package:delivery_service_user/widgets/category_card.dart';
@@ -54,6 +55,19 @@ class AllCategoriesScreen extends StatelessWidget {
               ),
             );
           },
+        ),
+        const SliverToBoxAdapter(
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: Text(
+                'End of results.',
+                style: TextStyle(
+                  color: gray,
+                ),
+              ),
+            ),
+          ),
         ),
       ],
     );

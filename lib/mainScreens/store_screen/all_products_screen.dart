@@ -467,6 +467,19 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
             );
           },
         ),
+        const SliverToBoxAdapter(
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: Text(
+                'End of results.',
+                style: TextStyle(
+                  color: gray,
+                ),
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }

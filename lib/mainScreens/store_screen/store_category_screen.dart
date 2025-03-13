@@ -232,7 +232,7 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen>
                         child: ListTile(
                           leading: widget.stores!.storeImageURL != null
                               ? ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(40),
                             child: CachedNetworkImage(
                               imageUrl: '${widget.stores!.storeImageURL}',
                               width: 50,
@@ -291,6 +291,68 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen>
                         ),
                       ),
                     ),
+
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Material(
+                            color: Colors.transparent, // Or whatever background you prefer
+                            child: InkWell(
+                              // CircleBorder ensures the ripple is clipped to a circle.
+                              customBorder: const CircleBorder(),
+                              onTap: () {
+                                // Handle tap
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(4.0),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).primaryColor, // Semi-transparent white
+                                  shape: BoxShape.circle,
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black26,  // shadow color
+                                      blurRadius: 4,         // how soft the shadow is
+                                      offset: Offset(0, 2), // move shadow down slightly
+                                    ),
+                                  ],
+                                ),
+                                child: PhosphorIcon(PhosphorIcons.warningCircle(PhosphorIconsStyle.fill), color: Colors.white,),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8,),
+                          Material(
+                            color: Colors.transparent, // Or whatever background you prefer
+                            child: InkWell(
+                              // CircleBorder ensures the ripple is clipped to a circle.
+                              customBorder: const CircleBorder(),
+                              onTap: () {
+                                // Handle tap
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(4.0),
+                                decoration: const BoxDecoration(
+                                  color: Colors.blue,  // Semi-transparent white
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black26,  // shadow color
+                                      blurRadius: 4,         // how soft the shadow is
+                                      offset: Offset(0, 2), // move shadow down slightly
+                                    ),
+                                  ],
+                                ),
+                                child: PhosphorIcon(PhosphorIcons.chatText(PhosphorIconsStyle.fill), color: Colors.white,),
+                              ),
+                            ),
+                          ),
+
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -316,6 +378,7 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen>
                 ),
               ),
             ),
+
           ];
         },
         body: TabBarView(

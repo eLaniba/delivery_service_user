@@ -5,6 +5,7 @@ import 'package:delivery_service_user/mainScreens/profile_screen/address_screen.
 import 'package:delivery_service_user/mainScreens/profile_screen/edit_profile_screen.dart';
 import 'package:delivery_service_user/models/users.dart';
 import 'package:delivery_service_user/services/auth_service.dart';
+import 'package:delivery_service_user/widgets/confirmation_dialog.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:delivery_service_user/widgets/status_widget.dart';
 import 'package:flutter/material.dart';
@@ -24,10 +25,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await firebaseAuth.signOut();
     // await sharedPreferences!.clear();
     await _authService.setLoginState(false);
-    print('DONE');
+    await sharedPreferences!.clear();
 
-
-    print('pops');
     // Navigate to the Auth Screen if the logout was successful
     Navigator.pushReplacement(
       context,
@@ -91,7 +90,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             children: [
                               Text(
                                 user.userPhone ?? '',
-                                style: TextStyle(color: gray),
+                                style: const TextStyle(color: gray),
                               ),
                               const SizedBox(width: 4),
                               verifiedStatusWidget(user.phoneVerified ?? false),
@@ -169,8 +168,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     leading: PhosphorIcon(PhosphorIcons.signOut(PhosphorIconsStyle.fill), color: Theme.of(context).primaryColor,),
                     title: Text('Logout', style: TextStyle(color: Theme.of(context).primaryColor),),
                     trailing: PhosphorIcon(PhosphorIcons.caretRight(PhosphorIconsStyle.regular), color: Theme.of(context).primaryColor,),
-                    onTap: () {
-                      logout();
+                    onTap: () async {
+                      final bool? isLogout = await ConfirmationDialog.show(context, 'Are you sure you want to logout?');
+
+                      if(isLogout == true) {
+                        logout();
+                      }
                     },
                   ),
                 ],
