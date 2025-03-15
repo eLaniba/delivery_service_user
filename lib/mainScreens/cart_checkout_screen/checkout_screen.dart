@@ -9,6 +9,7 @@
   import 'package:delivery_service_user/models/address.dart';
   import 'package:delivery_service_user/models/new_order.dart';
 import 'package:delivery_service_user/services/calculate_riders_fee.dart';
+import 'package:delivery_service_user/services/checkout_flow.dart';
   import 'package:delivery_service_user/services/geopoint_json.dart';
 import 'package:delivery_service_user/services/get_delivery_fees.dart';
   import 'package:delivery_service_user/widgets/loading_dialog.dart';
@@ -40,6 +41,8 @@ import 'package:delivery_service_user/services/get_delivery_fees.dart';
       addressEng: sharedPreferences!.getString('address'),
       location: parseGeoPointFromJson(sharedPreferences!.getString('location').toString()),
     );
+
+    String? selectedPaymentMethod = 'cod';
 
     @override
     void initState() {
@@ -344,7 +347,25 @@ import 'package:delivery_service_user/services/get_delivery_fees.dart';
                   userLocation: parseGeoPointFromJson(sharedPreferences!.get('location').toString()),
                 );
 
-                _addOrderToFirestore(order);
+                // _addOrderToFirestore(order);
+                final checkout = CheckoutFlow(
+                  context: context,
+                  storeInfo: widget.addToCartStoreInfo!,
+                  items: widget.items!,
+                  subTotal: subTotal,
+                  riderFee: riderFee,
+                  serviceFee: serviceFee,
+                  orderTotal: orderTotal,
+                  firestore: firebaseFirestore,
+                  storage: firebaseStorage,
+                  sharedPreferences: sharedPreferences!,
+                );
+
+                // Here you might do something like:
+                //  if (selectedPaymentMethod == 'cod') => 'cod'
+                //  if (selectedPaymentMethod == 'gcash') => 'gcash'
+                //  if (selectedPaymentMethod == 'paymaya') => 'paymaya'
+                checkout.startCheckout(selectedPaymentMethod!);
               },
               child: const Text(
                 'Confirm Order',
@@ -384,23 +405,40 @@ import 'package:delivery_service_user/services/get_delivery_fees.dart';
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         color: Colors.white,
-        margin: const EdgeInsets.only(top: 4,),
+        margin: const EdgeInsets.only(top: 4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Payment Method', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text('Payment Method',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.payment_rounded, color: Theme.of(context).primaryColor),
-                const SizedBox(width: 8),
-                const Text('Cash on Delivery'),
-              ],
+
+            // Example: Radio buttons for payment selection
+            RadioListTile<String>(
+              title: const Text('Cash on Delivery'),
+              value: 'cod',
+              groupValue: selectedPaymentMethod,
+              onChanged: (value) {
+                setState(() {
+                  selectedPaymentMethod = value!;
+                });
+              },
+            ),
+            RadioListTile<String>(
+              title: const Text('E-wallets/Cards (via PayMongo Link)'),
+              value: 'paymongo_link',
+              groupValue: selectedPaymentMethod,
+              onChanged: (value) {
+                setState(() {
+                  selectedPaymentMethod = value!;
+                });
+              },
             ),
           ],
         ),
       );
     }
+
 
     Widget _buildItemsList(List<AddToCartItem> items) {
       return Container(
@@ -491,7 +529,7 @@ import 'package:delivery_service_user/services/get_delivery_fees.dart';
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             //Subtotal, Rider's Fee, Service Fee, Order Total text
-            Column(
+            const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 //Subtotal Text
@@ -525,7 +563,7 @@ import 'package:delivery_service_user/services/get_delivery_fees.dart';
                   overflow: TextOverflow.ellipsis,
                 ),
                 //Order Total Text
-                const Text(
+                Text(
                   'Order Total',
                   style: TextStyle(
                     fontSize: 18,
@@ -543,7 +581,7 @@ import 'package:delivery_service_user/services/get_delivery_fees.dart';
                 //Subtotal Text
                 Text(
                   '₱ ${subtotal.toStringAsFixed(2)}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     color: gray,
                   ),
@@ -553,7 +591,7 @@ import 'package:delivery_service_user/services/get_delivery_fees.dart';
                 //Rider's fee Text
                 Text(
                   '₱ ${riderFee.toStringAsFixed(2)}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     color: gray,
                   ),
@@ -563,7 +601,7 @@ import 'package:delivery_service_user/services/get_delivery_fees.dart';
                 //Service fee
                 Text(
                   '₱ ${serviceFee.toStringAsFixed(2)}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     color: gray,
                   ),
