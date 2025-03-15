@@ -778,7 +778,7 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                             MaterialPageRoute(builder: (context) => const CartScreen()), // Your search screen
                           );
                         },
-                        icon: const Icon(Icons.shopping_cart_outlined),
+                        icon: Icon(PhosphorIcons.shoppingCart()),
                       ),
                       Positioned(
                         right: 10,
@@ -808,7 +808,7 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                           Navigator.push(context,
                               MaterialPageRoute(builder: (c) => const CartScreen()));
                         },
-                        icon: const Icon(Icons.shopping_cart_outlined),
+                        icon: Icon(PhosphorIcons.shoppingCart()),
                       ),
                       Positioned(
                         right: 0,

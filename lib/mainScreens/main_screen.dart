@@ -93,7 +93,7 @@ class _MainScreenState extends State<MainScreen> {
                             MaterialPageRoute(builder: (context) => const CartScreen()), // Your search screen
                           );
                         },
-                        icon: const Icon(Icons.shopping_cart_outlined),
+                        icon: Icon(PhosphorIcons.shoppingCart()),
                       ),
                       Positioned(
                         right: 10,
@@ -123,7 +123,7 @@ class _MainScreenState extends State<MainScreen> {
                           Navigator.push(context,
                               MaterialPageRoute(builder: (c) => const CartScreen()));
                         },
-                        icon: const Icon(Icons.shopping_cart_outlined),
+                        icon: Icon(PhosphorIcons.shoppingCart()),
                       ),
                       Positioned(
                         right: 0,
@@ -145,7 +145,91 @@ class _MainScreenState extends State<MainScreen> {
             },
           ),
         ]
-            : null,
+            : [
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .doc('${sharedPreferences!.get('uid')}')
+                .collection('cart')
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(),
+                );
+              } else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const CartScreen()),
+                        );
+                      },
+                      icon: Icon(PhosphorIcons.bell()),
+                    ),
+                    Positioned(
+                      right: 10,
+                      top: 5,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 8,
+                          minHeight: 8,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              } else {
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (c) => const CartScreen()),
+                        );
+                      },
+                      icon: Icon(PhosphorIcons.bell()),
+                    ),
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
+            },
+          ),
+          //Report
+          IconButton(
+            onPressed: () {
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => ReportStorePage()),
+              // );
+            },
+            icon: Icon(PhosphorIcons.chatText()),
+          ),
+        ],
         automaticallyImplyLeading: false,
       ),
       backgroundColor: Colors.grey[200],

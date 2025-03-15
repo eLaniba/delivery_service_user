@@ -13,6 +13,7 @@ import 'package:delivery_service_user/models/stores.dart';
 import 'package:delivery_service_user/services/util.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
+import 'package:delivery_service_user/widgets/report_store_page.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -74,18 +75,21 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen>
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Row(
-              children: [
-                Icon(
-                  PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.regular),
-                  color: Colors.grey,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Search $activePage...',
-                  style: const TextStyle(color: Colors.grey, fontSize: 18),
-                ),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  Icon(
+                    PhosphorIcons.magnifyingGlass(PhosphorIconsStyle.regular),
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Search $activePage...',
+                    style: const TextStyle(color: Colors.grey, fontSize: 18),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -100,79 +104,80 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen>
                 .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
-                return const Padding(
-                  padding: EdgeInsets.only(right: 40),
-                  child: SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(),
-                  ),
+                return const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(),
                 );
               } else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 24),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const CartScreen()),
-                          );
-                        },
-                        icon: const Icon(Icons.shopping_cart_outlined),
-                      ),
-                      Positioned(
-                        right: 10,
-                        top: 5,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 8,
-                            minHeight: 8,
-                          ),
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const CartScreen()),
+                        );
+                      },
+                      icon: Icon(PhosphorIcons.shoppingCart()),
+                    ),
+                    Positioned(
+                      right: 10,
+                      top: 5,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 8,
+                          minHeight: 8,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 );
               } else {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 24),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (c) => const CartScreen()),
-                          );
-                        },
-                        icon: const Icon(Icons.shopping_cart_outlined),
-                      ),
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
-                          ),
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (c) => const CartScreen()),
+                        );
+                      },
+                      icon: Icon(PhosphorIcons.shoppingCart()),
+                    ),
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 );
               }
             },
+          ),
+          //Report
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ReportStorePage()),
+              );
+            },
+            icon: Icon(PhosphorIcons.warningCircle()),
           ),
         ],
       ),
@@ -221,13 +226,13 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen>
                     ),
                     // Positioned ListTile at the bottom corner.
                     Positioned(
-                      left: 8,
-                      right: 8,
-                      bottom: 8,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(8),
+                          // borderRadius: BorderRadius.circular(8),
                         ),
                         child: ListTile(
                           leading: widget.stores!.storeImageURL != null
@@ -285,72 +290,20 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen>
                               Text(
                                 '${widget.stores!.storeAddress}',
                                 style: const TextStyle(fontSize: 12, color: Colors.black54),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
+                          trailing: InkWell(
+                            // CircleBorder ensures the ripple is clipped to a circle.
+                            // customBorder: const CircleBorder(),
+                            onTap: () {
+                              // Handle tap
+                            },
+                            child: PhosphorIcon(PhosphorIcons.chatText(PhosphorIconsStyle.regular), color: Colors.red,),
+                          ),
                         ),
-                      ),
-                    ),
-
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Material(
-                            color: Colors.transparent, // Or whatever background you prefer
-                            child: InkWell(
-                              // CircleBorder ensures the ripple is clipped to a circle.
-                              customBorder: const CircleBorder(),
-                              onTap: () {
-                                // Handle tap
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(4.0),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).primaryColor, // Semi-transparent white
-                                  shape: BoxShape.circle,
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black26,  // shadow color
-                                      blurRadius: 4,         // how soft the shadow is
-                                      offset: Offset(0, 2), // move shadow down slightly
-                                    ),
-                                  ],
-                                ),
-                                child: PhosphorIcon(PhosphorIcons.warningCircle(PhosphorIconsStyle.fill), color: Colors.white,),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8,),
-                          Material(
-                            color: Colors.transparent, // Or whatever background you prefer
-                            child: InkWell(
-                              // CircleBorder ensures the ripple is clipped to a circle.
-                              customBorder: const CircleBorder(),
-                              onTap: () {
-                                // Handle tap
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(4.0),
-                                decoration: const BoxDecoration(
-                                  color: Colors.blue,  // Semi-transparent white
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black26,  // shadow color
-                                      blurRadius: 4,         // how soft the shadow is
-                                      offset: Offset(0, 2), // move shadow down slightly
-                                    ),
-                                  ],
-                                ),
-                                child: PhosphorIcon(PhosphorIcons.chatText(PhosphorIconsStyle.fill), color: Colors.white,),
-                              ),
-                            ),
-                          ),
-
-                        ],
                       ),
                     ),
                   ],
