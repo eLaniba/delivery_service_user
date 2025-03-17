@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_screen.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_screen.dart';
+import 'package:delivery_service_user/mainScreens/profile_screen/messages_screen.dart';
 import 'package:delivery_service_user/mainScreens/profile_screen/profile_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_screen_remake.dart';
 import 'package:delivery_service_user/widgets/search_screen.dart';
@@ -219,13 +220,13 @@ class _MainScreenState extends State<MainScreen> {
               }
             },
           ),
-          //Report
+          //Chat Screen
           IconButton(
             onPressed: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => ReportStorePage()),
-              // );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const MessagesScreen()),
+              );
             },
             icon: Icon(PhosphorIcons.chatText()),
           ),

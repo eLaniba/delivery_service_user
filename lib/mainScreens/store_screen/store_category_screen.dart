@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_screen.dart';
+import 'package:delivery_service_user/mainScreens/profile_screen/messages_screen_2.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/all_categories_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/all_products_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_item_screen.dart';
@@ -299,7 +300,7 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen>
                             // CircleBorder ensures the ripple is clipped to a circle.
                             // customBorder: const CircleBorder(),
                             onTap: () {
-                              // Handle tap
+                              Navigator.push(context, MaterialPageRoute(builder: (c) => const MessagesScreen2()));
                             },
                             child: PhosphorIcon(PhosphorIcons.chatText(PhosphorIconsStyle.regular), color: Colors.red,),
                           ),
