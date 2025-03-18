@@ -25,6 +25,20 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
   // Dummy messages list to simulate a chat
   final List<String> _messages = [];
 
+  void _markMessagesAsRead() async {
+    // Retrieve current user id from sharedPreferences.
+    String currentUserId = sharedPreferences!.getString('uid') ?? '';
+    // Generate a unique chatId by sorting the current user and partner IDs.
+    List<String> ids = [currentUserId, widget.partnerID];
+    ids.sort();
+    String chatId = ids.join('_');
+
+    // Update the Firestore document to set the unread count for the current user to 0.
+    await FirebaseFirestore.instance.collection('chats').doc(chatId).update({
+      'unreadCount.$currentUserId': 0,
+    });
+  }
+
   Future<void> _sendMessageToStore() async {
     // Get the text to send.
     String messageText = _messageController.text.trim();
@@ -35,7 +49,7 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
 
     // Retrieve current user details from sharedPreferences.
     String currentUserId = sharedPreferences!.getString('uid') ?? '';
-    String currentUserName = sharedPreferences!.getString('userName') ?? '';
+    String currentUserName = sharedPreferences!.getString('name') ?? '';
     String currentUserImageURL = sharedPreferences!.getString('imageURL') ?? '';
 
     // Create a chat ID. Here, we sort the two IDs to create a unique ID.
@@ -75,6 +89,7 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
       // Update the existing chat document (update the lastMessage, timestamp, and unread count).
       await chatDocRef.update({
         'lastMessage': messageText,
+        'lastSender': currentUserId,
         'timestamp': Timestamp.fromDate(DateTime.now()),
         // Increase unread count for the partner.
         'unreadCount.${widget.partnerID}': FieldValue.increment(1),
@@ -91,15 +106,17 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
     });
 
     // Optionally scroll to the bottom.
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
+    // Future.delayed(const Duration(milliseconds: 100), () {
+    //   if (_scrollController.hasClients) {
+    //     _scrollController.animateTo(
+    //       _scrollController.position.maxScrollExtent,
+    //       duration: const Duration(milliseconds: 300),
+    //       curve: Curves.easeOut,
+    //     );
+    //   }
+    // });
+
+    _scrollToBottom();
   }
 
   /// Upload and send image message using the given image file.
@@ -144,14 +161,16 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
           currentUserId: currentUserImageURL,
           widget.partnerID: widget.imageURL,
         },
-        'lastMessage': 'Image',
+        'lastMessage': 'Sent an image',
+        'lastSender': currentUserId,
         'timestamp': Timestamp.now(),
         'unreadCount': {currentUserId: 0, widget.partnerID: 1},
       });
     } else {
       // Update the existing chat document.
       await chatDocRef.update({
-        'lastMessage': 'Image',
+        'lastMessage': 'Sent an image',
+        'lastSender': currentUserId,
         'timestamp': Timestamp.fromDate(DateTime.now()),
         'unreadCount.${widget.partnerID}': FieldValue.increment(1),
       });
@@ -167,15 +186,16 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
     });
 
     // Optionally scroll to the bottom.
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
+    // Future.delayed(const Duration(milliseconds: 100), () {
+    //   if (_scrollController.hasClients) {
+    //     _scrollController.animateTo(
+    //       _scrollController.position.maxScrollExtent,
+    //       duration: const Duration(milliseconds: 300),
+    //       curve: Curves.easeOut,
+    //     );
+    //   }
+    // });
+    _scrollToBottom();
   }
 
   /// This function picks the image based on the source, then shows a confirmation dialog.
@@ -199,6 +219,27 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
         },
       ),
     );
+  }
+
+  void _scrollToBottom() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
+    });
+    _markMessagesAsRead();
   }
 
   @override
@@ -352,7 +393,6 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
                       context: context,
                       builder: (context) => ImageUploadOption(
                         onImageSelected: (ImageSource source) {
-                          Navigator.pop(context); // Dismiss the bottom sheet.
                           _pickAndConfirmImage(source);
                         },
                       ),

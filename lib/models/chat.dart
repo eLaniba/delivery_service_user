@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Chat {
-  String? chatId; // Optional: the document ID if needed.
+  String? chatId;
   List<String>? participants;
   Map<String, String>? roles;
   Map<String, String>? partnerRoleFor;
-  Map<String, String>? participantNames; // New field for participant display names.
+  Map<String, String>? participantNames;
   Map<String, String>? participantImageURLs;
   String? lastMessage;
+  String? lastSender; // New field for the last sender's ID.
   DateTime? timestamp;
   Map<String, int>? unreadCount;
 
@@ -19,6 +20,7 @@ class Chat {
     this.participantNames,
     this.participantImageURLs,
     this.lastMessage,
+    this.lastSender,
     this.timestamp,
     this.unreadCount,
   });
@@ -41,6 +43,7 @@ class Chat {
         ? Map<String, String>.from(json['participantImageURLs'])
         : {};
     lastMessage = json['lastMessage'];
+    lastSender = json['lastSender']; // Read the lastSender from JSON.
     if (json['timestamp'] != null) {
       timestamp = (json['timestamp'] as Timestamp).toDate();
     }
@@ -60,6 +63,7 @@ class Chat {
     data['participantNames'] = participantNames;
     data['participantImageURLs'] = participantImageURLs;
     data['lastMessage'] = lastMessage;
+    data['lastSender'] = lastSender; // Write the lastSender.
     data['timestamp'] = timestamp != null ? Timestamp.fromDate(timestamp!) : null;
     data['unreadCount'] = unreadCount;
     return data;

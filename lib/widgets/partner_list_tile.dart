@@ -28,61 +28,75 @@ class PartnerListTile extends StatelessWidget {
     final lastMessage = chat.lastMessage ?? '';
     final unreadCount = chat.unreadCount?[currentUserId] ?? 0;
     final partnerImageURL = chat.participantImageURLs?[partnerId] ?? '';
+    final lastSender = chat.lastSender ?? '';
+    // If the last sender is the current user, prefix "You: " to the last message.
+    final displayMessage = (lastSender == currentUserId) ? "You: $lastMessage" : lastMessage;
 
-    return ListTile(
-      leading: CircleAvatar(
-        radius: 25,
-        backgroundColor: Colors.grey,
-        child: partnerImageURL.isNotEmpty
-            ? ClipOval(
-          child: CachedNetworkImage(
-            imageUrl: partnerImageURL,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
-            placeholder: (context, url) => Shimmer.fromColors(
-              baseColor: Colors.grey[300]!,
-              highlightColor: Colors.grey[100]!,
-              child: Container(
+    return Column(
+      children: [
+        ListTile(
+          leading: CircleAvatar(
+            radius: 25,
+            backgroundColor: Colors.grey,
+            child: partnerImageURL.isNotEmpty
+                ? ClipOval(
+              child: CachedNetworkImage(
+                imageUrl: partnerImageURL,
                 width: 50,
                 height: 50,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.grey,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey,
+                    ),
+                  ),
                 ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
-            ),
-            errorWidget: (context, url, error) => const Icon(Icons.error),
+            )
+                : const Icon(Icons.person),
           ),
-        )
-            : const Icon(Icons.person),
-      ),
-      title: Text(
-        partnerName,
-        style: TextStyle(
-          fontWeight: unreadCount > 0 ? FontWeight.bold : FontWeight.normal,
+          title: Text(
+            partnerName,
+            style: TextStyle(
+              fontWeight: unreadCount > 0 ? FontWeight.bold : FontWeight.normal,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Text(
+            displayMessage,
+            style: TextStyle(
+              color: unreadCount > 0 ? Colors.black : gray,
+              fontWeight: unreadCount > 0 ? FontWeight.bold : FontWeight.normal,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          trailing: Container(
+            width: 15,
+            height: 15,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: unreadCount > 0 ? Colors.red : gray.withOpacity(.5),
+            ),
+          ),
+          onTap: onTap,
         ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(
-        lastMessage,
-        style: TextStyle(
-          color: unreadCount > 0 ? Colors.black : gray,
-          fontWeight: unreadCount > 0 ? FontWeight.bold : FontWeight.normal,
+        const Divider(
+          color: Color.fromARGB(255, 242, 243, 244),
+          height: 1,
+          thickness: 1,
+          indent: 16,
+          endIndent: 16,
         ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      trailing: Container(
-        width: 15,
-        height: 15,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: unreadCount > 0 ? Colors.red : gray.withOpacity(.5),
-        ),
-      ),
-      onTap: onTap,
+      ],
     );
   }
 }
