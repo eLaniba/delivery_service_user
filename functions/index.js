@@ -78,3 +78,38 @@ exports.autoValidateUser = functions.firestore
     }
     return null;
   });
+
+//TODO: Will push this to the server soon, if the user changes the name, all chat history will be replaced
+
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+admin.initializeApp();
+
+exports.onUserNameChanged = functions.firestore
+  .document('users/{userId}')
+  .onUpdate((change, context) => {
+    const beforeData = change.before.data();
+    const afterData = change.after.data();
+    const userId = context.params.userId;
+
+    // Check if the display name has actually changed.
+    if (beforeData.displayName === afterData.displayName) {
+      return null;
+    }
+
+    const newDisplayName = afterData.displayName;
+
+    // Query chats where this user is a participant.
+    const chatsRef = admin.firestore().collection('chats');
+    return chatsRef.where('participants', 'array-contains', userId).get().then(snapshot => {
+      const batch = admin.firestore().batch();
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        // Update the participantNames map for this user.
+        const participantNames = data.participantNames || {};
+        participantNames[userId] = newDisplayName;
+        batch.update(doc.ref, { participantNames: participantNames });
+      });
+      return batch.commit();
+    });
+  });

@@ -5,7 +5,6 @@ import 'package:delivery_service_user/authentication/new_signup/add_address_scre
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
 import 'package:delivery_service_user/services/auth_service.dart';
 import 'package:delivery_service_user/services/geopoint_json.dart';
-import 'package:delivery_service_user/services/image_picker_service.dart';
 import 'package:delivery_service_user/services/util.dart';
 import 'package:delivery_service_user/widgets/confirmation_dialog.dart';
 import 'package:delivery_service_user/widgets/custom_text_field.dart';

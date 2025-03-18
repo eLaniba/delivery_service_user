@@ -1,8 +1,19 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery_service_user/global/global.dart';
+import 'package:delivery_service_user/models/chat.dart';
+import 'package:delivery_service_user/widgets/image_confirm.dart';
+import 'package:delivery_service_user/widgets/image_upload_option.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class MessagesScreen2 extends StatefulWidget {
-  const MessagesScreen2({Key? key}) : super(key: key);
+  String partnerName, partnerID, imageURL;
+
+  MessagesScreen2({required this.partnerName, required this.partnerID, required this.imageURL, Key? key}) : super(key: key);
 
   @override
   _MessagesScreen2State createState() => _MessagesScreen2State();
@@ -14,23 +25,180 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
   // Dummy messages list to simulate a chat
   final List<String> _messages = [];
 
-  void _sendMessage() {
-    String message = _messageController.text.trim();
-    if (message.isNotEmpty) {
-      setState(() {
-        _messages.add(message);
-      });
-      _messageController.clear();
+  Future<void> _sendMessageToStore() async {
+    // Get the text to send.
+    String messageText = _messageController.text.trim();
+    if (messageText.isEmpty) return;
 
-      // Optionally scroll to the bottom after sending a message.
-      Future.delayed(const Duration(milliseconds: 100), () {
+    // Clear the input field.
+    _messageController.clear();
+
+    // Retrieve current user details from sharedPreferences.
+    String currentUserId = sharedPreferences!.getString('uid') ?? '';
+    String currentUserName = sharedPreferences!.getString('userName') ?? '';
+    String currentUserImageURL = sharedPreferences!.getString('imageURL') ?? '';
+
+    // Create a chat ID. Here, we sort the two IDs to create a unique ID.
+    List<String> ids = [currentUserId, widget.partnerID];
+    ids.sort();
+    String chatId = ids.join('_');
+
+    // Create a Chat model instance with all necessary fields.
+    Chat chat = Chat(
+      chatId: chatId,
+      participants: [currentUserId, widget.partnerID],
+      roles: {currentUserId: 'user', widget.partnerID: 'store'},
+      partnerRoleFor: {currentUserId: 'store', widget.partnerID: 'user'},
+      participantNames: {
+        currentUserId: currentUserName,
+        widget.partnerID: widget.partnerName
+      },
+      participantImageURLs: {
+        currentUserId: currentUserImageURL,
+        widget.partnerID: widget.imageURL
+      },
+      lastMessage: messageText,
+      timestamp: DateTime.now(),
+      unreadCount: {currentUserId: 0, widget.partnerID: 1},
+    );
+
+    // Reference the chat document in Firestore.
+    DocumentReference chatDocRef =
+    FirebaseFirestore.instance.collection('chats').doc(chatId);
+
+    // Check if the chat already exists.
+    DocumentSnapshot chatSnapshot = await chatDocRef.get();
+    if (!chatSnapshot.exists) {
+      // Create a new chat document using the Chat model.
+      await chatDocRef.set(chat.toJson());
+    } else {
+      // Update the existing chat document (update the lastMessage, timestamp, and unread count).
+      await chatDocRef.update({
+        'lastMessage': messageText,
+        'timestamp': Timestamp.fromDate(DateTime.now()),
+        // Increase unread count for the partner.
+        'unreadCount.${widget.partnerID}': FieldValue.increment(1),
+      });
+    }
+
+    // Add the message to the 'messages' subcollection.
+    await chatDocRef.collection('messages').add({
+      'senderID': currentUserId,
+      'content': messageText,
+      'timestamp': Timestamp.now(),
+      'read': false,
+      'type': 'text',
+    });
+
+    // Optionally scroll to the bottom.
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
+      }
+    });
+  }
+
+  /// Upload and send image message using the given image file.
+  Future<void> _uploadAndSendImage(File imageFile) async {
+    // Retrieve current user data from sharedPreferences.
+    String currentUserId = sharedPreferences!.getString('uid') ?? '';
+    String currentUserName = sharedPreferences!.getString('name') ?? '';
+    String currentUserImageURL = sharedPreferences!.getString('imageURL') ?? '';
+
+    // Generate a unique chatId by sorting the IDs.
+    List<String> ids = [currentUserId, widget.partnerID];
+    ids.sort();
+    String chatId = ids.join('_');
+
+    // Create a unique file name using timestamp and partnerID.
+    String fileName = '${DateTime.now().millisecondsSinceEpoch}_${widget.partnerID}';
+    Reference storageRef =
+    FirebaseStorage.instance.ref().child('chat_images/$chatId').child(fileName);
+
+    // Upload the file to Firebase Storage.
+    UploadTask uploadTask = storageRef.putFile(imageFile);
+    TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
+    String imageUrl = await snapshot.ref.getDownloadURL();
+
+    DocumentReference chatDocRef =
+    FirebaseFirestore.instance.collection('chats').doc(chatId);
+
+    // Check if the chat document exists.
+    DocumentSnapshot chatSnapshot = await chatDocRef.get();
+    if (!chatSnapshot.exists) {
+      // Create a new chat document with the necessary fields.
+      await chatDocRef.set({
+        'chatId': chatId,
+        'participants': [currentUserId, widget.partnerID],
+        'roles': {currentUserId: 'user', widget.partnerID: 'store'},
+        'partnerRoleFor': {currentUserId: 'store', widget.partnerID: 'user'},
+        'participantNames': {
+          currentUserId: currentUserName,
+          widget.partnerID: widget.partnerName,
+        },
+        'participantImageURLs': {
+          currentUserId: currentUserImageURL,
+          widget.partnerID: widget.imageURL,
+        },
+        'lastMessage': 'Image',
+        'timestamp': Timestamp.now(),
+        'unreadCount': {currentUserId: 0, widget.partnerID: 1},
+      });
+    } else {
+      // Update the existing chat document.
+      await chatDocRef.update({
+        'lastMessage': 'Image',
+        'timestamp': Timestamp.fromDate(DateTime.now()),
+        'unreadCount.${widget.partnerID}': FieldValue.increment(1),
       });
     }
+
+    // Add the image message to the 'messages' subcollection.
+    await chatDocRef.collection('messages').add({
+      'senderID': currentUserId,
+      'content': imageUrl,
+      'timestamp': Timestamp.now(),
+      'read': false,
+      'type': 'image',
+    });
+
+    // Optionally scroll to the bottom.
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  /// This function picks the image based on the source, then shows a confirmation dialog.
+  Future<void> _pickAndConfirmImage(ImageSource source) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: source);
+    if (pickedFile == null) return;
+
+    File imageFile = File(pickedFile.path);
+
+    // Show confirmation dialog with image preview.
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => ImageConfirm(
+        imageFile: imageFile,
+        onCancel: () => Navigator.pop(context),
+        onSend: () {
+          Navigator.pop(context);
+          _uploadAndSendImage(imageFile);
+        },
+      ),
+    );
   }
 
   @override
@@ -40,19 +208,61 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
     super.dispose();
   }
 
-  Widget _buildMessageBubble(String message, bool isSentByUser) {
-    return Align(
-      alignment: isSentByUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isSentByUser ? Colors.blue[200] : Colors.grey[300],
-          borderRadius: BorderRadius.circular(8),
+  Widget _buildMessageBubble(Map<String, dynamic> messageData, bool isSentByUser) {
+    final String type = messageData['type'] ?? 'text';
+    if (type == 'image') {
+      return Align(
+        alignment: isSentByUser ? Alignment.centerRight : Alignment.centerLeft,
+        child: GestureDetector(
+          onTap: () {
+            // Show full image in a dialog when tapped.
+            showDialog(
+              context: context,
+              builder: (context) {
+                return Dialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  insetPadding: const EdgeInsets.all(20),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    child: Image.network(
+                      messageData['content'],
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            width: 150,
+            height: 150,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              image: DecorationImage(
+                image: NetworkImage(messageData['content']),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
         ),
-        child: Text(message),
-      ),
-    );
+      );
+    } else {
+      return Align(
+        alignment: isSentByUser ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isSentByUser ? Colors.blue[200] : Colors.grey[300],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(messageData['content']),
+        ),
+      );
+    }
   }
 
   InputDecoration _messageInputDecoration() {
@@ -84,28 +294,50 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the current user id from sharedPreferences.
+    String currentUserId = sharedPreferences!.getString('uid') ?? '';
+
+    // Compute a unique chat ID by sorting the current user and partner IDs.
+    List<String> ids = [currentUserId, widget.partnerID];
+    ids.sort();
+    String chatId = ids.join('_');
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat'),
+        title: Text(widget.partnerName),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
       body: Column(
         children: [
-          // Chat messages list
+          // Expanded widget to display the list of chat messages.
           Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(8.0),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                // For now, we'll assume all messages are sent by the user.
-                // Adjust this logic as needed.
-                return _buildMessageBubble(_messages[index], true);
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('chats')
+                  .doc(chatId)
+                  .collection('messages')
+                  .orderBy('timestamp', descending: false)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final docs = snapshot.data!.docs;
+                return ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(8.0),
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    final data = docs[index].data() as Map<String, dynamic>;
+                    final bool isSentByUser = data['senderID'] == currentUserId;
+                    return _buildMessageBubble(data, isSentByUser);
+                  },
+                );
               },
             ),
           ),
-          // Message input field with send button using report_store_page style
+          // Input area with a camera button and a send button.
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             color: Colors.white,
@@ -116,7 +348,15 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
                     PhosphorIcons.camera(PhosphorIconsStyle.regular),
                   ),
                   onPressed: () {
-                    // Add camera functionality if needed.
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) => ImageUploadOption(
+                        onImageSelected: (ImageSource source) {
+                          Navigator.pop(context); // Dismiss the bottom sheet.
+                          _pickAndConfirmImage(source);
+                        },
+                      ),
+                    );
                   },
                 ),
                 Expanded(
@@ -130,7 +370,7 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
                     PhosphorIcons.paperPlaneRight(PhosphorIconsStyle.fill),
                     color: Colors.red,
                   ),
-                  onPressed: _sendMessage,
+                  onPressed: _sendMessageToStore,
                 ),
               ],
             ),

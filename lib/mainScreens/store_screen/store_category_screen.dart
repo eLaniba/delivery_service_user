@@ -300,7 +300,8 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen>
                             // CircleBorder ensures the ripple is clipped to a circle.
                             // customBorder: const CircleBorder(),
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (c) => const MessagesScreen2()));
+                              //TODO: modify this to the latest data model of the store using the PROFILE IMAGE not the COVER IMAGE
+                              Navigator.push(context, MaterialPageRoute(builder: (c) => MessagesScreen2(partnerName: widget.stores!.storeName!, partnerID: widget.stores!.storeID!, imageURL: widget.stores!.storeImageURL!,)));
                             },
                             child: PhosphorIcon(PhosphorIcons.chatText(PhosphorIconsStyle.regular), color: Colors.red,),
                           ),
