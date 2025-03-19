@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/models/chat.dart';
 import 'package:delivery_service_user/widgets/image_confirm.dart';
-import 'package:delivery_service_user/widgets/image_upload_option.dart';
+import 'package:delivery_service_user/widgets/circle_image_upload_option.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -412,7 +412,7 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
                   onPressed: () {
                     showModalBottomSheet(
                       context: context,
-                      builder: (context) => ImageUploadOption(
+                      builder: (context) => CircleImageUploadOption(
                         onImageSelected: (ImageSource source) {
                           _pickAndConfirmImage(source);
                         },

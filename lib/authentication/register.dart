@@ -1,17 +1,21 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crop_your_image/crop_your_image.dart';
 import 'package:delivery_service_user/authentication/new_signup/add_address_screen.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
 import 'package:delivery_service_user/services/auth_service.dart';
 import 'package:delivery_service_user/services/geopoint_json.dart';
 import 'package:delivery_service_user/services/util.dart';
+import 'package:delivery_service_user/widgets/circle_image_upload_card.dart';
 import 'package:delivery_service_user/widgets/confirmation_dialog.dart';
+import 'package:delivery_service_user/widgets/crop_image_screen.dart';
 import 'package:delivery_service_user/widgets/custom_text_field.dart';
 import 'package:delivery_service_user/widgets/custom_text_field_validations.dart';
 import 'package:delivery_service_user/widgets/error_dialog.dart';
 import 'package:delivery_service_user/widgets/image_upload_card.dart';
-import 'package:delivery_service_user/widgets/image_upload_option.dart';
+import 'package:delivery_service_user/widgets/circle_image_upload_option.dart';
 import 'package:delivery_service_user/widgets/sign_up_agreement.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +44,7 @@ class _RegisterState extends State<Register> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  XFile? _imgXFile;
+  XFile? _imgProfile;
   String imageValidation = "";
 
   TextEditingController nameController = TextEditingController();
@@ -66,7 +70,7 @@ class _RegisterState extends State<Register> {
   void initState() {
     super.initState();
     emailController.text = widget.email!;
-    // _startExpirationTimer();
+    _startExpirationTimer();
   }
 
   @override
@@ -78,6 +82,22 @@ class _RegisterState extends State<Register> {
     addressController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  void _startExpirationTimer() {
+    _expirationTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        _remainingSeconds--;
+      });
+      if (_remainingSeconds <= 0) {
+        _expirationTimer.cancel();
+        // Navigate to a session expired screen or close the page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const SessionExpiredScreen()),
+        );
+      }
+    });
   }
 
   signUp() async {
@@ -138,6 +158,10 @@ class _RegisterState extends State<Register> {
     try {
       await currentUser.updatePassword(passwordController.text.trim());
 
+      String profileFileName = 'profile_file';
+      String profileFilePath = 'users/${currentUser.uid}/images/$profileFileName';
+      String profileURL = await uploadFileAndGetDownloadURL(file: _imgProfile!, storagePath: profileFilePath);
+
       await FirebaseFirestore.instance
           .collection("users")
           .doc(currentUser.uid)
@@ -153,7 +177,8 @@ class _RegisterState extends State<Register> {
         // Bool for Approval in Admin
         "emailVerified": true,
         "phoneVerified": false,
-        "idVerified": false,
+        'userProfileURL': profileURL,
+        'userProfilePath': profileFilePath,
       });
 
       // Setting up default address' reference
@@ -175,6 +200,7 @@ class _RegisterState extends State<Register> {
       // Save geoPoint data locally
       String locationString = geoPointToJson(geoPoint!);
 
+      await sharedPreferences!.setString("profileURL", profileURL);
       await sharedPreferences!.setString("uid", currentUser.uid);
       await sharedPreferences!.setString("name", userName);
       await sharedPreferences!.setString("email", currentUser.email.toString());
@@ -182,7 +208,6 @@ class _RegisterState extends State<Register> {
       await sharedPreferences!.setString("address", address!);
       await sharedPreferences!.setString("location", locationString);
 
-      print('REGISTER SUCCESSFUL, PUSH YOU TO THE APP');
       // Saving login state locally so user don't have to re-login if the app exits
       await _authService.setLoginState(true);
 
@@ -206,22 +231,42 @@ class _RegisterState extends State<Register> {
     }
   }
 
-  // Future<void> _getImage(ImageSource source) async {
-  //   XFile? imageXFile;
-  //
-  //   imageXFile = await ImagePickerService().pickCropImage(
-  //     cropAspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-  //     imageSrouce: source,
-  //   );
-  //
-  //   if(imageXFile != null) {
-  //     setState(() {
-  //       imageValidation = '';
-  //       _imgXFile = imageXFile;
-  //     });
-  //   }
-  //
-  // }
+  Future<void>_getImage(ImageSource source) async {
+    // 1. Pick the image from the camera or gallery.
+    final XFile? imageXFile = await ImagePicker().pickImage(source: source);
+    if (imageXFile == null) return;
+
+    // Convert the picked file to bytes.
+    final imageData = await imageXFile.readAsBytes();
+
+    //2. Determine the aspect ratio
+    double aspectRatio = 1.0;
+
+    // 3. Navigate to the crop screen.
+    final dynamic cropResult = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              CropImageScreen(imageData: imageData, aspectRatio: aspectRatio)),
+    );
+
+    Uint8List? croppedImageData;
+
+    if (cropResult is Uint8List) {
+      croppedImageData = cropResult;
+    } else if (cropResult is CropSuccess) {
+      croppedImageData = cropResult.croppedImage;
+    }
+
+    if (croppedImageData != null) {
+      // Optionally convert to XFile if needed before updating state.
+      final XFile croppedXFile = await convertUint8ListToXFile(croppedImageData);
+      setState(() {
+        _imgProfile = croppedXFile;
+        imageValidation = '';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -247,7 +292,15 @@ class _RegisterState extends State<Register> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 16),
+                CircleImageUploadCard(
+                    imageXFile: _imgProfile,
+                    onTap: () {
+                      showModalBottomSheet(context: context, builder: (BuildContext context) {
+                        return CircleImageUploadOption(onImageSelected: _getImage);
+                      });
+                    },
+                    label: 'Upload profile'),
+
                 // Image
                 // Image.asset(
                 //   'assets/create_account.png',
@@ -263,7 +316,6 @@ class _RegisterState extends State<Register> {
                 //       });
                 //     },
                 //     label: 'Upload your profile picture'),
-                const SizedBox(height: 8,),
                 //Image Validation Text
                 Text(
                   imageValidation,
@@ -442,9 +494,16 @@ class _RegisterState extends State<Register> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            if (_formKey.currentState!.validate()) {
+                            if (_formKey.currentState!.validate() && _imgProfile != null) {
                               // Signup
                               saveDataToFirestore(widget.user);
+
+                            } else {
+                              if(_imgProfile == null) {
+                                setState(() {
+                                  imageValidation = 'Please upload a profile';
+                                });
+                              }
                             }
                           },
                           style: ElevatedButton.styleFrom(

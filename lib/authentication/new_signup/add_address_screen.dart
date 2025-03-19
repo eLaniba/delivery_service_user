@@ -199,7 +199,11 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                         setState(() {
                           _currentPosition = position.target;
                         });
-                        _getAddressFromLatLng(position.target); // Update address as map moves
+                      },
+                      onCameraIdle: () {
+                        if (_currentPosition != null) {
+                          _getAddressFromLatLng(_currentPosition!);
+                        }
                       },
                       myLocationEnabled: false,
                       myLocationButtonEnabled: true,

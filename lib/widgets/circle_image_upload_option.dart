@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-class ImageUploadOption extends StatelessWidget{
+class CircleImageUploadOption extends StatelessWidget{
   final Function(ImageSource) onImageSelected;
 
-  const ImageUploadOption({Key? key, required this.onImageSelected}) : super(key: key);
+  const CircleImageUploadOption({Key? key, required this.onImageSelected}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
