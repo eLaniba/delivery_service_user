@@ -193,9 +193,9 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen>
                   children: [
                     // Background image fills the entire box.
                     Positioned.fill(
-                      child: widget.stores!.storeImageURL != null
+                      child: widget.stores!.storeCoverURL != null
                           ? CachedNetworkImage(
-                        imageUrl: '${widget.stores!.storeImageURL}',
+                        imageUrl: '${widget.stores!.storeCoverURL}',
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Shimmer.fromColors(
                           baseColor: Colors.grey[300]!,
@@ -217,10 +217,10 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen>
                         ),
                       )
                           : Container(
-                        color: white80,
+                        color: Colors.white,
                         child: Icon(
-                          PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
-                          color: Colors.white,
+                          PhosphorIcons.imageBroken(PhosphorIconsStyle.regular),
+                          color: Colors.red,
                           size: 48,
                         ),
                       ),
@@ -236,11 +236,11 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen>
                           // borderRadius: BorderRadius.circular(8),
                         ),
                         child: ListTile(
-                          leading: widget.stores!.storeImageURL != null
+                          leading: widget.stores!.storeProfileURL != null
                               ? ClipRRect(
                             borderRadius: BorderRadius.circular(40),
                             child: CachedNetworkImage(
-                              imageUrl: '${widget.stores!.storeImageURL}',
+                              imageUrl: '${widget.stores!.storeProfileURL}',
                               width: 50,
                               height: 50,
                               fit: BoxFit.cover,
@@ -265,11 +265,15 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen>
                             ),
                           )
                               : Container(
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(40)
+                              // borderRadius: BorderRadius.circular(8),
+                            ),
                             width: 50,
                             height: 50,
-                            color: Colors.grey,
                             child: Icon(
-                              PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
+                              PhosphorIcons.storefront(PhosphorIconsStyle.regular),
                               color: Colors.white,
                             ),
                           ),
@@ -301,7 +305,7 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen>
                             // customBorder: const CircleBorder(),
                             onTap: () {
                               //TODO: modify this to the latest data model of the store using the PROFILE IMAGE not the COVER IMAGE
-                              Navigator.push(context, MaterialPageRoute(builder: (c) => MessagesScreen2(partnerName: widget.stores!.storeName!, partnerID: widget.stores!.storeID!, imageURL: widget.stores!.storeImageURL!,)));
+                              Navigator.push(context, MaterialPageRoute(builder: (c) => MessagesScreen2(partnerName: widget.stores!.storeName!, partnerID: widget.stores!.storeID!, imageURL: widget.stores!.storeProfileURL!,)));
                             },
                             child: PhosphorIcon(PhosphorIcons.chatText(PhosphorIconsStyle.regular), color: Colors.red,),
                           ),

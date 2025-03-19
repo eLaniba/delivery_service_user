@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/models/chat.dart';
@@ -9,6 +10,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:shimmer/shimmer.dart';
 
 class MessagesScreen2 extends StatefulWidget {
   String partnerName, partnerID, imageURL;
@@ -236,9 +238,9 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollToBottom();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _scrollToBottom();
+    // });
     _markMessagesAsRead();
   }
 
@@ -280,11 +282,29 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
             margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             width: 150,
             height: 150,
-            decoration: BoxDecoration(
+            child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              image: DecorationImage(
-                image: NetworkImage(messageData['content']),
+              child: CachedNetworkImage(
+                imageUrl: messageData['content'],
                 fit: BoxFit.cover,
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Center(
+                    child: Icon(
+                      PhosphorIcons.image(PhosphorIconsStyle.fill),
+                      size: 48,
+                    ),
+                  ),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: Colors.white.withOpacity(0.8),
+                  child: Icon(
+                    PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
+                    color: Colors.white,
+                    size: 48,
+                  ),
+                ),
               ),
             ),
           ),
@@ -358,7 +378,7 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
                   .collection('chats')
                   .doc(chatId)
                   .collection('messages')
-                  .orderBy('timestamp', descending: false)
+                  .orderBy('timestamp', descending: true)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
@@ -366,6 +386,7 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
                 }
                 final docs = snapshot.data!.docs;
                 return ListView.builder(
+                  reverse: true,
                   controller: _scrollController,
                   padding: const EdgeInsets.all(8.0),
                   itemCount: docs.length,

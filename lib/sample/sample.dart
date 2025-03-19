@@ -95,7 +95,7 @@ class StoreCard extends StatelessWidget {
 
   /// Builds a CircleAvatar with CachedNetworkImage and Shimmer
   Widget _buildCircleAvatar(BuildContext context) {
-    final imageUrl = store.storeImageURL;
+    final imageUrl = store.storeProfileURL;
 
     return SizedBox(
       width: 50,

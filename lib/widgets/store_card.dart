@@ -47,9 +47,9 @@ class StoreCard extends StatelessWidget {
               child: SizedBox(
                 height: 120,
                 width: double.infinity,
-                child: (store.storeImageURL != null)
+                child: (store.storeCoverURL != null)
                     ? CachedNetworkImage(
-                        imageUrl: store.storeImageURL!,
+                        imageUrl: store.storeCoverURL!,
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Shimmer.fromColors(
                           baseColor: Colors.grey[300]!,
@@ -63,18 +63,20 @@ class StoreCard extends StatelessWidget {
                           ),
                         ),
                         errorWidget: (context, url, error) => Container(
-                          color: Colors.grey[200],
+                          color: Colors.red,
                           child: PhosphorIcon(
-                            PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
-                            size: 48,
+                            PhosphorIcons.imageBroken(PhosphorIconsStyle.regular),
+                            color: Colors.white,
+                            size: 32,
                           ),
                         ),
                       )
                     : Container(
-                        color: Colors.grey[200],
+                        color: Colors.red,
                         child: PhosphorIcon(
-                          PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
-                          size: 48,
+                          PhosphorIcons.imageBroken(PhosphorIconsStyle.regular),
+                          color: Colors.white,
+                          size: 32,
                         ),
                       ),
               ),
@@ -140,17 +142,17 @@ class StoreCard extends StatelessWidget {
 }
 
 Widget _buildCircleAvatar(BuildContext context, Stores store) {
-  final imageUrl = store.storeImageURL;
+  final imageUrl = store.storeProfileURL;
 
   return SizedBox(
     width: 50,
     height: 50,
     child: imageUrl == null
         ? CircleAvatar(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Colors.red,
       child: Icon(
-        PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
-        color: Colors.grey[500],
+        PhosphorIcons.storefront(PhosphorIconsStyle.regular),
+        color: Colors.white,
       ),
     )
         : CachedNetworkImage(
@@ -170,10 +172,10 @@ Widget _buildCircleAvatar(BuildContext context, Stores store) {
         ),
       ),
       errorWidget: (context, url, error) => CircleAvatar(
-        backgroundColor: Colors.grey[200],
+        backgroundColor: Colors.red,
         child: Icon(
-          PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
-          color: Colors.grey[500],
+          PhosphorIcons.storefront(PhosphorIconsStyle.regular),
+          color: Colors.white,
         ),
       ),
     ),

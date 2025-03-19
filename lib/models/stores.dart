@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Stores {
   String? storeID;
   String? storeName;
-  String? storeImageURL;
+  String? storeProfileURL;
+  String? storeCoverURL;
   String? storePhone;
   String? storeAddress;
   GeoPoint? storeLocation;
@@ -11,7 +12,8 @@ class Stores {
   Stores({
     this.storeID,
     this.storeName,
-    this.storeImageURL,
+    this.storeProfileURL,
+    this.storeCoverURL,
     this.storePhone,
     this.storeAddress,
     this.storeLocation,
@@ -20,7 +22,8 @@ class Stores {
   Stores.fromJson(Map<String, dynamic> json) {
     storeID = json["storeID"];
     storeName = json["storeName"];
-    storeImageURL = json["storeImageURL"];
+    storeProfileURL = json["storeProfileURL"];
+    storeCoverURL = json["storeCoverURL"];
     storePhone = json["storePhone"];
     storeAddress = json["storeAddress"];
     storeLocation = json["storeLocation"];
@@ -28,23 +31,25 @@ class Stores {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data["storeID"] = this.storeID;
-    data["storeName"] = this.storeName;
-    data["storeImageURL"] = this.storeImageURL;
-    data["storePhone"] = this.storePhone;
-    data["storeAddress"] = this.storeAddress;
-    data["storeLocation"] = this.storeLocation;
+    data["storeID"] = storeID;
+    data["storeName"] = storeName;
+    data["storeProfileURL"] = storeProfileURL;
+    data["storeCoverURL"] = storeCoverURL;
+    data["storePhone"] = storePhone;
+    data["storeAddress"] = storeAddress;
+    data["storeLocation"] = storeLocation;
     return data;
   }
 
   Map<String, dynamic> addStoreToCart() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data["storeID"] = this.storeID;
-    data["storeName"] = this.storeName;
-    data["storeImageURL"] = this.storeImageURL;
-    data["storePhone"] = this.storePhone;
-    data["storeAddress"] = this.storeAddress;
-    data["storeLocation"] = this.storeLocation;
+    data["storeID"] = storeID;
+    data["storeName"] = storeName;
+    data["storeProfileURL"] = storeProfileURL;
+    data["storeCoverURL"] = storeCoverURL;
+    data["storePhone"] = storePhone;
+    data["storeAddress"] = storeAddress;
+    data["storeLocation"] = storeLocation;
     return data;
   }
 }

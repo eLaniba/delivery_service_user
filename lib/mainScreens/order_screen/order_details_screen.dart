@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/live_location_tracking_page.dart';
+import 'package:delivery_service_user/mainScreens/profile_screen/messages_screen_2.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/new_order.dart';
 import 'package:delivery_service_user/services/util.dart';
@@ -95,6 +96,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       },
     );
   }
+
   Future<void> confirmDelivery() async {
     showDialog(context: context, builder: (BuildContext context) {
       return const LoadingDialog(
@@ -146,6 +148,17 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const MainScreen()));
     });
   }
+
+  void sendMessage(String name, String id, String imageURL) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MessagesScreen2(
+            partnerName: name, partnerID: id, imageURL: imageURL),
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -231,6 +244,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
                     // Check if there's an Assigned Rider
                     bool hasRiderInfo = order.riderName != null && order.riderPhone != null;
+                    print(hasRiderInfo);
 
                     return Column(
                       mainAxisSize: MainAxisSize.min,
@@ -277,18 +291,32 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               //User Information
               storeUserInfoContainer(
                 context: context,
-                icon: PhosphorIcons.mapPin(PhosphorIconsStyle.bold),
+                onTap: () {
+                  // sendMessage(
+                  //   widget.order!.storeName!,
+                  //   widget.order!.storeID!,
+                  //   widget.order!.storeProfileURL!,
+                  // );
+                },
+                icon: PhosphorIcons.user(PhosphorIconsStyle.bold),
                 name: widget.order!.userName!,
-                phone: widget.order!.userPhone!,
+                phone: reformatPhoneNumber(widget.order!.userPhone!),
                 address: widget.order!.userAddress!,
               ),
               const SizedBox(height: 4,),
               //Store Information
               storeUserInfoContainer(
                 context: context,
+                onTap: () {
+                  sendMessage(
+                    widget.order!.storeName!,
+                    widget.order!.storeID!,
+                    widget.order!.storeProfileURL ?? '',
+                  );
+                },
                 icon: PhosphorIcons.storefront(PhosphorIconsStyle.bold),
                 name: widget.order!.storeName!,
-                phone: widget.order!.storePhone!,
+                phone: reformatPhoneNumber(widget.order!.storePhone!),
                 address: widget.order!.storeAddress!,
               ),
               const SizedBox(height: 4,),
@@ -473,54 +501,57 @@ Widget orderInfoContainer({BuildContext? context, required String orderStatus,re
   );
 }
 
-Widget storeUserInfoContainer({BuildContext? context, required IconData icon, required String name, required String phone, required String address}) {
-  return Container(
-    padding: const EdgeInsets.all(16),
-    color: Colors.white,
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        //Icon
-        Icon(
-          icon,
-          size: 24,
-          color: Theme.of(context!).primaryColor,
-        ),
-        const SizedBox(width: 16,),
-        //User/Store Name, User/Store Phone, User/Store Address
-        Flexible(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              //Name
-              Text(
-                name,
-                style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-              //Phone
-              Text(
-                phone,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: gray,
-                ),
-              ),
-              //Address
-              Text(
-                address,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: gray,
-                ),
-              ),
-            ],
+Widget storeUserInfoContainer({BuildContext? context, required IconData icon, required String name, required String phone, required String address, VoidCallback? onTap}) {
+  return InkWell(
+    onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.all(16),
+      color: Colors.white,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          //Icon
+          Icon(
+            icon,
+            size: 24,
+            color: Theme.of(context!).primaryColor,
           ),
-        ),
-      ],
+          const SizedBox(width: 16,),
+          //User/Store Name, User/Store Phone, User/Store Address
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                //Name
+                Text(
+                  name,
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold
+                  ),
+                ),
+                //Phone
+                Text(
+                  phone,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: gray,
+                  ),
+                ),
+                //Address
+                Text(
+                  address,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: gray,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     ),
   );
 }

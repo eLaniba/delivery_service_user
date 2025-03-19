@@ -13,6 +13,7 @@ class NewOrder{
   double? orderTotal;
 
   //Store information
+  String? storeProfileURL;
   String? storeID;
   String? storeName;
   String? storePhone;
@@ -20,10 +21,11 @@ class NewOrder{
   bool? storeConfirmDelivery;
   GeoPoint? storeLocation;
 
-  //
+  //Items
   List<AddToCartItem>? items;
 
   //User Information
+  String? userProfileURL;
   String? userID;
   String? userName;
   String? userPhone;
@@ -32,6 +34,7 @@ class NewOrder{
   GeoPoint? userLocation;
 
   //Rider information
+  String? riderProfileURL;
   String? riderID;
   String? riderName;
   String? riderPhone;
@@ -51,6 +54,7 @@ class NewOrder{
     this.orderTotal,
 
     //Store information
+    this.storeProfileURL,
     this.storeID,
     this.storeName,
     this.storePhone,
@@ -61,6 +65,7 @@ class NewOrder{
     this.items,
 
     //User Information
+    this.userProfileURL,
     this.userID,
     this.userName,
     this.userPhone,
@@ -69,6 +74,7 @@ class NewOrder{
     this.userLocation,
 
     //Rider information
+    this.riderProfileURL,
     this.riderID,
     this.riderName,
     this.riderPhone,
@@ -95,6 +101,7 @@ class NewOrder{
     subTotal = json['subTotal'];
     orderTotal = json['orderTotal'];
 
+    storeProfileURL = json['storeProfileURL'];
     storeID = json['storeID'];
     storeName = json['storeName'];
     storePhone = json['storePhone'];
@@ -106,6 +113,7 @@ class NewOrder{
       items = List<AddToCartItem>.from(json['items'].map((item) => AddToCartItem.fromJson(item)));
     }
 
+    userProfileURL = json['userProfileURL'];
     userID = json['userID'];
     userName = json['userName'];
     userPhone = json['userPhone'];
@@ -113,6 +121,7 @@ class NewOrder{
     userConfirmDelivery = json['userConfirmDelivery'];
     userLocation = json['userLocation'];
 
+    riderProfileURL = json['riderProfileURL'];
     riderID = json['riderID'];
     riderName = json['riderName'];
     riderPhone = json['riderPhone'];
@@ -122,38 +131,41 @@ class NewOrder{
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['orderStatus'] = this.orderStatus;
-    data['orderID'] = this.orderID;
-    data['orderTime'] = this.orderTime;
-    data['orderDelivered'] = this.orderDelivered;
-    data['riderFee'] = this.riderFee;
-    data['serviceFee'] = this.serviceFee;
-    data['subTotal'] = this.subTotal;
-    data['orderTotal'] = this.orderTotal;
+    data['orderStatus'] = orderStatus;
+    data['orderID'] = orderID;
+    data['orderTime'] = orderTime;
+    data['orderDelivered'] = orderDelivered;
+    data['riderFee'] = riderFee;
+    data['serviceFee'] = serviceFee;
+    data['subTotal'] = subTotal;
+    data['orderTotal'] = orderTotal;
 
-    data['storeID'] = this.storeID;
-    data['storeName'] = this.storeName;
-    data['storePhone'] = this.storePhone;
-    data['storeAddress'] = this.storeAddress;
-    data['storeConfirmDelivery'] = this.storeConfirmDelivery;
-    data['storeLocation'] = this.storeLocation;
+    data['storeProfileURL'] = storeProfileURL;
+    data['storeID'] = storeID;
+    data['storeName'] = storeName;
+    data['storePhone'] = storePhone;
+    data['storeAddress'] = storeAddress;
+    data['storeConfirmDelivery'] = storeConfirmDelivery;
+    data['storeLocation'] = storeLocation;
 
-    if (this.items != null) {
-      data['items'] = this.items!.map((item) => item.toJson()).toList();
+    if (items != null) {
+      data['items'] = items!.map((item) => item.toJson()).toList();
     }
 
-    data['userID'] = this.userID;
-    data['userName'] = this.userName;
-    data['userPhone'] = this.userPhone;
-    data['userAddress'] = this.userAddress;
-    data['userConfirmDelivery'] = this.userConfirmDelivery;
-    data['userLocation'] = this.userLocation;
+    data['userProfileURL'] = userProfileURL;
+    data['userID'] = userID;
+    data['userName'] = userName;
+    data['userPhone'] = userPhone;
+    data['userAddress'] = userAddress;
+    data['userConfirmDelivery'] = userConfirmDelivery;
+    data['userLocation'] = userLocation;
 
-    data['riderID'] = this.riderID;
-    data['riderName'] = this.riderName;
-    data['riderPhone'] = this.riderPhone;
-    data['riderConfirmDelivery'] = this.riderConfirmDelivery;
-    data['riderLocation'] = this.riderLocation;
+    data['riderProfileURL'] = riderProfileURL;
+    data['riderID'] = riderID;
+    data['riderName'] = riderName;
+    data['riderPhone'] = riderPhone;
+    data['riderConfirmDelivery'] = riderConfirmDelivery;
+    data['riderLocation'] = riderLocation;
 
     return data;
   }
