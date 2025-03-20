@@ -291,13 +291,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               //User Information
               storeUserInfoContainer(
                 context: context,
-                onTap: () {
-                  // sendMessage(
-                  //   widget.order!.storeName!,
-                  //   widget.order!.storeID!,
-                  //   widget.order!.storeProfileURL!,
-                  // );
-                },
                 icon: PhosphorIcons.user(PhosphorIconsStyle.bold),
                 name: widget.order!.userName!,
                 phone: reformatPhoneNumber(widget.order!.userPhone!),
@@ -311,7 +304,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   sendMessage(
                     widget.order!.storeName!,
                     widget.order!.storeID!,
-                    widget.order!.storeProfileURL ?? '',
+                    widget.order!.storeProfileURL!,
                   );
                 },
                 icon: PhosphorIcons.storefront(PhosphorIconsStyle.bold),
@@ -451,7 +444,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         ),
       );
     } else {
-      return Placeholder();
+      return const Placeholder();
     }
   }
 }
@@ -489,7 +482,7 @@ Widget orderInfoContainer({BuildContext? context, required String orderStatus,re
             //Order Time
             Text(
               orderDateRead(orderTime),
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 color: gray,
               ),
@@ -534,7 +527,7 @@ Widget storeUserInfoContainer({BuildContext? context, required IconData icon, re
                 //Phone
                 Text(
                   phone,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     color: gray,
                   ),
@@ -542,7 +535,7 @@ Widget storeUserInfoContainer({BuildContext? context, required IconData icon, re
                 //Address
                 Text(
                   address,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     color: gray,
                   ),
@@ -587,7 +580,7 @@ Widget riderInfoContainer({BuildContext? context, required IconData icon, requir
               //Phone
               Text(
                 phone,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   color: gray,
                 ),
@@ -610,7 +603,7 @@ Widget paymentMethodInfoContainer(BuildContext? context) {
         //Payment Method Text
         const Text(
           'Payment Method',
-          style: const TextStyle(
+          style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold
           ),
@@ -625,7 +618,7 @@ Widget paymentMethodInfoContainer(BuildContext? context) {
             ),
             const SizedBox(width: 8,),
             //Cash on Delivery
-            Text(
+            const Text(
               'Cash on Delivery',
               style: TextStyle(
                 fontSize: 16,
@@ -740,7 +733,7 @@ Widget orderTotal({required BuildContext context, required double subTotal, requ
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         //Subtotal, Rider's Fee, Service Fee, Order Total text
-        Column(
+        const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             //Subtotal Text
@@ -774,7 +767,7 @@ Widget orderTotal({required BuildContext context, required double subTotal, requ
               overflow: TextOverflow.ellipsis,
             ),
             //Order Total Text
-            const Text(
+            Text(
               'Order Total',
               style: TextStyle(
                 fontSize: 18,
@@ -792,7 +785,7 @@ Widget orderTotal({required BuildContext context, required double subTotal, requ
             //Subtotal Text
             Text(
               '₱ ${subTotal.toStringAsFixed(2)}',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 color: gray,
               ),
@@ -802,7 +795,7 @@ Widget orderTotal({required BuildContext context, required double subTotal, requ
             //Rider's fee Text
             Text(
               '₱ ${ridersFee.toStringAsFixed(2)}',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 color: gray,
               ),
@@ -812,7 +805,7 @@ Widget orderTotal({required BuildContext context, required double subTotal, requ
             //Service fee Text
             Text(
               '₱ ${serviceFee.toStringAsFixed(2)}',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 color: gray,
               ),

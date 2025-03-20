@@ -46,7 +46,7 @@ class Stores {
     data["storeID"] = storeID;
     data["storeName"] = storeName;
     data["storeProfileURL"] = storeProfileURL;
-    data["storeCoverURL"] = storeCoverURL;
+    // data["storeCoverURL"] = storeCoverURL;
     data["storePhone"] = storePhone;
     data["storeAddress"] = storeAddress;
     data["storeLocation"] = storeLocation;

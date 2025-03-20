@@ -7,6 +7,7 @@ class NewOrder{
   String? orderID;
   Timestamp? orderTime;
   Timestamp? orderDelivered;
+  String? paymentMethod;
   double? riderFee;
   double? serviceFee;
   double? subTotal;
@@ -48,6 +49,7 @@ class NewOrder{
     this.orderID,
     this.orderTime,
     this.orderDelivered,
+    this.paymentMethod,
     this.riderFee,
     this.serviceFee,
     this.subTotal,
@@ -96,6 +98,7 @@ class NewOrder{
     orderID = json['orderID'];
     orderTime = json['orderTime'];
     orderDelivered = json['orderDelivered'];
+    paymentMethod = json['paymentMethod'];
     riderFee = json['riderFee'];
     serviceFee = json['serviceFee'];
     subTotal = json['subTotal'];
@@ -135,6 +138,7 @@ class NewOrder{
     data['orderID'] = orderID;
     data['orderTime'] = orderTime;
     data['orderDelivered'] = orderDelivered;
+    data['paymentMethod'] = paymentMethod;
     data['riderFee'] = riderFee;
     data['serviceFee'] = serviceFee;
     data['subTotal'] = subTotal;

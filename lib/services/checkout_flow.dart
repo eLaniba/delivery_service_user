@@ -66,7 +66,7 @@ class CheckoutFlow {
   // ---------------------------------------------------------------------------
   Future<void> _startCODFlow() async {
     debugPrint('_startCODFlow()');
-    _placeOrderToFirestore(orderStatus: 'Pending');
+    _placeOrderToFirestore(paymentMethod: 'cod');
   }
 
   // ---------------------------------------------------------------------------
@@ -115,7 +115,7 @@ class CheckoutFlow {
     }
 
     if (paymentComplete) {
-      _placeOrderToFirestore(orderStatus: 'Paid');
+      _placeOrderToFirestore(paymentMethod: 'paymongo');
     } else {
       _showSnackBar('Payment not completed within the expected time.');
       Navigator.of(context).pop();
@@ -198,34 +198,40 @@ class CheckoutFlow {
   }
 
   /// Places the order in Firestore, etc.
-  Future<void> _placeOrderToFirestore({required String orderStatus}) async {
+  Future<void> _placeOrderToFirestore({required String paymentMethod}) async {
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (c) => const LoadingDialog(message: "Processing order"),
     );
-
-    debugPrint('_placeOrderToFirestore() - status: $orderStatus');
 
     try {
       final userId = sharedPreferences.getString('uid') ?? '';
       final userName = sharedPreferences.getString('name') ?? '';
       final userPhone = sharedPreferences.getString('phone') ?? '';
       final userAddress = sharedPreferences.getString('address') ?? '';
+      final userProfileURL = sharedPreferences.getString('profileURL') ?? '';
 
       final newOrder = NewOrder(
-        orderStatus: orderStatus,
+        orderStatus: 'Pending',
+        paymentMethod: paymentMethod,
         orderTime: Timestamp.now(),
         subTotal: subTotal,
         riderFee: riderFee,
         serviceFee: serviceFee,
         orderTotal: orderTotal,
+        //Store Info
+        storeProfileURL: storeInfo.storeProfileURL,
         storeID: storeInfo.storeID,
         storeName: storeInfo.storeName,
         storePhone: storeInfo.storePhone,
         storeAddress: storeInfo.storeAddress,
         storeLocation: storeInfo.storeLocation,
         storeConfirmDelivery: false,
+        //Items
         items: items,
+        //User Info
+        userProfileURL: userProfileURL,
         userID: userId,
         userName: userName,
         userPhone: userPhone,

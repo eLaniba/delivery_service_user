@@ -105,8 +105,6 @@ class _LoginRemakeState extends State<LoginRemake> {
           .get();
 
       if(snapshot.exists) {
-        print('//Assign snapshot to userData');
-        //Assign snapshot to userData
         final userData = snapshot.data();
         //Getting the GeoPoint value from the userLocation key
         final GeoPoint userLocation = userData!['userLocation'];
@@ -114,6 +112,7 @@ class _LoginRemakeState extends State<LoginRemake> {
         String userLocationString = geoPointToJson(userLocation);
 
         //Saving data locally using sharedPreferences
+        await sharedPreferences!.setString("profileURL", userData['userProfileURL']);
         await sharedPreferences!.setString('uid', currentUser.uid);
         await sharedPreferences!.setString('name', userData['userName']);
         await sharedPreferences!.setString('email', userData['userEmail']);

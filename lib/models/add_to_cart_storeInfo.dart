@@ -7,6 +7,7 @@ class AddToCartStoreInfo {
   String? storePhone;
   String? storeAddress;
   GeoPoint? storeLocation;
+  String? storeProfileURL;
 
   AddToCartStoreInfo({
     this.storeID,
@@ -14,6 +15,7 @@ class AddToCartStoreInfo {
     this.storePhone,
     this.storeAddress,
     this.storeLocation,
+    this.storeProfileURL,
   });
 
   AddToCartStoreInfo.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class AddToCartStoreInfo {
     storePhone = json["storePhone"];
     storeAddress = json["storeAddress"];
     storeLocation = json["storeLocation"];
+    storeProfileURL = json["storeProfileURL"];
   }
 
 

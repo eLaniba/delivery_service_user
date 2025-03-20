@@ -35,8 +35,17 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
     ids.sort();
     String chatId = ids.join('_');
 
-    // Update the Firestore document to set the unread count for the current user to 0.
-    await FirebaseFirestore.instance.collection('chats').doc(chatId).update({
+    // Reference the chat document.
+    DocumentReference chatDocRef =
+    FirebaseFirestore.instance.collection('chats').doc(chatId);
+    // Check if the document exists.
+    DocumentSnapshot chatSnapshot = await chatDocRef.get();
+    if (!chatSnapshot.exists) {
+      // If it doesn't exist, exit the method.
+      return;
+    }
+    // Update the document to set the unread count for the current user to 0.
+    await chatDocRef.update({
       'unreadCount.$currentUserId': 0,
     });
   }
@@ -290,11 +299,8 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
                 placeholder: (context, url) => Shimmer.fromColors(
                   baseColor: Colors.grey[300]!,
                   highlightColor: Colors.grey[100]!,
-                  child: Center(
-                    child: Icon(
-                      PhosphorIcons.image(PhosphorIconsStyle.fill),
-                      size: 48,
-                    ),
+                  child: Container(
+                    color: gray,
                   ),
                 ),
                 errorWidget: (context, url, error) => Container(
