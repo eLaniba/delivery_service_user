@@ -162,8 +162,8 @@ class _LoginRemakeState extends State<LoginRemake> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text('Welcome!', style: TextStyle(color: Theme.of(context).colorScheme.inversePrimary), textAlign: TextAlign.center,)),
-        backgroundColor: Theme.of(context).primaryColor,
+        // title: Center(child: Text('Welcome!', style: TextStyle(color: Theme.of(context).colorScheme.inversePrimary), textAlign: TextAlign.center,)),
+        // backgroundColor: Theme.of(context).primaryColor,
       ),
       body: SingleChildScrollView(
         child: Padding(

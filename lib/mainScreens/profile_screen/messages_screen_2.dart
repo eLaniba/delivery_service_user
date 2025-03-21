@@ -9,13 +9,14 @@ import 'package:delivery_service_user/widgets/circle_image_upload_option.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 
 class MessagesScreen2 extends StatefulWidget {
-  String partnerName, partnerID, imageURL;
+  String partnerName, partnerID, imageURL, partnerRole;
 
-  MessagesScreen2({required this.partnerName, required this.partnerID, required this.imageURL, Key? key}) : super(key: key);
+  MessagesScreen2({required this.partnerName, required this.partnerID, required this.imageURL, required this.partnerRole, Key? key}) : super(key: key);
 
   @override
   _MessagesScreen2State createState() => _MessagesScreen2State();
@@ -24,8 +25,6 @@ class MessagesScreen2 extends StatefulWidget {
 class _MessagesScreen2State extends State<MessagesScreen2> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  // Dummy messages list to simulate a chat
-  final List<String> _messages = [];
 
   void _markMessagesAsRead() async {
     // Retrieve current user id from sharedPreferences.
@@ -50,7 +49,7 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
     });
   }
 
-  Future<void> _sendMessageToStore() async {
+  Future<void> _sendMessage() async {
     // Get the text to send.
     String messageText = _messageController.text.trim();
     if (messageText.isEmpty) return;
@@ -61,7 +60,7 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
     // Retrieve current user details from sharedPreferences.
     String currentUserId = sharedPreferences!.getString('uid') ?? '';
     String currentUserName = sharedPreferences!.getString('name') ?? '';
-    String currentUserImageURL = sharedPreferences!.getString('imageURL') ?? '';
+    String currentUserImageURL = sharedPreferences!.getString('profileURL') ?? '';
 
     // Create a chat ID. Here, we sort the two IDs to create a unique ID.
     List<String> ids = [currentUserId, widget.partnerID];
@@ -72,8 +71,8 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
     Chat chat = Chat(
       chatId: chatId,
       participants: [currentUserId, widget.partnerID],
-      roles: {currentUserId: 'user', widget.partnerID: 'store'},
-      partnerRoleFor: {currentUserId: 'store', widget.partnerID: 'user'},
+      roles: {currentUserId: 'user', widget.partnerID: widget.partnerRole},
+      partnerRoleFor: {currentUserId: widget.partnerRole, widget.partnerID: 'user'},
       participantNames: {
         currentUserId: currentUserName,
         widget.partnerID: widget.partnerName
@@ -83,6 +82,7 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
         widget.partnerID: widget.imageURL
       },
       lastMessage: messageText,
+      lastSender: currentUserId,
       timestamp: DateTime.now(),
       unreadCount: {currentUserId: 0, widget.partnerID: 1},
     );
@@ -127,7 +127,7 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
     //   }
     // });
 
-    _scrollToBottom();
+    // _scrollToBottom();
   }
 
   /// Upload and send image message using the given image file.
@@ -162,8 +162,8 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
       await chatDocRef.set({
         'chatId': chatId,
         'participants': [currentUserId, widget.partnerID],
-        'roles': {currentUserId: 'user', widget.partnerID: 'store'},
-        'partnerRoleFor': {currentUserId: 'store', widget.partnerID: 'user'},
+        'roles': {currentUserId: 'user', widget.partnerID: widget.partnerRole},
+        'partnerRoleFor': {currentUserId: widget.partnerRole, widget.partnerID: 'user'},
         'participantNames': {
           currentUserId: currentUserName,
           widget.partnerID: widget.partnerName,
@@ -261,72 +261,106 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
   }
 
   Widget _buildMessageBubble(Map<String, dynamic> messageData, bool isSentByUser) {
-    final String type = messageData['type'] ?? 'text';
-    if (type == 'image') {
+    // Format the timestamp; if it doesn't exist, show an empty string.
+    String formattedTime = '';
+    if (messageData['timestamp'] != null) {
+      // Convert Firestore Timestamp to DateTime
+      DateTime time = (messageData['timestamp'] as Timestamp).toDate();
+      // Format time, for example "2:30 PM"
+      formattedTime = DateFormat.jm().format(time);
+    }
+
+    // For image messages:
+    if ((messageData['type'] ?? 'text') == 'image') {
       return Align(
         alignment: isSentByUser ? Alignment.centerRight : Alignment.centerLeft,
-        child: GestureDetector(
-          onTap: () {
-            // Show full image in a dialog when tapped.
-            showDialog(
-              context: context,
-              builder: (context) {
-                return Dialog(
-                  shape: RoundedRectangleBorder(
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
+          child: Column(
+            crossAxisAlignment: isSentByUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  // Show full image in a dialog when tapped.
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return Dialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        insetPadding: const EdgeInsets.all(20),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          child: Image.network(
+                            messageData['content'],
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: Container(
+                  width: 150,
+                  height: 150,
+                  child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                  ),
-                  insetPadding: const EdgeInsets.all(20),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    child: Image.network(
-                      messageData['content'],
-                      fit: BoxFit.contain,
+                    child: CachedNetworkImage(
+                      imageUrl: messageData['content'],
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          color: Colors.grey,
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.white.withOpacity(0.8),
+                        child: Icon(
+                          PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
+                          color: Colors.white,
+                          size: 48,
+                        ),
+                      ),
                     ),
-                  ),
-                );
-              },
-            );
-          },
-          child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-            width: 150,
-            height: 150,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: CachedNetworkImage(
-                imageUrl: messageData['content'],
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(
-                    color: gray,
-                  ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  color: Colors.white.withOpacity(0.8),
-                  child: Icon(
-                    PhosphorIcons.imageBroken(PhosphorIconsStyle.fill),
-                    color: Colors.white,
-                    size: 48,
                   ),
                 ),
               ),
-            ),
+              const SizedBox(height: 4),
+              Text(
+                formattedTime,
+                style: const TextStyle(fontSize: 10, color: Colors.black54),
+              ),
+            ],
           ),
         ),
       );
     } else {
+      // For text messages:
       return Align(
         alignment: isSentByUser ? Alignment.centerRight : Alignment.centerLeft,
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
           padding: const EdgeInsets.all(12),
+          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
           decoration: BoxDecoration(
             color: isSentByUser ? Colors.blue[200] : Colors.grey[300],
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(messageData['content']),
+          child: Column(
+            crossAxisAlignment: isSentByUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            children: [
+              Text(messageData['content']),
+              const SizedBox(height: 4),
+              Text(
+                formattedTime,
+                style: const TextStyle(fontSize: 10, color: Colors.black54),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -371,7 +405,41 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.partnerName),
+        titleSpacing: 0,
+        centerTitle: false,
+        title: Row(
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: Colors.grey,
+              child: widget.imageURL.isNotEmpty
+                  ? ClipOval(
+                child: CachedNetworkImage(
+                  imageUrl: widget.imageURL,
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                ),
+              )
+                  : const Icon(Icons.person),
+            ),
+            const SizedBox(width: 8,),
+            Flexible(child: Text(widget.partnerName, maxLines: 1, overflow: TextOverflow.ellipsis,)),
+          ],
+        ),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
@@ -437,7 +505,7 @@ class _MessagesScreen2State extends State<MessagesScreen2> {
                     PhosphorIcons.paperPlaneRight(PhosphorIconsStyle.fill),
                     color: Colors.red,
                   ),
-                  onPressed: _sendMessageToStore,
+                  onPressed: _sendMessage,
                 ),
               ],
             ),

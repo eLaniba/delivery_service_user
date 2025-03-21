@@ -6,6 +6,7 @@ import 'package:delivery_service_user/mainScreens/profile_screen/edit_profile_sc
 import 'package:delivery_service_user/models/users.dart';
 import 'package:delivery_service_user/services/auth_service.dart';
 import 'package:delivery_service_user/widgets/confirmation_dialog.dart';
+import 'package:delivery_service_user/widgets/image_avatar.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:delivery_service_user/widgets/status_widget.dart';
 import 'package:flutter/material.dart';
@@ -66,15 +67,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Users user = Users.fromJson(snapshot.data!.data() as Map<String, dynamic>);
                       return Column(
                         children: [
-                          InkWell(
-                            onTap: () {},
-                            child: CircleAvatar(
-                              radius: 60,
-                              backgroundImage: user.userImageURL != null
-                                  ? NetworkImage(user.userImageURL!)
-                                  : const AssetImage('assets/avatar.png') as ImageProvider,
-                              backgroundColor: Colors.white,
-                            ),
+                          ImageAvatar(
+                            imageUrl: user.userProfileURL,
                           ),
                           const SizedBox(height: 8),
                           Text(

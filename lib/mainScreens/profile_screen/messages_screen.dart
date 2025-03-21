@@ -76,9 +76,19 @@ class _MessagesScreenState extends State<MessagesScreen> {
                           final partnerId = chat.participants!.firstWhere((id) => id != currentUserId);
                           final partnerName = chat.participantNames?[partnerId] ?? 'Unknown';
                           final partnerImageURL = chat.participantImageURLs?[partnerId] ?? '';
+                          final partnerRole = chat.roles?[partnerId] ?? 'user';
 
-                          Navigator.push(context, MaterialPageRoute(builder: (c) => MessagesScreen2(partnerName: partnerName, partnerID: partnerId, imageURL: partnerImageURL,)));
-
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (c) => MessagesScreen2(
+                                partnerName: partnerName,
+                                partnerID: partnerId,
+                                imageURL: partnerImageURL,
+                                partnerRole: partnerRole,
+                              ),
+                            ),
+                          );
                         },
                       );
                     },

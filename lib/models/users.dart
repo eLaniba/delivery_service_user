@@ -5,7 +5,8 @@ class Users {
   String? userAddress;
   String? userEmail;
   String? userID;
-  String? userImageURL;
+  String? userProfileURL;
+  String? userProfilePath;
   GeoPoint? userLocation;
   String? userName;
   String? userPhone;
@@ -17,7 +18,8 @@ class Users {
     this.userAddress,
     this.userEmail,
     this.userID,
-    this.userImageURL,
+    this.userProfileURL,
+    this.userProfilePath,
     this.userLocation,
     this.userName,
     this.userPhone,
@@ -30,7 +32,8 @@ class Users {
     userAddress = json["userAddress"];
     userEmail = json["userEmail"];
     userID = json["userID"];
-    userImageURL = json["userImageURL"];
+    userProfileURL = json["userProfileURL"];
+    userProfilePath = json["userProfilePath"];
     userLocation = json["userLocation"];
     userName = json["userName"];
     userPhone = json["userPhone"];
@@ -40,31 +43,33 @@ class Users {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data["status"] = this.status;
-    data["userAddress"] = this.userAddress;
-    data["userEmail"] = this.userEmail;
-    data["userID"] = this.userID;
-    data["userImageURL"] = this.userImageURL;
-    data["userLocation"] = this.userLocation;
-    data["userName"] = this.userName;
-    data["userPhone"] = this.userPhone;
-    data["emailVerified"] = this.emailVerified;
-    data["phoneVerified"] = this.phoneVerified;
+    data["status"] = status;
+    data["userAddress"] = userAddress;
+    data["userEmail"] = userEmail;
+    data["userID"] = userID;
+    data["userProfileURL"] = userProfileURL;
+    data["userProfilePath"] = userProfilePath;
+    data["userLocation"] = userLocation;
+    data["userName"] = userName;
+    data["userPhone"] = userPhone;
+    data["emailVerified"] = emailVerified;
+    data["phoneVerified"] = phoneVerified;
     return data;
   }
 
   Map<String, dynamic> addStoreToCart() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data["status"] = this.status;
-    data["userAddress"] = this.userAddress;
-    data["userEmail"] = this.userEmail;
-    data["userID"] = this.userID;
-    data["userImageURL"] = this.userImageURL;
-    data["userLocation"] = this.userLocation;
-    data["userName"] = this.userName;
-    data["userPhone"] = this.userPhone;
-    data["emailVerified"] = this.emailVerified;
-    data["phoneVerified"] = this.phoneVerified;
+    data["status"] = status;
+    data["userAddress"] = userAddress;
+    data["userEmail"] = userEmail;
+    data["userID"] = userID;
+    data["userProfileURL"] = userProfileURL;
+    data["userProfilePath"] = userProfilePath;
+    data["userLocation"] = userLocation;
+    data["userName"] = userName;
+    data["userPhone"] = userPhone;
+    data["emailVerified"] = emailVerified;
+    data["phoneVerified"] = phoneVerified;
     return data;
   }
 }

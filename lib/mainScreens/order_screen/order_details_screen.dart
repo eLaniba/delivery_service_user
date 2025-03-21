@@ -149,12 +149,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     });
   }
 
-  void sendMessage(String name, String id, String imageURL) {
+  void sendMessage(String name, String id, String imageURL, String role) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => MessagesScreen2(
-            partnerName: name, partnerID: id, imageURL: imageURL),
+            partnerName: name, partnerID: id, imageURL: imageURL, partnerRole: role,),
       ),
     );
   }
@@ -305,6 +305,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     widget.order!.storeName!,
                     widget.order!.storeID!,
                     widget.order!.storeProfileURL!,
+                    'store',
                   );
                 },
                 icon: PhosphorIcons.storefront(PhosphorIconsStyle.bold),
