@@ -13,6 +13,7 @@ import 'package:delivery_service_user/services/checkout_flow.dart';
   import 'package:delivery_service_user/services/geopoint_json.dart';
 import 'package:delivery_service_user/services/get_delivery_fees.dart';
   import 'package:delivery_service_user/widgets/loading_dialog.dart';
+import 'package:delivery_service_user/widgets/show_floating_toast.dart';
   import 'package:dotted_line/dotted_line.dart';
   import 'package:flutter/material.dart';
   import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -318,54 +319,63 @@ import 'package:delivery_service_user/services/get_delivery_fees.dart';
             height: 60,
             child: TextButton(
               onPressed: () {
-                DateTime now = DateTime.now();
-                Timestamp orderTime = Timestamp.fromDate(now);
-
-                NewOrder order = NewOrder(
-                  //Order information
-                  orderStatus: 'Pending',
-                  orderTime: orderTime,
-                  subTotal: subTotal,
-                  riderFee: riderFee,
-                  serviceFee: serviceFee,
-                  orderTotal: orderTotal,
-                  //Store information
-                  storeID: widget.addToCartStoreInfo!.storeID,
-                  storeName: widget.addToCartStoreInfo!.storeName,
-                  storePhone: widget.addToCartStoreInfo!.storePhone,
-                  storeAddress: widget.addToCartStoreInfo!.storeAddress,
-                  storeConfirmDelivery: false,
-                  storeLocation: widget.addToCartStoreInfo!.storeLocation,
-                  //List of items
-                  items: widget.items,
-                  //User information
-                  userID: sharedPreferences!.get('uid').toString(),
-                  userName: sharedPreferences!.get('name').toString(),
-                  userPhone: sharedPreferences!.get('phone').toString(),
-                  userAddress: sharedPreferences!.get('address').toString(),
-                  userConfirmDelivery: false,
-                  userLocation: parseGeoPointFromJson(sharedPreferences!.get('location').toString()),
-                );
-
-                // _addOrderToFirestore(order);
-                final checkout = CheckoutFlow(
+                if(riderFee == 0 && serviceFee == 00 && orderTotal == 00) {
+                showFloatingToast(
                   context: context,
-                  storeInfo: widget.addToCartStoreInfo!,
-                  items: widget.items!,
-                  subTotal: subTotal,
-                  riderFee: riderFee,
-                  serviceFee: serviceFee,
-                  orderTotal: orderTotal,
-                  firestore: firebaseFirestore,
-                  storage: firebaseStorage,
-                  sharedPreferences: sharedPreferences!,
+                  message: 'Calculating, please wait.',
+                  duration: const Duration(seconds: 2),
                 );
+                return;
+                } else {
+                  DateTime now = DateTime.now();
+                  Timestamp orderTime = Timestamp.fromDate(now);
 
-                // Here you might do something like:
-                //  if (selectedPaymentMethod == 'cod') => 'cod'
-                //  if (selectedPaymentMethod == 'gcash') => 'gcash'
-                //  if (selectedPaymentMethod == 'paymaya') => 'paymaya'
-                checkout.startCheckout(selectedPaymentMethod!);
+                  NewOrder order = NewOrder(
+                    //Order information
+                    orderStatus: 'Pending',
+                    orderTime: orderTime,
+                    subTotal: subTotal,
+                    riderFee: riderFee,
+                    serviceFee: serviceFee,
+                    orderTotal: orderTotal,
+                    //Store information
+                    storeID: widget.addToCartStoreInfo!.storeID,
+                    storeName: widget.addToCartStoreInfo!.storeName,
+                    storePhone: widget.addToCartStoreInfo!.storePhone,
+                    storeAddress: widget.addToCartStoreInfo!.storeAddress,
+                    storeConfirmDelivery: false,
+                    storeLocation: widget.addToCartStoreInfo!.storeLocation,
+                    //List of items
+                    items: widget.items,
+                    //User information
+                    userID: sharedPreferences!.get('uid').toString(),
+                    userName: sharedPreferences!.get('name').toString(),
+                    userPhone: sharedPreferences!.get('phone').toString(),
+                    userAddress: sharedPreferences!.get('address').toString(),
+                    userConfirmDelivery: false,
+                    userLocation: parseGeoPointFromJson(sharedPreferences!.get('location').toString()),
+                  );
+
+                  // _addOrderToFirestore(order);
+                  final checkout = CheckoutFlow(
+                    context: context,
+                    storeInfo: widget.addToCartStoreInfo!,
+                    items: widget.items!,
+                    subTotal: subTotal,
+                    riderFee: riderFee,
+                    serviceFee: serviceFee,
+                    orderTotal: orderTotal,
+                    firestore: firebaseFirestore,
+                    storage: firebaseStorage,
+                    sharedPreferences: sharedPreferences!,
+                  );
+
+                  // Here you might do something like:
+                  //  if (selectedPaymentMethod == 'cod') => 'cod'
+                  //  if (selectedPaymentMethod == 'gcash') => 'gcash'
+                  //  if (selectedPaymentMethod == 'paymaya') => 'paymaya'
+                  checkout.startCheckout(selectedPaymentMethod!);
+                }
               },
               child: const Text(
                 'Confirm Order',

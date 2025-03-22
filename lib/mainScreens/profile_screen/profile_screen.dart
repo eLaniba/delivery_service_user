@@ -6,7 +6,7 @@ import 'package:delivery_service_user/mainScreens/profile_screen/edit_profile_sc
 import 'package:delivery_service_user/models/users.dart';
 import 'package:delivery_service_user/services/auth_service.dart';
 import 'package:delivery_service_user/widgets/confirmation_dialog.dart';
-import 'package:delivery_service_user/widgets/image_avatar.dart';
+import 'package:delivery_service_user/widgets/circle_image_avatar.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:delivery_service_user/widgets/status_widget.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Users user = Users.fromJson(snapshot.data!.data() as Map<String, dynamic>);
                       return Column(
                         children: [
-                          ImageAvatar(
+                          CircleImageAvatar(
                             imageUrl: user.userProfileURL,
                           ),
                           const SizedBox(height: 8),
@@ -95,6 +95,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                   const SizedBox(height: 8),
+                  Divider(
+                    color: Colors.black.withOpacity(0.05),
+                    indent: 32,
+                    endIndent: 32,
+                    height: 18,
+                  ),
                   // Pressable ListTile with Edit Icon, Title and Arrow
                   ListTile(
                     leading: PhosphorIcon(PhosphorIcons.pencilSimple(PhosphorIconsStyle.fill), color: Theme.of(context).primaryColor,),
@@ -110,20 +116,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                   // Divider with 20% opacity
-                  Divider(
-                    color: Colors.black.withOpacity(0.05),
-                    indent: 32,
-                    height: 0,
-                  ),
+                  // Divider(
+                  //   color: Colors.black.withOpacity(0.05),
+                  //   indent: 32,
+                  //   height: 0,
+                  // ),
                   // Pressable ListTile with Heart Icon, Title and Arrow
-                  ListTile(
-                    leading: PhosphorIcon(PhosphorIcons.heart(PhosphorIconsStyle.fill), color: Theme.of(context).primaryColor,),
-                    title: const Text('Favorites'),
-                    trailing: PhosphorIcon(PhosphorIcons.caretRight(PhosphorIconsStyle.regular),),
-                    onTap: () {
-                      // Handle favorites tap
-                    },
-                  ),
+                  //TODO: Enable Favorites after Final defense
+                  // ListTile(
+                  //   leading: PhosphorIcon(PhosphorIcons.heart(PhosphorIconsStyle.fill), color: Theme.of(context).primaryColor,),
+                  //   title: const Text('Favorites'),
+                  //   trailing: PhosphorIcon(PhosphorIcons.caretRight(PhosphorIconsStyle.regular),),
+                  //   onTap: () {
+                  //     // Handle favorites tap
+                  //   },
+                  // ),
                 ],
               ),
             ),

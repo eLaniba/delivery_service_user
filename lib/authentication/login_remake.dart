@@ -122,6 +122,9 @@ class _LoginRemakeState extends State<LoginRemake> {
         //Saving login state locally so user don't have to re-login if the app exit
         await _authService.setLoginState(true);
 
+        // NEW: Store the FCM token in Firestore
+        await _storeFcmToken(currentUser.uid);
+
         //Close the Loading Dialog
         Navigator.pop(context);
         // Navigate to the main screen if the login is successful
@@ -158,142 +161,174 @@ class _LoginRemakeState extends State<LoginRemake> {
     }
   }
 
+  /// NEW: A separate function to retrieve and store the FCM token
+  Future<void> _storeFcmToken(String userId) async {
+    try {
+      // Retrieve the FCM token from the device
+      String? fcmToken = await firebaseMessaging.getToken();
+      if (fcmToken != null) {
+        // Create a new document with an Auto-generated ID
+        await firebaseFirestore
+            .collection('users')
+            .doc(userId)
+            .collection('tokens')
+            .add({
+          'token': fcmToken,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+
+        // Optional: Handle token refresh explicitly
+        firebaseMessaging.onTokenRefresh.listen((newToken) async {
+          // Add the new token as another document
+          await firebaseFirestore
+              .collection('users')
+              .doc(userId)
+              .collection('tokens')
+              .add({ // Auto ID again explicitly
+            'token': newToken,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        });
+      }
+    } catch (e) {
+      print("Error storing FCM token: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        // title: Center(child: Text('Welcome!', style: TextStyle(color: Theme.of(context).colorScheme.inversePrimary), textAlign: TextAlign.center,)),
-        // backgroundColor: Theme.of(context).primaryColor,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/splash_image.png',
-                height: 200,
-                width: 200,
-              ),
-              // const Text(
-              //   "Welcome",
-              //   style: TextStyle(
-              //     fontSize: 24,
-              //   ),
-              // ),
-              // const SizedBox(height: 8),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/splash_image.png',
+                  height: 200,
+                  width: 200,
+                ),
+                // const Text(
+                //   "Welcome",
+                //   style: TextStyle(
+                //     fontSize: 24,
+                //   ),
+                // ),
+                // const SizedBox(height: 8),
 
-              //sample
-              Form(
-                key: _formKey,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      //Email Text
-                      const Text(
-                        'Email',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      //Email Text Field
-                      CustomTextField(
-                        labelText: 'example@gmail.com',
-                        controller: emailController,
-                        isObscure: false,
-                        validator: validateEmail,
-                      ),
-                      const SizedBox(height: 8),
-                      //Password Text
-                      const Text(
-                        'Password',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      //Password Text Field
-                      CustomTextField(
-                        labelText: 'Password',
-                        controller: passwordController,
-                        isObscure: true,
-                        validator: validatePassword,
-                      ),
-                      //Forgot password?
-                      TextButton(
-                        onPressed: () {
-                          // Add your navigation or action here for Sign Up
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const EmailVerificationPage()),
-                          );
-                        },
-                        style: TextButton.styleFrom(
-                          splashFactory: NoSplash.splashFactory,
-                          foregroundColor: Colors.red,
-                          padding: EdgeInsets.zero,
-                        ),
-                        child: const Text('Forgot password?'),
-                      ),
-                      const SizedBox(height: 12),
-
-                      //Login Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              //Login
-                              login();
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.primary,
-                            foregroundColor: Theme.of(context).colorScheme.inversePrimary,
-                            padding: const EdgeInsets.symmetric(vertical: 14,),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
+                //sample
+                Form(
+                  key: _formKey,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        //Email Text
+                        const Text(
+                          'Email',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
-                          child: const Text("Login"),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 8),
+                        //Email Text Field
+                        CustomTextField(
+                          labelText: 'example@gmail.com',
+                          controller: emailController,
+                          isObscure: false,
+                          validator: validateEmail,
+                        ),
+                        const SizedBox(height: 8),
+                        //Password Text
+                        const Text(
+                          'Password',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        //Password Text Field
+                        CustomTextField(
+                          labelText: 'Password',
+                          controller: passwordController,
+                          isObscure: true,
+                          validator: validatePassword,
+                        ),
+                        //Forgot password?
+                        TextButton(
+                          onPressed: () {
+                            // Add your navigation or action here for Sign Up
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const EmailVerificationPage()),
+                            );
+                          },
+                          style: TextButton.styleFrom(
+                            splashFactory: NoSplash.splashFactory,
+                            foregroundColor: Colors.red,
+                            padding: EdgeInsets.zero,
+                          ),
+                          child: const Text('Forgot password?'),
+                        ),
+                        const SizedBox(height: 12),
+
+                        //Login Button
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                //Login
+                                login();
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              foregroundColor: Theme.of(context).colorScheme.inversePrimary,
+                              padding: const EdgeInsets.symmetric(vertical: 14,),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                            child: const Text("Login"),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16,),
-              //Don't have an account? Sign up
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text("Don't have an account?"),
-                  TextButton(
-                    onPressed: () {
-                      // Add your navigation or action here for Sign Up
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const EmailVerificationPage()),
-                      );
-                    },
-                    style: TextButton.styleFrom(
-                      splashFactory: NoSplash.splashFactory,
-                      foregroundColor: Colors.red,
-                      padding: EdgeInsets.zero,
+                const SizedBox(height: 16,),
+                //Don't have an account? Sign up
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text("Don't have an account?"),
+                    TextButton(
+                      onPressed: () {
+                        // Add your navigation or action here for Sign Up
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const EmailVerificationPage()),
+                        );
+                      },
+                      style: TextButton.styleFrom(
+                        splashFactory: NoSplash.splashFactory,
+                        foregroundColor: Colors.red,
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: const Text('Sign Up',),
                     ),
-                    child: const Text('Sign Up',),
-                  ),
-                ],
-              )
+                  ],
+                )
 
-            ],
+              ],
+            ),
           ),
         ),
       ),

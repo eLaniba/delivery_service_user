@@ -258,10 +258,18 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                         if (hasRiderInfo) ...[
                           const SizedBox(height: 4,),
                           riderInfoContainer(
+                            onTap: () {
+                              sendMessage(
+                                order.riderName!,
+                                order.riderID!,
+                                order.riderProfileURL!,
+                                'rider',
+                              );
+                            },
                             context: context,
                             icon: PhosphorIcons.moped(PhosphorIconsStyle.bold),
                             name: order.riderName!,
-                            phone: order.riderPhone!,
+                            phone: reformatPhoneNumber(order.riderPhone!),
                           ),
                         ]
                       ],
@@ -550,46 +558,49 @@ Widget storeUserInfoContainer({BuildContext? context, required IconData icon, re
   );
 }
 
-Widget riderInfoContainer({BuildContext? context, required IconData icon, required String name, required String phone}) {
-  return Container(
-    padding: const EdgeInsets.all(16),
-    color: Colors.white,
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        //Icon
-        Icon(
-          icon,
-          size: 24,
-          color: Theme.of(context!).primaryColor,
-        ),
-        const SizedBox(width: 16,),
-        //User/Store Name, User/Store Phone, User/Store Address
-        Flexible(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              //Name
-              Text(
-                name,
-                style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-              //Phone
-              Text(
-                phone,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: gray,
-                ),
-              ),
-            ],
+Widget riderInfoContainer({BuildContext? context, required IconData icon, required String name, required String phone, VoidCallback? onTap}) {
+  return InkWell(
+    onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.all(16),
+      color: Colors.white,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          //Icon
+          Icon(
+            icon,
+            size: 24,
+            color: Theme.of(context!).primaryColor,
           ),
-        ),
-      ],
+          const SizedBox(width: 16,),
+          //User/Store Name, User/Store Phone, User/Store Address
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                //Name
+                Text(
+                  name,
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold
+                  ),
+                ),
+                //Phone
+                Text(
+                  phone,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: gray,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     ),
   );
 }

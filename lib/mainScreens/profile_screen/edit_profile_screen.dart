@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/models/users.dart';
+import 'package:delivery_service_user/widgets/circle_image_avatar.dart';
 import 'package:delivery_service_user/widgets/custom_text_field.dart';
 import 'package:delivery_service_user/widgets/status_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({Key? key}) : super(key: key);
@@ -186,19 +188,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
               children: [
                 // Pressable Circle Avatar
                 Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      // Handle avatar tap, e.g. open image picker
-                      debugPrint("Avatar tapped");
-                    },
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundImage: user.userProfileURL != null &&
-                          user.userProfileURL!.isNotEmpty
-                          ? NetworkImage(user.userProfileURL!)
-                          : const AssetImage('assets/avatar.png')
-                      as ImageProvider,
-                    ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CircleImageAvatar(
+                        imageUrl: user.userProfileURL,
+                        size: 100,
+                        onTap: () {
+                          // Your edit profile picture logic here
+                        },
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 2,
+                        child: Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.4),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Icon(
+                              PhosphorIcons.camera(PhosphorIconsStyle.fill),
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 20),

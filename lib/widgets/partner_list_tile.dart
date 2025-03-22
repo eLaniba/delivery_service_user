@@ -91,7 +91,11 @@ class PartnerListTile extends StatelessWidget {
               // The time text remains visible on the right.
               Text(
                 formattedTime,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: unreadCount > 0 ? Colors.black : gray,
+                  fontWeight: unreadCount > 0 ? FontWeight.bold : FontWeight.normal,
+                ),
               ),
             ],
           ),
