@@ -23,7 +23,7 @@ class _StoreScreenRemakeState extends State<StoreScreenRemake> {
   @override
   Widget build(BuildContext context) {
     return FirestorePagination(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      // padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       query: firebaseFirestore.collection('stores'),
       limit: 10,
       viewType: ViewType.wrap,

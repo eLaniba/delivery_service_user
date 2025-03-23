@@ -16,6 +16,7 @@ import 'package:shimmer/shimmer.dart';
 class AllProductsScreen extends StatefulWidget {
   final Stores store;
 
+
   const AllProductsScreen({
     Key? key,
     required this.store,
@@ -247,7 +248,7 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
                   double itemTotal = itemCount * itemModel.itemPrice!;
                   Navigator.of(context).pop();
                   _addItemToCartFirestore(
-                    widget.store!,
+                    widget.store,
                     itemModel,
                     AddToCartItem(
                       itemID: itemModel.itemID,
@@ -457,8 +458,8 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
 
                     // Use the ItemCard widget to display the item.
                     return ItemCard(
+                      store: widget.store,
                       item: item,
-                      onTap: () => _addItemToCartDialog(item),
                     );
                   },
                   childCount: itemSnapshot.data!.docs.length,
@@ -470,7 +471,7 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
         const SliverToBoxAdapter(
           child: Center(
             child: Padding(
-              padding: EdgeInsets.only(bottom: 8),
+              padding: EdgeInsets.only(bottom: 16),
               child: Text(
                 'End of results.',
                 style: TextStyle(
