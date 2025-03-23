@@ -1,4 +1,5 @@
 import 'package:delivery_service_user/global/global.dart';
+import 'package:delivery_service_user/mainScreens/store_screen/store_item_screen.dart';
 import 'package:delivery_service_user/models/category_item.dart';
 import 'package:delivery_service_user/models/stores.dart';
 import 'package:delivery_service_user/widgets/category_card.dart';
@@ -49,7 +50,18 @@ class AllCategoriesScreen extends StatelessWidget {
                     categorySnapshot.data!.docs[index].data()! as Map<String, dynamic>,
                   );
 
-                  return CategoryCard(store: store, category: sCategory);
+                  return CategoryCard(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (c) => StoreItemScreen(store: store, categoryModel: sCategory,),
+                        ),
+                      );
+                    },
+                    store: store,
+                    category: sCategory,
+                  );
                 },
                 childCount: categorySnapshot.data!.docs.length,
               ),
@@ -59,7 +71,7 @@ class AllCategoriesScreen extends StatelessWidget {
         const SliverToBoxAdapter(
           child: Center(
             child: Padding(
-              padding: EdgeInsets.only(bottom: 8),
+              padding: EdgeInsets.symmetric(vertical: 16),
               child: Text(
                 'End of results.',
                 style: TextStyle(

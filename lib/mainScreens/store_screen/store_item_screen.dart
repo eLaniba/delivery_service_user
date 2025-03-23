@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_screen.dart';
+import 'package:delivery_service_user/mainScreens/store_screen/search_screen.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/category_item.dart';
 import 'package:delivery_service_user/models/stores.dart';
@@ -722,7 +723,13 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
             // Navigate to another page (SearchScreen) when the search bar is tapped
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const Scaffold(body: Placeholder(child: Text('hello'),),)), // Your search screen
+              MaterialPageRoute(
+                builder: (context) => SearchScreen(
+                  searchQuery: 'items',
+                  store: widget.store,
+                  category: widget.categoryModel,
+                ),
+              ), // Your search screen
             );
           },
           child: Container(
@@ -738,9 +745,13 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
                   color: Colors.grey,
                 ),
                 const SizedBox(width: 8),
-                const Text(
-                  'Search items...',
-                  style: TextStyle(color: Colors.grey, fontSize: 18),
+                Expanded(
+                  child: Text(
+                    'Search ${widget.categoryModel!.categoryName!.toLowerCase()}...',
+                    style: const TextStyle(color: Colors.grey, fontSize: 18),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),

@@ -9,20 +9,14 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 class CategoryCard extends StatelessWidget {
   final Stores store;
   final Category category;
+  final VoidCallback? onTap;
 
-  const CategoryCard({Key? key, required this.category, required this.store}) : super(key: key);
+  const CategoryCard({Key? key, required this.category, required this.store, this.onTap}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (c) => StoreItemScreen(store: store, categoryModel: category,),
-          ),
-        );
-      },
+      onTap: onTap,
       child: Column(
         children: [
           ListTile(
