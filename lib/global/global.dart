@@ -16,6 +16,7 @@ const Color white80 = Color.fromARGB(255, 238, 238, 238);
 const Color white70 = Color.fromARGB(255, 224, 224, 224);
 const Color grey50 = Color.fromARGB(255, 189, 195, 199);
 const Color grey20 = Color.fromARGB(255, 151, 154, 154);
+const Color darkGrey = Color.fromARGB(255, 52, 49, 49);
 
 //From Figma
 const Color gray = Color.fromARGB(255, 142, 142, 147);

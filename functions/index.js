@@ -95,3 +95,68 @@ exports.onOrderCreated = functions.firestore
       throw new functions.https.HttpsError('unknown', 'Failed to send notification', error);
     }
   });
+
+  //TODO: Transactions for Completed Orders
+exports.completeTransaction = functions.firestore
+  .document('active_orders/{orderID}')
+  .onUpdate(async (change, context) => {
+    const beforeData = change.before.data();
+    const afterData = change.after.data();
+
+    // Proceed only if orderStatus changed to 'Completed'
+    if (afterData.orderStatus !== 'Completed' || beforeData.orderStatus === 'Completed') {
+      return null;
+    }
+
+    // Retrieve necessary fields with fallback values
+    const subTotal = afterData.subTotal || 0;
+    const serviceFee = afterData.serviceFee || 0;
+    const riderFee = afterData.riderFee || 0;
+    const paymentMethod = afterData.paymentMethod;
+
+    // Step 1: Calculate payment details
+    const serviceCommission = subTotal * 0.01;
+    const serviceFeeTotal = serviceCommission + serviceFee;
+    const storeEarnings = subTotal - serviceCommission;
+
+    // Step 2: Prepare store transaction document data with unified "earnings" field
+    let storeTransactionData = {
+      orderID: afterData.orderID,
+      orderCompleted: afterData.orderDelivered,
+      paymentMethod: paymentMethod,
+      serviceCommission: serviceCommission,
+      serviceFee: serviceFee,
+      serviceFeeTotal: serviceFeeTotal,
+      earnings: storeEarnings
+    };
+
+    // Step 3: Prepare rider transaction document data with unified "earnings" field
+    let riderTransactionData = {
+      orderID: afterData.orderID,
+      orderCompleted: afterData.orderDelivered,
+      paymentMethod: paymentMethod,
+      earnings: riderFee
+    };
+
+    // Write the transaction document to the store's subcollection
+    const storeTransactionRef = admin.firestore()
+      .collection('stores')
+      .doc(afterData.storeID)
+      .collection('transactions')
+      .doc();
+
+    // Write the transaction document to the rider's subcollection
+    const riderTransactionRef = admin.firestore()
+      .collection('riders')
+      .doc(afterData.riderID)
+      .collection('transactions')
+      .doc();
+
+    // Execute both writes concurrently
+    const promises = [
+      storeTransactionRef.set(storeTransactionData),
+      riderTransactionRef.set(riderTransactionData)
+    ];
+
+    return Promise.all(promises);
+  });

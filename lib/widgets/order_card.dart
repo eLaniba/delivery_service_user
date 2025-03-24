@@ -1,4 +1,6 @@
 import 'package:delivery_service_user/global/global.dart';
+import 'package:delivery_service_user/mainScreens/order_screen/order_details_provider.dart';
+import 'package:delivery_service_user/mainScreens/order_screen/order_details_provider_screen.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_details_screen.dart';
 import 'package:delivery_service_user/models/new_order.dart';
 import 'package:delivery_service_user/services/util.dart';
@@ -25,7 +27,7 @@ class OrderCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (c) => OrderDetailsScreen(order: order),
+              builder: (c) => OrderDetailsProvider(orderId: order.orderID!),
             ),
           );
         },
@@ -57,19 +59,26 @@ class OrderCard extends StatelessWidget {
                         //Order ID
                         Text(
                           order.orderID!.toUpperCase(),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             color: gray,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
+                        Text(
+                          orderDateRead(order.orderTime!.toDate()),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: gray,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
-              Divider(
+              const Divider(
                 color: white80,
               ),
               //Store Information
@@ -99,7 +108,7 @@ class OrderCard extends StatelessWidget {
                     // Store Phone
                     Text(
                       reformatPhoneNumber(order.storePhone!),   
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         color: gray,
                       ),
@@ -136,7 +145,7 @@ class OrderCard extends StatelessWidget {
                     //User Phone
                     Text(
                       reformatPhoneNumber(order.userPhone!),
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         color: gray,
                       ),
@@ -149,7 +158,7 @@ class OrderCard extends StatelessWidget {
               //You have items text
               Text(
                 'You have ${order.items!.length} item(s) in this order',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   color: gray,
                 ),

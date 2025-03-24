@@ -194,7 +194,7 @@ Widget orderStatusWidget(String orderStatus) {
       ),
     );
   }
-  else if (orderStatus == 'Delivered') {
+  else if (orderStatus == 'Delivered' || orderStatus == 'Completing' || orderStatus == 'Completed') {
     return Container(
       decoration: BoxDecoration(
         color: Colors.green,
@@ -211,61 +211,61 @@ Widget orderStatusWidget(String orderStatus) {
           ),
           const SizedBox(width: 4.0), // Space between icon and text
           const Text(
-            "Delivered ",
+            "Completed ",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
   }
-  else if (orderStatus == 'Completing') {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.orange,
-        borderRadius: BorderRadius.circular(50.0), // Fully rounded corners
-      ),
-      padding: const EdgeInsets.symmetric(horizontal:4.0, vertical: 2.0),
-      child: Row(
-        mainAxisSize: MainAxisSize.min, // Wraps tightly around the child
-        children: [
-          Icon(
-            PhosphorIcons.arrowsClockwise(PhosphorIconsStyle.bold),
-            color: Colors.white,
-            size: 18,
-          ),
-          const SizedBox(width: 4.0), // Space between icon and text
-          const Text(
-            "Completing ",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-    );
-  }
-  else if (orderStatus == 'Complete') {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.green,
-        borderRadius: BorderRadius.circular(50.0), // Fully rounded corners
-      ),
-      padding: const EdgeInsets.symmetric(horizontal:4.0, vertical: 2.0),
-      child: Row(
-        mainAxisSize: MainAxisSize.min, // Wraps tightly around the child
-        children: [
-          Icon(
-            PhosphorIcons.check(PhosphorIconsStyle.bold),
-            color: Colors.white,
-            size: 18,
-          ),
-          const SizedBox(width: 4.0), // Space between icon and text
-          const Text(
-            "Complete ",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-    );
-  }
+  // else if (orderStatus == 'Completing') {
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //       color: Colors.orange,
+  //       borderRadius: BorderRadius.circular(50.0), // Fully rounded corners
+  //     ),
+  //     padding: const EdgeInsets.symmetric(horizontal:4.0, vertical: 2.0),
+  //     child: Row(
+  //       mainAxisSize: MainAxisSize.min, // Wraps tightly around the child
+  //       children: [
+  //         Icon(
+  //           PhosphorIcons.arrowsClockwise(PhosphorIconsStyle.bold),
+  //           color: Colors.white,
+  //           size: 18,
+  //         ),
+  //         const SizedBox(width: 4.0), // Space between icon and text
+  //         const Text(
+  //           "Completing ",
+  //           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+  // else if (orderStatus == 'Complete') {
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //       color: Colors.green,
+  //       borderRadius: BorderRadius.circular(50.0), // Fully rounded corners
+  //     ),
+  //     padding: const EdgeInsets.symmetric(horizontal:4.0, vertical: 2.0),
+  //     child: Row(
+  //       mainAxisSize: MainAxisSize.min, // Wraps tightly around the child
+  //       children: [
+  //         Icon(
+  //           PhosphorIcons.check(PhosphorIconsStyle.bold),
+  //           color: Colors.white,
+  //           size: 18,
+  //         ),
+  //         const SizedBox(width: 4.0), // Space between icon and text
+  //         const Text(
+  //           "Complete ",
+  //           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
   return const SizedBox();
 }
 

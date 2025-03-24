@@ -66,6 +66,7 @@ dependencies:
   dotted_border: ^2.1.0
   path_provider: ^2.1.5
   firebase_messaging: ^15.2.4
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:

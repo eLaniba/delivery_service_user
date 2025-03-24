@@ -16,10 +16,12 @@ import 'package:shimmer/shimmer.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
   NewOrder? order;
+  final String orderId;
 
   OrderDetailsScreen({
     super.key,
     this.order,
+    required this.orderId,
   });
 
   @override

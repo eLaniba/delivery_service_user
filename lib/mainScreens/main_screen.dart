@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_screen.dart';
+import 'package:delivery_service_user/mainScreens/order_screen/order_history_screen.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_screen.dart';
 import 'package:delivery_service_user/mainScreens/profile_screen/messages_screen.dart';
 import 'package:delivery_service_user/mainScreens/profile_screen/profile_screen.dart';
@@ -235,6 +236,16 @@ class _MainScreenState extends State<MainScreen> {
       ),
       backgroundColor: Colors.grey[200],
       body: _screens[widgetIndex],
+      floatingActionButton: widgetIndex == 1
+          ? FloatingActionButton.extended(
+              icon: PhosphorIcon(PhosphorIcons.boxArrowDown()),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const OrderHistoryScreen()));
+              },
+              label: const Text('Order History'),
+              backgroundColor: darkGrey,
+            )
+          : null,
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
           setState(() {
