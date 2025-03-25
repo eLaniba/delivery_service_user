@@ -3,9 +3,11 @@ import 'package:delivery_service_user/global/global.dart'; // Contains sharedPre
 import 'package:delivery_service_user/mainScreens/profile_screen/messages_screen_2.dart';
 import 'package:delivery_service_user/models/chat.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:delivery_service_user/services/providers/badge_provider.dart';
 import 'package:delivery_service_user/widgets/partner_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 class MessagesScreen extends StatefulWidget {
@@ -26,6 +28,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final storeBadge = context.watch<StoreMessageCount>().count ?? 0;
+    final riderBadge = context.watch<RiderMessageCount>().count ?? 0;
+
     // Get current user id from sharedPreferences.
     String currentUserId = sharedPreferences!.getString('uid') ?? '';
     // Determine the partner role based on bottom navigation:
@@ -104,26 +109,77 @@ class _MessagesScreenState extends State<MessagesScreen> {
         currentIndex: _selectedIndex,
         items: [
           BottomNavigationBarItem(
-            icon: _selectedIndex == 0
-                ? Icon(
-              PhosphorIcons.storefront(PhosphorIconsStyle.fill),
-              size: 24,
-            )
-                : Icon(
-              PhosphorIcons.storefront(PhosphorIconsStyle.regular),
-              size: 24,
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                _selectedIndex == 0
+                    ? Icon(PhosphorIcons.storefront(PhosphorIconsStyle.fill), size: 24)
+                    : Icon(PhosphorIcons.storefront(PhosphorIconsStyle.regular), size: 24),
+
+                if (storeBadge > 0)
+                  Positioned(
+                    left: 16,
+                    top: -8,
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        storeBadge < 99 ? '$storeBadge' : '99',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
             ),
             label: 'Store',
           ),
+
           BottomNavigationBarItem(
-            icon: _selectedIndex == 1
-                ? Icon(
-              PhosphorIcons.personSimpleBike(PhosphorIconsStyle.fill),
-              size: 24,
-            )
-                : Icon(
-              PhosphorIcons.personSimpleBike(PhosphorIconsStyle.regular),
-              size: 24,
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                _selectedIndex == 1
+                    ? Icon(PhosphorIcons.personSimpleBike(PhosphorIconsStyle.fill), size: 24)
+                    : Icon(PhosphorIcons.personSimpleBike(PhosphorIconsStyle.regular), size: 24),
+
+                if (riderBadge > 0)
+                  Positioned(
+                    left: 16,
+                    top: -8,
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        riderBadge < 99 ? '$riderBadge' : '99',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
             ),
             label: 'Rider',
           ),

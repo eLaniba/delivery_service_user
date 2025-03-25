@@ -4,12 +4,15 @@ import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_scre
 import 'package:delivery_service_user/mainScreens/order_screen/order_history_screen.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_screen.dart';
 import 'package:delivery_service_user/mainScreens/profile_screen/messages_screen.dart';
+import 'package:delivery_service_user/mainScreens/profile_screen/messages_screen_provider.dart';
 import 'package:delivery_service_user/mainScreens/profile_screen/profile_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_screen_remake.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/search_screen.dart';
+import 'package:delivery_service_user/services/providers/badge_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -29,6 +32,11 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cartCount = context.watch<CartCount>().count;
+    final orderCount = context.watch<OrderCount>().count;
+    final messageCount = context.watch<MessageCount>().count;
+    final notificationCount = context.watch<NotificationCount>().count;
+
     return Scaffold(
       appBar: AppBar(
         title: widgetIndex == 2 ? const Text('Your profile') :
@@ -64,173 +72,113 @@ class _MainScreenState extends State<MainScreen> {
           const Text('Orders'),
         foregroundColor: Colors.white,
         backgroundColor: Theme.of(context).primaryColor,
-        actions: widgetIndex != 2
-            ? [
-          StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('users')
-                .doc('${sharedPreferences!.get('uid')}')
-                .collection('cart')
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const Padding(
-                  padding: EdgeInsets.only(right: 40),
-                  child: SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(),
+        actions: [
+          //Cart
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CartScreen()), // Your search screen
+                  );
+                },
+                icon: Icon(PhosphorIcons.shoppingCart()),
+              ),
+              if (cartCount > 0)
+                Positioned(
+                  right: 6,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      cartCount < 99 ? '$cartCount' : '99',
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                );
-              } else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 24),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const CartScreen()), // Your search screen
-                          );
-                        },
-                        icon: Icon(PhosphorIcons.shoppingCart()),
+                ),
+            ],
+          ),
+          //Notification
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CartScreen()), // Your search screen
+                  );
+                },
+                icon: Icon(PhosphorIcons.bell()),
+              ),
+              if (notificationCount > 0)
+                Positioned(
+                  right: 6,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      notificationCount < 99 ? '$notificationCount' : '99',
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
                       ),
-                      Positioned(
-                        right: 10,
-                        top: 5,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 8,
-                            minHeight: 8,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                );
-              } else {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 24),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (c) => const CartScreen()));
-                        },
-                        icon: Icon(PhosphorIcons.shoppingCart()),
+                ),
+            ],
+          ),
+          //Messages
+          if(widgetIndex == 2)
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MessagesScreenProvider()), // Your search screen
+                    );
+                  },
+                  icon: Icon(PhosphorIcons.chatText()),
+                ),
+                if (messageCount > 0)
+                  Positioned(
+                    right: 6,
+                    top: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
                       ),
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
-                          ),
+                      child: Text(
+                        messageCount < 99 ? '$messageCount' : '99',
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                );
-              }
-            },
-          ),
-        ]
-            : [
-          StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('users')
-                .doc('${sharedPreferences!.get('uid')}')
-                .collection('cart')
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(),
-                );
-              } else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                return Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const CartScreen()),
-                        );
-                      },
-                      icon: Icon(PhosphorIcons.bell()),
-                    ),
-                    Positioned(
-                      right: 10,
-                      top: 5,
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 8,
-                          minHeight: 8,
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              } else {
-                return Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (c) => const CartScreen()),
-                        );
-                      },
-                      icon: Icon(PhosphorIcons.bell()),
-                    ),
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 16,
-                          minHeight: 16,
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              }
-            },
-          ),
-          //Chat Screen
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const MessagesScreen()),
-              );
-            },
-            icon: Icon(PhosphorIcons.chatText()),
-          ),
+              ],
+            ),
         ],
         automaticallyImplyLeading: false,
       ),
@@ -261,9 +209,39 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Stores',
           ),
           BottomNavigationBarItem(
-            icon: widgetIndex == 1
-                ? Icon(PhosphorIcons.package(PhosphorIconsStyle.fill))
-                : Icon(PhosphorIcons.package(PhosphorIconsStyle.regular)),
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                widgetIndex == 1
+                    ? Icon(PhosphorIcons.package(PhosphorIconsStyle.fill))
+                    : Icon(PhosphorIcons.package(PhosphorIconsStyle.regular)),
+
+                if (orderCount > 0)
+                  Positioned(
+                    left: 16,
+                    top: -8,
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(cartCount < 99 ? '$orderCount' : '99',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             label: 'Orders',
           ),
           BottomNavigationBarItem(

@@ -1,7 +1,9 @@
 import 'package:delivery_service_user/authentication/login_remake.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
 import 'package:delivery_service_user/services/auth_service.dart';
+import 'package:delivery_service_user/services/providers/badge_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AuthScreenRemake extends StatefulWidget {
   const AuthScreenRemake({super.key});
@@ -19,9 +21,29 @@ class _AuthScreenRemakeState extends State<AuthScreenRemake> {
       future: _authService.isLoggedIn(),
       builder: (context, snapshot) {
         if(snapshot.hasData && snapshot.data == true) {
-          return MainScreen();
+          return MultiProvider(
+            providers: [
+              StreamProvider<CartCount>(
+                create: (_) => BadgeProvider.cartItemCountStream(),
+                initialData: CartCount(0),
+              ),
+              StreamProvider<OrderCount>(
+                create: (_) => BadgeProvider.activeOrderCountStream(),
+                initialData: OrderCount(0),
+              ),
+              StreamProvider<MessageCount>(
+                create: (_) => BadgeProvider.unreadMessagesCountStream(),
+                initialData: MessageCount(0),
+              ),
+              StreamProvider<NotificationCount>(
+                create: (_) => BadgeProvider.unreadNotificationCountStream(),
+                initialData: NotificationCount(0),
+              ),
+            ],
+            child: const MainScreen(),
+          );
         } else {
-          return LoginRemake();
+          return const LoginRemake();
         }
       },
     );
