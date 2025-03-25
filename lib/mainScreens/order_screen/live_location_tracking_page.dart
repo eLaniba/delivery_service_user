@@ -189,24 +189,79 @@ class _LiveLocationTrackingPageState extends State<LiveLocationTrackingPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Live Delivery Tracking'),
+        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).primaryColor,
       ),
-      body: GoogleMap(
-        onMapCreated: _onMapCreated,
-        initialCameraPosition: CameraPosition(
-          target: LatLng(
-            widget.order.userLocation!.latitude,
-            widget.order.userLocation!.longitude,
+      body: Stack(
+        children: [
+          GoogleMap(
+            onMapCreated: _onMapCreated,
+            initialCameraPosition: CameraPosition(
+              target: LatLng(
+                widget.order.userLocation!.latitude,
+                widget.order.userLocation!.longitude,
+              ),
+              zoom: 14,
+            ),
+            markers: {
+              if (_userLocationMarker != null) _userLocationMarker!,
+              if (_riderLocationMarker != null) _riderLocationMarker!,
+            },
+            polylines: Set<Polyline>.of(polylines.values),
+            myLocationEnabled: false,
+            myLocationButtonEnabled: false,
           ),
-          zoom: 14,
-        ),
-        markers: {
-          if (_userLocationMarker != null) _userLocationMarker!,
-          if (_riderLocationMarker != null) _riderLocationMarker!,
-        },
-        polylines: Set<Polyline>.of(polylines.values),
-        myLocationEnabled: false,
-        myLocationButtonEnabled: false,
+          Positioned(
+            top: 16,
+            left: 16,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 5,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildLegendRow(
+                    'assets/custom_icons/custom_user_marker.png',
+                    'You',
+                  ),
+                  const SizedBox(height: 8),
+                  _buildLegendRow(
+                    'assets/custom_icons/custom_rider_marker.png',
+                    'Your order',
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildLegendRow(String assetPath, String label) {
+    return Row(
+      children: [
+        Image.asset(
+          assetPath,
+          width: 24,
+          height: 24,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 14, color: Colors.black),
+        ),
+      ],
     );
   }
 }

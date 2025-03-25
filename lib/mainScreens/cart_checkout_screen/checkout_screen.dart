@@ -349,6 +349,7 @@ import 'package:delivery_service_user/widgets/show_floating_toast.dart';
                     orderTotal: orderTotal,
                     //Store information
                     storeID: widget.addToCartStoreInfo!.storeID,
+                    storeProfileURL: widget.addToCartStoreInfo!.storeProfileURL,
                     storeName: widget.addToCartStoreInfo!.storeName,
                     storePhone: widget.addToCartStoreInfo!.storePhone,
                     storeAddress: widget.addToCartStoreInfo!.storeAddress,
@@ -358,6 +359,7 @@ import 'package:delivery_service_user/widgets/show_floating_toast.dart';
                     items: widget.items,
                     //User information
                     userID: sharedPreferences!.get('uid').toString(),
+                    userProfileURL: sharedPreferences!.get('profileURL').toString(),
                     userName: sharedPreferences!.get('name').toString(),
                     userPhone: sharedPreferences!.get('phone').toString(),
                     userAddress: _currentAddress.addressEng,
