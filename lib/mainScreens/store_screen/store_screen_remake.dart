@@ -1,16 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_category_screen.dart';
 import 'package:delivery_service_user/models/stores.dart';
-import 'package:delivery_service_user/services/util.dart';
-import 'package:delivery_service_user/widgets/progress_bar.dart';
 import 'package:delivery_service_user/widgets/store_card.dart';
 import 'package:firebase_pagination/firebase_pagination.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:shimmer/shimmer.dart';
+
 
 class StoreScreenRemake extends StatefulWidget {
   const StoreScreenRemake({super.key});
@@ -24,7 +18,7 @@ class _StoreScreenRemakeState extends State<StoreScreenRemake> {
   Widget build(BuildContext context) {
     return FirestorePagination(
       // padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      query: firebaseFirestore.collection('stores'),
+      query: firebaseFirestore.collection('stores').where('status', isEqualTo: 'registered'),
       limit: 10,
       viewType: ViewType.wrap,
       isLive: true,

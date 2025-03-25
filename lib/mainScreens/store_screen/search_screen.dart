@@ -105,7 +105,10 @@ class _SearchScreenState extends State<SearchScreen> {
   //-------------------------------------------------------------------------------
   Widget _buildStoresView() {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('stores').snapshots(),
+      stream: firebaseFirestore
+          .collection('stores')
+          .where('status', isEqualTo: 'registered')
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());

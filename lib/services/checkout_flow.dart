@@ -1,8 +1,7 @@
-// checkout_flow.dart
-
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/add_to_cart_storeInfo.dart';
 import 'package:delivery_service_user/models/new_order.dart';
@@ -15,8 +14,6 @@ import 'package:url_launcher/url_launcher.dart';
 // For storing user data
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// A helper class that encapsulates the checkout flow
-/// for Cash on Delivery or E-wallets/Cards (via PayMongo Payment Link)
 class CheckoutFlow {
   // PayMongo test secret key - for sandbox/demo only.
   // In production, keep this on a secure server, not in the client app.
@@ -24,32 +21,13 @@ class CheckoutFlow {
   static const String _paymongoBaseUrl = 'https://api.paymongo.com/v1';
 
   final BuildContext context;
-  final AddToCartStoreInfo storeInfo;
-  final List<AddToCartItem> items;
-  final double subTotal;
-  final double riderFee;
-  final double serviceFee;
-  final double orderTotal;
-
-  final FirebaseFirestore firestore;
-  final FirebaseStorage storage;
-  final SharedPreferences sharedPreferences;
+  final NewOrder order;
 
   CheckoutFlow({
     required this.context,
-    required this.storeInfo,
-    required this.items,
-    required this.subTotal,
-    required this.riderFee,
-    required this.serviceFee,
-    required this.orderTotal,
-    required this.firestore,
-    required this.storage,
-    required this.sharedPreferences,
+    required this.order,
   });
 
-  /// Call this from your Checkout screen's "Confirm Order" button,
-  /// passing 'cod' or 'paymongo_link'.
   Future<void> startCheckout(String paymentMethod) async {
     debugPrint('startCheckout: $paymentMethod');
     if (paymentMethod == 'cod') {
@@ -74,7 +52,7 @@ class CheckoutFlow {
   // ---------------------------------------------------------------------------
   Future<void> _startPaymentLinkFlow() async {
     debugPrint('_startPaymentLinkFlow()');
-    final int amountInCentavos = (orderTotal * 100).round();
+    final int amountInCentavos = (order.orderTotal! * 100).round();
     debugPrint('Amount in centavos: $amountInCentavos');
 
     // 1. Create Payment Link
@@ -206,44 +184,10 @@ class CheckoutFlow {
     );
 
     try {
-      final userId = sharedPreferences.getString('uid') ?? '';
-      final userName = sharedPreferences.getString('name') ?? '';
-      final userPhone = sharedPreferences.getString('phone') ?? '';
-      final userAddress = sharedPreferences.getString('address') ?? '';
-      final userProfileURL = sharedPreferences.getString('profileURL') ?? '';
-
-      final newOrder = NewOrder(
-        orderStatus: 'Pending',
-        paymentMethod: paymentMethod,
-        orderTime: Timestamp.now(),
-        subTotal: subTotal,
-        riderFee: riderFee,
-        serviceFee: serviceFee,
-        orderTotal: orderTotal,
-        //Store Info
-        storeProfileURL: storeInfo.storeProfileURL,
-        storeID: storeInfo.storeID,
-        storeName: storeInfo.storeName,
-        storePhone: storeInfo.storePhone,
-        storeAddress: storeInfo.storeAddress,
-        storeLocation: storeInfo.storeLocation,
-        storeConfirmDelivery: false,
-        //Items
-        items: items,
-        //User Info
-        userProfileURL: userProfileURL,
-        userID: userId,
-        userName: userName,
-        userPhone: userPhone,
-        userAddress: userAddress,
-        userConfirmDelivery: false,
-        userLocation: storeInfo.storeLocation,
-      );
-
       // 1) Add to Firestore
-      DocumentReference orderRef = await firestore
+      DocumentReference orderRef = await firebaseFirestore
           .collection('active_orders')
-          .add(newOrder.toJson());
+          .add(order.toJson());
 
       // 2) Save the generated orderID
       await orderRef.update({'orderID': orderRef.id});
@@ -252,7 +196,7 @@ class CheckoutFlow {
       await _uploadItemImages(orderRef);
 
       // 4) Remove items from cart
-      await _deleteItemsFromCart(userId, storeInfo.storeID!);
+      await _deleteItemsFromCart(order.userID!, order.storeID!);
 
       Navigator.pop(context); // close loading dialog
       Navigator.pop(context); // close the checkout screen
@@ -286,7 +230,7 @@ class CheckoutFlow {
         final response = await http.get(Uri.parse(imageURL));
         if (response.statusCode == 200) {
           Uint8List imageData = response.bodyBytes;
-          final destinationRef = storage
+          final destinationRef = firebaseStorage
               .ref()
               .child('active_orders/${orderRef.id}/items/${item['itemID']}.jpg');
           await destinationRef.putData(imageData);
@@ -305,7 +249,7 @@ class CheckoutFlow {
   Future<void> _deleteItemsFromCart(String userId, String storeID) async {
     debugPrint('_deleteItemsFromCart() - userId: $userId, storeID: $storeID');
     try {
-      final storeDoc = firestore
+      final storeDoc = firebaseFirestore
           .collection('users')
           .doc(userId)
           .collection('cart')

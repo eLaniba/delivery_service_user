@@ -218,6 +218,30 @@ Widget orderStatusWidget(String orderStatus) {
       ),
     );
   }
+  else if (orderStatus == 'Cancelled') {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.circular(50.0), // Fully rounded corners
+      ),
+      padding: const EdgeInsets.symmetric(horizontal:4.0, vertical: 2.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min, // Wraps tightly around the child
+        children: [
+          Icon(
+            PhosphorIcons.arrowsClockwise(PhosphorIconsStyle.bold),
+            color: Colors.white,
+            size: 18,
+          ),
+          const SizedBox(width: 4.0), // Space between icon and text
+          const Text(
+            "Order Cancelled",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
   // else if (orderStatus == 'Completing') {
   //   return Container(
   //     decoration: BoxDecoration(

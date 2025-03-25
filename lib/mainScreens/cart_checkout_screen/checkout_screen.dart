@@ -12,6 +12,7 @@ import 'package:delivery_service_user/services/calculate_riders_fee.dart';
 import 'package:delivery_service_user/services/checkout_flow.dart';
   import 'package:delivery_service_user/services/geopoint_json.dart';
 import 'package:delivery_service_user/services/get_delivery_fees.dart';
+import 'package:delivery_service_user/services/util.dart';
   import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:delivery_service_user/widgets/show_floating_toast.dart';
   import 'package:dotted_line/dotted_line.dart';
@@ -38,6 +39,8 @@ import 'package:delivery_service_user/widgets/show_floating_toast.dart';
     double serviceFee = 0;
     double orderTotal = 0;
 
+    bool isCalculate = false;
+
     Address _currentAddress = Address(
       addressEng: sharedPreferences!.getString('address'),
       location: parseGeoPointFromJson(sharedPreferences!.getString('location').toString()),
@@ -62,6 +65,9 @@ import 'package:delivery_service_user/widgets/show_floating_toast.dart';
           addressEng: sharedPreferences!.getString('address'),
           location: parseGeoPointFromJson(sharedPreferences!.getString('location').toString()),
         );
+        print('Address: ${_currentAddress.addressEng}');
+        print('Longitude: ${_currentAddress.location!.longitude}');
+        print('Latitude: ${_currentAddress.location!.latitude}');
         await _fetchFeesAndCalculate();
         // setState(() {
         //   // _currentAddress = selectedAddress;
@@ -71,6 +77,7 @@ import 'package:delivery_service_user/widgets/show_floating_toast.dart';
     }
 
     Future<void> _fetchFeesAndCalculate() async {
+      isCalculate = true;
     if (_currentAddress.location == null ||
         widget.addToCartStoreInfo!.storeLocation == null) {
       print('Location data is missing.');
@@ -92,6 +99,7 @@ import 'package:delivery_service_user/widgets/show_floating_toast.dart';
       riderFee = calculatedRiderFee;
       serviceFee = fees['serviceFee']!;
       orderTotal = subTotal + riderFee + serviceFee;
+      isCalculate = false;
     });
   }
 
@@ -237,7 +245,7 @@ import 'package:delivery_service_user/widgets/show_floating_toast.dart';
                           Flexible(child: _buildInfoContainer(
                             icon: Icons.location_on,
                             title: '${sharedPreferences!.get('name')}',
-                            subtitle: '${sharedPreferences!.get('phone')}\n${sharedPreferences!.get('address')}',
+                            subtitle: '${reformatPhoneNumber(sharedPreferences!.getString('phone')!)}\n${sharedPreferences!.getString('address')}',
                           ),),
                           Icon(
                             PhosphorIcons.caretRight(PhosphorIconsStyle.regular),
@@ -250,7 +258,7 @@ import 'package:delivery_service_user/widgets/show_floating_toast.dart';
                   _buildInfoContainer(
                     icon: Icons.storefront,
                     title: widget.addToCartStoreInfo!.storeName!,
-                    subtitle: '${widget.addToCartStoreInfo!.storePhone}\n${widget.addToCartStoreInfo!.storeAddress}',
+                    subtitle: '${reformatPhoneNumber(widget.addToCartStoreInfo!.storePhone.toString())}\n${widget.addToCartStoreInfo!.storeAddress}',
                   ),
                   _buildPaymentMethodSection(),
                 ]),
@@ -319,7 +327,7 @@ import 'package:delivery_service_user/widgets/show_floating_toast.dart';
             height: 60,
             child: TextButton(
               onPressed: () {
-                if(riderFee == 0 && serviceFee == 00 && orderTotal == 00) {
+                if(riderFee == 0 && serviceFee == 00 && orderTotal == 00 || isCalculate == true) {
                 showFloatingToast(
                   context: context,
                   message: 'Calculating, please wait.',
@@ -334,6 +342,7 @@ import 'package:delivery_service_user/widgets/show_floating_toast.dart';
                     //Order information
                     orderStatus: 'Pending',
                     orderTime: orderTime,
+                    paymentMethod: selectedPaymentMethod,
                     subTotal: subTotal,
                     riderFee: riderFee,
                     serviceFee: serviceFee,
@@ -351,23 +360,15 @@ import 'package:delivery_service_user/widgets/show_floating_toast.dart';
                     userID: sharedPreferences!.get('uid').toString(),
                     userName: sharedPreferences!.get('name').toString(),
                     userPhone: sharedPreferences!.get('phone').toString(),
-                    userAddress: sharedPreferences!.get('address').toString(),
+                    userAddress: _currentAddress.addressEng,
                     userConfirmDelivery: false,
-                    userLocation: parseGeoPointFromJson(sharedPreferences!.get('location').toString()),
+                    userLocation: _currentAddress.location,
                   );
 
                   // _addOrderToFirestore(order);
                   final checkout = CheckoutFlow(
                     context: context,
-                    storeInfo: widget.addToCartStoreInfo!,
-                    items: widget.items!,
-                    subTotal: subTotal,
-                    riderFee: riderFee,
-                    serviceFee: serviceFee,
-                    orderTotal: orderTotal,
-                    firestore: firebaseFirestore,
-                    storage: firebaseStorage,
-                    sharedPreferences: sharedPreferences!,
+                    order: order,
                   );
 
                   // Here you might do something like:

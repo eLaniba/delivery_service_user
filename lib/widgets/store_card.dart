@@ -32,7 +32,7 @@ class StoreCard extends StatelessWidget {
               BoxShadow(
                 color: Colors.black.withOpacity(0.4),
                 offset: const Offset(0, 1),
-                blurRadius: 5,
+                blurRadius: 2,
               ),
             ],
           ),

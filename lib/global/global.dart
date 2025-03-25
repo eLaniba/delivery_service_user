@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery_service_user/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -22,5 +23,7 @@ const Color darkGrey = Color.fromARGB(255, 52, 49, 49);
 const Color gray = Color.fromARGB(255, 142, 142, 147);
 const Color gray5 = Color.fromARGB(255, 229, 229, 234);
 const Color gray4 = Color(0xFFD1D1D6);
+
+AuthService authService = AuthService();
 
 String apiKey = 'AIzaSyDN4P2wLPNtH9NqROqux8NVc2XaHGViO2U';
