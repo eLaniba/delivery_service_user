@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery_service_user/authentication/auth_screen_remake.dart';
 import 'package:delivery_service_user/authentication/new_signup/email_verification_page.dart';
 import 'package:delivery_service_user/authentication/register.dart';
 import 'package:delivery_service_user/global/global.dart';
@@ -130,7 +131,7 @@ class _LoginRemakeState extends State<LoginRemake> {
         // Navigate to the main screen if the login is successful
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainScreen()),
+          MaterialPageRoute(builder: (context) => const AuthScreenRemake()),
         );
       } else {
         //If currentUser does not exist in the Firestore

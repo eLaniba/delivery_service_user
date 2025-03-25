@@ -32,10 +32,10 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cartCount = context.watch<CartCount>().count;
-    final orderCount = context.watch<OrderCount>().count;
-    final messageCount = context.watch<MessageCount>().count;
-    final notificationCount = context.watch<NotificationCount>().count;
+    final cartCount = context.watch<CartCount>().count ?? 0;
+    final orderCount = context.watch<OrderCount>().count ?? 0;
+    final messageCount = context.watch<MessageCount>().count ?? 0;
+    final notificationCount = context.watch<NotificationCount>().count ?? 0;
 
     return Scaffold(
       appBar: AppBar(

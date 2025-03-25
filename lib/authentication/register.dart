@@ -3,8 +3,10 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crop_your_image/crop_your_image.dart';
+import 'package:delivery_service_user/authentication/auth_screen_remake.dart';
 import 'package:delivery_service_user/authentication/new_signup/add_address_screen.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
+import 'package:delivery_service_user/mainScreens/main_screen_provider.dart';
 import 'package:delivery_service_user/services/auth_service.dart';
 import 'package:delivery_service_user/services/geopoint_json.dart';
 import 'package:delivery_service_user/services/util.dart';
@@ -216,7 +218,7 @@ class _RegisterState extends State<Register> {
       // Navigate to the main screen if the login is successful
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const MainScreen()),
+        MaterialPageRoute(builder: (context) => const AuthScreenRemake(),)
       );
     } catch (e) {
       // Close the Loading Dialog
