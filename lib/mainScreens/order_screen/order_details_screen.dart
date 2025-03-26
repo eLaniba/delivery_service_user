@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
+import 'package:delivery_service_user/mainScreens/main_screen_provider.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/live_location_tracking_page.dart';
 import 'package:delivery_service_user/mainScreens/profile_screen/messages_screen_2.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
@@ -147,7 +148,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     });
 
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const MainScreen()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) => const MainScreenProvider()));
     });
   }
 
