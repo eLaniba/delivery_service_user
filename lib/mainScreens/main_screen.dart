@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_screen.dart';
+import 'package:delivery_service_user/mainScreens/notification_screen.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_history_screen.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_screen.dart';
 import 'package:delivery_service_user/mainScreens/profile_screen/messages_screen.dart';
@@ -116,7 +117,7 @@ class _MainScreenState extends State<MainScreen> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const CartScreen()), // Your search screen
+                    MaterialPageRoute(builder: (context) => const NotificationScreen()), // Your search screen
                   );
                 },
                 icon: Icon(PhosphorIcons.bell()),
@@ -230,7 +231,7 @@ class _MainScreenState extends State<MainScreen> {
                         minWidth: 16,
                         minHeight: 16,
                       ),
-                      child: Text(cartCount < 99 ? '$orderCount' : '99',
+                      child: Text(orderCount < 99 ? '$orderCount' : '99',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,

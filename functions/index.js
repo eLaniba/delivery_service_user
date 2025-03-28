@@ -397,17 +397,17 @@ exports.orderNotification = functions.firestore
       }
     }
 
-    // Create a notification document with the required fields.
-    const notificationData = {
-      orderID: orderId,
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      title: notificationTitle,
-      body: notificationBody,
-      type: 'order',
-      read: false,
-    };
+      const notificationRef = db.collection(notificationCollectionPath).doc();
+        const notificationData = {
+          notificationID: notificationRef.id,
+          orderID: orderId,
+          timestamp: admin.firestore.FieldValue.serverTimestamp(),
+          title: notificationTitle,
+          body: notificationBody,
+          type: 'order',
+          read: false,
+        };
 
-    // Write the notification document to the appropriate notifications subcollection.
-    await db.collection(notificationCollectionPath).add(notificationData);
+        await notificationRef.set(notificationData);
     return null;
   });

@@ -5,6 +5,7 @@ import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/stores.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
+import 'package:delivery_service_user/widgets/show_floating_toast.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -280,13 +281,14 @@ class _ItemCardState extends State<ItemCard> {
   }
 
   void _addItemToCartFirestore(Stores store, Item itemModel, AddToCartItem addCartItemModel) async {
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (c) {
-        return const LoadingDialog(message: "Adding item to cart");
-      },
-    );
+    // showDialog(
+    //   barrierDismissible: false,
+    //   context: context,
+    //   builder: (c) {
+    //     return const LoadingDialog(message: "Adding item to cart");
+    //   },
+    // );
+    showFloatingToast(context: context, message: 'Adding item...');
 
     try {
       await FirebaseFirestore.instance.runTransaction((transaction) async {
@@ -373,13 +375,18 @@ class _ItemCardState extends State<ItemCard> {
         });
       }
 
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: const Text('Item added to cart successfully!'),
+      // Navigator.of(context).pop();
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(
+      //     content: const Text('Item added to cart successfully!'),
+      //     backgroundColor: Colors.green,
+      //     duration: const Duration(seconds: 3),
+      //   ),
+      // );
+      showFloatingToast(context: context,
+          message: 'Item added to cart successfully!',
           backgroundColor: Colors.green,
-          duration: const Duration(seconds: 3),
-        ),
+          icon: PhosphorIcons.checkCircle(),
       );
     } catch (e) {
       String errorMessage;

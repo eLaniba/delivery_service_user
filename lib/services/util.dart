@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
-String orderDateRead(DateTime orderDateTime) {
+  String orderDateRead(DateTime orderDateTime) {
   String formattedOrderTime = DateFormat('MMMM d, y h:mm a').format(orderDateTime);
   return formattedOrderTime;
 }

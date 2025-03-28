@@ -177,7 +177,7 @@ class _RegisterState extends State<Register> {
         "userAddress": address,
         "userLocation": geoPoint,
         // Bool for Approval in Admin
-        "emailVerified": true,
+        "emailVerified": true, //Todo: Temporary enable
         "phoneVerified": false,
         'userProfileURL': profileURL,
         'userProfilePath': profileFilePath,
