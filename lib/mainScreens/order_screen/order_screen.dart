@@ -22,7 +22,7 @@ class _OrderScreenState extends State<OrderScreen> {
           stream: FirebaseFirestore.instance
               .collection('active_orders')
               .where('userID', isEqualTo: sharedPreferences!.get('uid'))
-              .where('orderStatus', whereNotIn: ['Completing', 'Completed', 'Cancelled'])
+              .where('orderStatus', whereNotIn: ['Delivered', 'Completing', 'Completed', 'Cancelled'])
               .orderBy('orderTime', descending: true)
               .snapshots(),
           builder: (context, orderSnapshot) {

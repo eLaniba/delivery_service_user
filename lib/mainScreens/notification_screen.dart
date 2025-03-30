@@ -35,10 +35,12 @@ class NotificationScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications'),
+        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).primaryColor,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('users')
+            .collection('stores')
             .doc(uid)
             .collection('notifications')
             .orderBy('timestamp', descending: true)
@@ -75,7 +77,7 @@ class NotificationScreen extends StatelessWidget {
                   subtitle: Text(formattedDate),
                   trailing: Icon(PhosphorIcons.caretRight()),
                   onTap: () {
-                    // Add your onTap logic here
+                    notificationRead(context, notification);
                   },
                 ),
               );

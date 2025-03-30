@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/models/notification_model.dart';
 import 'package:delivery_service_user/services/util.dart';
@@ -13,7 +14,7 @@ class NotificationScreen2 extends StatelessWidget {
   Widget build(BuildContext context) {
     // Mark notification as read in Firestore
     FirebaseFirestore.instance
-        .collection('stores')
+        .collection('users')
         .doc(uid)
         .collection('notifications')
         .doc(notification.notificationID)

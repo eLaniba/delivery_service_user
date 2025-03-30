@@ -1,20 +1,39 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery_service_user/global/global.dart';
+import 'package:delivery_service_user/widgets/show_floating_toast.dart';
 import 'package:flutter/material.dart';
 
-class ReportStorePage extends StatefulWidget {
+class ReportPage extends StatefulWidget {
+  String id;
+  String type;
+
+  ReportPage({super.key, required this.id, required this.type});
+
   @override
-  _ReportStorePageState createState() => _ReportStorePageState();
+  _ReportPageState createState() => _ReportPageState();
 }
 
-class _ReportStorePageState extends State<ReportStorePage> {
+class _ReportPageState extends State<ReportPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final List<String> reasons = [
+  final List<String> storeReasons = [
     'Fake or scam store',
     'Inappropriate content',
     'Fake products',
     'Bad customer service',
     'Other'
   ];
+
+  final List<String> riderReasons = [
+    'Reckless driving',
+    'Unprofessional behavior',
+    'Late delivery',
+    'Incorrect order handling',
+    'Other'
+  ];
+
+  /// Dynamically returns the appropriate list of reasons
+  List<String> get reportReasons => widget.type == 'store' ? storeReasons : riderReasons;
 
   String? selectedReason;
   final TextEditingController otherReasonController = TextEditingController();
@@ -25,22 +44,33 @@ class _ReportStorePageState extends State<ReportStorePage> {
     super.dispose();
   }
 
-  void _submitReport() {
+  void _submitReport() async {
     if (_formKey.currentState!.validate()) {
+      showFloatingToast(context: context, message: 'Submitting report...');
       String reason = selectedReason!;
       if (reason == 'Other') {
         reason = otherReasonController.text;
       }
+      try {
+        await firebaseFirestore
+            .collection('reports')
+            .doc(widget.id)
+            .set({
+          '${widget.type}ID': widget.id,
+          'type': widget.type,
+          'timestamp': Timestamp.now(),
+          'reason': reason,
+        });
+        Navigator.pop(context);
 
-      try{
-
-      } catch(e) {
-
+        showFloatingToast(
+            context: context,
+            message: 'Report submitted.',
+            backgroundColor: Colors.green);
+      } catch (e) {
+        showFloatingToast(
+            context: context, message: 'Error submitting report.');
       }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Report submitted.'), backgroundColor: Colors.green,),
-      );
     }
   }
 
@@ -95,7 +125,7 @@ class _ReportStorePageState extends State<ReportStorePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Report Store'),
+        title: const Text('Report Page'),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
@@ -125,7 +155,7 @@ class _ReportStorePageState extends State<ReportStorePage> {
                     child: DropdownButtonFormField<String>(
                       decoration: _inputDecoration('Select a reason'),
                       value: selectedReason,
-                      items: reasons.map((reason) {
+                      items: reportReasons.map((reason) {
                         return DropdownMenuItem<String>(
                           value: reason,
                           child: Text(reason, style: const TextStyle(fontWeight: FontWeight.normal),),

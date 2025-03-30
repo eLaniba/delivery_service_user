@@ -1,7 +1,6 @@
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_details_provider.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_details_provider_screen.dart';
-import 'package:delivery_service_user/mainScreens/order_screen/order_details_screen.dart';
 import 'package:delivery_service_user/models/new_order.dart';
 import 'package:delivery_service_user/services/util.dart';
 import 'package:delivery_service_user/widgets/status_widget.dart';

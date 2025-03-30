@@ -1,14 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
-import 'package:delivery_service_user/mainScreens/main_screen.dart';
+import 'package:delivery_service_user/mainScreens/main_screen_provider.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/live_location_tracking_page.dart';
+import 'package:delivery_service_user/mainScreens/order_screen/rate_screen.dart';
 import 'package:delivery_service_user/mainScreens/profile_screen/messages_screen_2.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/new_order.dart';
 import 'package:delivery_service_user/services/util.dart';
 import 'package:delivery_service_user/widgets/confirmation_dialog.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
+import 'package:delivery_service_user/widgets/report_page.dart';
 import 'package:delivery_service_user/widgets/show_floating_toast.dart';
 import 'package:delivery_service_user/widgets/status_widget.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +29,7 @@ class OrderDetailsProviderScreen extends StatefulWidget {
 }
 
 class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen> {
-  List<String> orderCompleteStatus = ['Delivered', 'Completing'];
+  List<String> orderCompleteStatus = ['Delivered', 'Completing', 'Completed'];
   bool showItems = false;
 
 
@@ -136,7 +138,7 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
 
     Future.delayed(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (c) => const MainScreen()));
+          context, MaterialPageRoute(builder: (c) => const MainScreenProvider()));
     });
   }
 
@@ -237,6 +239,28 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
                 style: TextStyle(color: Colors.white, fontSize: 16),
               ),
             ),
+          //TODO: Add or statement
+          if (orderCompleteStatus.contains(order.orderStatus) && order.rate == null)
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RateScreen(order: order,),
+                  ),
+                );
+              },
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: const Text(
+                'Rate',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
           const SizedBox(width: 16),
         ],
       ),
@@ -256,19 +280,55 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
                 ),
                 if (order.riderName != null && order.riderPhone != null) ...[
                   const SizedBox(height: 4),
-                  riderInfoContainer(
-                    onTap: () {
-                      sendMessage(
-                        order.riderName!,
-                        order.riderID!,
-                        order.riderProfileURL!,
-                        'rider',
-                      );
-                    },
-                    context: context,
-                    icon: PhosphorIcons.moped(PhosphorIconsStyle.bold),
-                    name: order.riderName!,
-                    phone: reformatPhoneNumber(order.riderPhone!),
+                  Stack(
+                    children: [
+                      riderInfoContainer(
+                        onTap: () {
+                          sendMessage(
+                            order.riderName!,
+                            order.riderID!,
+                            order.riderProfileURL!,
+                            'rider',
+                          );
+                        },
+                        context: context,
+                        icon: PhosphorIcons.moped(PhosphorIconsStyle.bold),
+                        name: order.riderName!,
+                        phone: reformatPhoneNumber(order.riderPhone!),
+                      ),
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ReportPage(
+                                  id: order.riderID!,
+                                  type: 'rider',
+                                ),
+                              ),
+                            );
+                          },
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            splashFactory: NoSplash.splashFactory,
+                          ),
+                          child: const Text(
+                            'Report',
+                            style: TextStyle(
+                              color: grey20,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ],
@@ -284,20 +344,49 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
             ),
             const SizedBox(height: 4),
             // Store Information
-            storeUserInfoContainer(
-              context: context,
-              onTap: () {
-                sendMessage(
-                  order.storeName!,
-                  order.storeID!,
-                  order.storeProfileURL!,
-                  'store',
-                );
-              },
-              icon: PhosphorIcons.storefront(PhosphorIconsStyle.bold),
-              name: order.storeName!,
-              phone: reformatPhoneNumber(order.storePhone!),
-              address: order.storeAddress!,
+            Stack(
+              children: [
+                storeUserInfoContainer(
+                  context: context,
+                  onTap: () {
+                    sendMessage(
+                      order.storeName!,
+                      order.storeID!,
+                      order.storeProfileURL!,
+                      'store',
+                    );
+                  },
+                  icon: PhosphorIcons.storefront(PhosphorIconsStyle.bold),
+                  name: order.storeName!,
+                  phone: reformatPhoneNumber(order.storePhone!),
+                  address: order.storeAddress!,
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ReportPage(id: order.storeID!, type: 'store',),
+                        ),
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      splashFactory: NoSplash.splashFactory,
+                    ),
+                    child: const Text(
+                      'Report',
+                      style: TextStyle(color: grey20, fontSize: 14, ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 4),
             // Payment Method

@@ -42,6 +42,8 @@ class NewOrder{
   bool? riderConfirmDelivery;
   GeoPoint? riderLocation;
 
+  bool? rate;
+
   //Constructor for Order
   NewOrder({
     //Order Information
@@ -82,6 +84,7 @@ class NewOrder{
     this.riderPhone,
     this.riderConfirmDelivery,
     this.riderLocation,
+    this.rate,
   });
 
   double calculateOrderTotal(List<AddToCartItem>? items) {
@@ -130,6 +133,8 @@ class NewOrder{
     riderPhone = json['riderPhone'];
     riderConfirmDelivery = json['riderConfirmDelivery'];
     riderLocation = json['riderLocation'];
+
+    rate = json['rate'];
   }
 
   Map<String, dynamic> toJson() {
@@ -170,6 +175,8 @@ class NewOrder{
     data['riderPhone'] = riderPhone;
     data['riderConfirmDelivery'] = riderConfirmDelivery;
     data['riderLocation'] = riderLocation;
+
+    data['rate'] = rate;
 
     return data;
   }

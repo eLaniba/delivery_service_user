@@ -15,7 +15,7 @@ import 'package:delivery_service_user/models/stores.dart';
 import 'package:delivery_service_user/services/util.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
-import 'package:delivery_service_user/widgets/report_store_page.dart';
+import 'package:delivery_service_user/widgets/report_page.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -546,7 +546,7 @@ class _StoreCategoryScreenState extends State<StoreCategoryScreen>
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ReportStorePage()),
+                MaterialPageRoute(builder: (context) => ReportPage(id: widget.stores!.storeID!, type: 'store',)),
               );
             },
             icon: Icon(PhosphorIcons.warningCircle()),
