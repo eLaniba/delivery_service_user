@@ -21,7 +21,7 @@ class NotificationScreen extends StatelessWidget {
     );
 
     FirebaseFirestore.instance
-        .collection('stores')
+        .collection('users')
         .doc(uid)
         .collection('notifications')
         .doc(notification.notificationID)
@@ -40,7 +40,7 @@ class NotificationScreen extends StatelessWidget {
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('stores')
+            .collection('users')
             .doc(uid)
             .collection('notifications')
             .orderBy('timestamp', descending: true)

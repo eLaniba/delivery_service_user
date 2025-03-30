@@ -4,8 +4,8 @@ import 'package:delivery_service_user/mainScreens/cart_checkout_screen/cart_scre
 import 'package:delivery_service_user/mainScreens/notification_screen.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_history_screen.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_screen.dart';
-import 'package:delivery_service_user/mainScreens/profile_screen/messages_screen.dart';
-import 'package:delivery_service_user/mainScreens/profile_screen/messages_screen_provider.dart';
+import 'package:delivery_service_user/mainScreens/profile_screen/messages_screens/message__main_screen_provider.dart';
+
 import 'package:delivery_service_user/mainScreens/profile_screen/profile_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_screen_remake.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/search_screen.dart';
@@ -153,7 +153,7 @@ class _MainScreenState extends State<MainScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const MessagesScreenProvider()), // Your search screen
+                      MaterialPageRoute(builder: (context) => const MessageMainScreenProvider()), // Your search screen
                     );
                   },
                   icon: Icon(PhosphorIcons.chatText()),
