@@ -105,6 +105,13 @@ class _CustomTextFieldState extends State<CustomTextField> {
           ),
           borderRadius: BorderRadius.circular(24), // Slightly smaller radius for a more compact look
         ),
+        disabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+            width: 1.5,
+          ),
+          borderRadius: BorderRadius.circular(24),
+        ),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2), // Subtle border color

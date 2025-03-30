@@ -5,6 +5,7 @@ import 'package:delivery_service_user/mainScreens/profile_screen/address_screen.
 import 'package:delivery_service_user/mainScreens/profile_screen/edit_profile_screen.dart';
 import 'package:delivery_service_user/models/users.dart';
 import 'package:delivery_service_user/services/auth_service.dart';
+import 'package:delivery_service_user/services/util.dart';
 import 'package:delivery_service_user/widgets/confirmation_dialog.dart';
 import 'package:delivery_service_user/widgets/circle_image_avatar.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
@@ -83,7 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                user.userPhone ?? '',
+                                reformatPhoneNumber(user.userPhone!) ?? '',
                                 style: const TextStyle(color: gray),
                               ),
                               const SizedBox(width: 4),

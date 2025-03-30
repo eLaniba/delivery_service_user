@@ -280,134 +280,264 @@ class _ItemCardState extends State<ItemCard> {
 
   }
 
-  void _addItemToCartFirestore(Stores store, Item itemModel, AddToCartItem addCartItemModel) async {
-    // showDialog(
-    //   barrierDismissible: false,
-    //   context: context,
-    //   builder: (c) {
-    //     return const LoadingDialog(message: "Adding item to cart");
-    //   },
-    // );
-    showFloatingToast(context: context, message: 'Adding item...');
+  //TODO: Old _addToCartFirestore(revert to this if error)
+  // void _addItemToCartFirestore(Stores store, Item itemModel, AddToCartItem addCartItemModel) async {
+  //   // showDialog(
+  //   //   barrierDismissible: false,
+  //   //   context: context,
+  //   //   builder: (c) {
+  //   //     return const LoadingDialog(message: "Adding item to cart");
+  //   //   },
+  //   // );
+  //   showFloatingToast(context: context, message: 'Adding item...', bottom: 16);
+  //
+  //   try {
+  //     await FirebaseFirestore.instance.runTransaction((transaction) async {
+  //       // References
+  //       DocumentReference itemStoreReference = FirebaseFirestore.instance
+  //           .collection('stores')
+  //           .doc(store.storeID)
+  //           .collection('items')
+  //           .doc(itemModel.itemID);
+  //
+  //       DocumentReference storeCartReference = FirebaseFirestore.instance
+  //           .collection('users')
+  //           .doc(sharedPreferences!.getString('uid'))
+  //           .collection('cart')
+  //           .doc(store.storeID);
+  //
+  //       DocumentReference itemCartReference = storeCartReference
+  //           .collection('items')
+  //           .doc(itemModel.itemID);
+  //
+  //       // ** Step 1: Read all required documents first (before any writes) **
+  //       DocumentSnapshot itemStoreSnapshot = await transaction.get(itemStoreReference);
+  //       DocumentSnapshot itemCartSnapshot = await transaction.get(itemCartReference);
+  //
+  //       // Check if the item exists in the store
+  //       if (!itemStoreSnapshot.exists) {
+  //         throw Exception('Item does not exist in the store.');
+  //       }
+  //
+  //       int itemStock = itemStoreSnapshot.get('itemStock') as int;
+  //
+  //       // Check if stock is enough
+  //       if (itemStock < addCartItemModel.itemQnty!) {
+  //         throw Exception('Not enough stock available in the store.');
+  //       }
+  //
+  //       // ** Step 2: Now, perform all writes after reading everything **
+  //
+  //       // Deduct stock from the store item
+  //       transaction.update(itemStoreReference, {
+  //         'itemStock': itemStock - addCartItemModel.itemQnty!,
+  //       });
+  //
+  //       // Ensure store info is added to cart
+  //       transaction.set(storeCartReference, store.addStoreToCart(), SetOptions(merge: true));
+  //
+  //       if (itemCartSnapshot.exists) {
+  //         // Update item quantity and total price in cart
+  //         int newItemQnty = addCartItemModel.itemQnty! + itemCartSnapshot.get('itemQnty') as int;
+  //         double newItemTotal = addCartItemModel.itemTotal! + itemCartSnapshot.get('itemTotal');
+  //
+  //         transaction.update(itemCartReference, {
+  //           'itemQnty': newItemQnty,
+  //           'itemTotal': newItemTotal,
+  //         });
+  //       } else {
+  //         // Add new item to cart
+  //         transaction.set(itemCartReference, addCartItemModel.toJson());
+  //       }
+  //     });
+  //
+  //     // Move image after the transaction completes successfully
+  //     Reference oldImageLocation = firebaseStorage.ref(itemModel.itemImagePath);
+  //     final String newImagePath = 'users/${sharedPreferences!.getString('uid')}/cart/${store.storeID}/items/${itemModel.itemID}.jpg';
+  //     Reference newImageLocation = firebaseStorage.ref(newImagePath);
+  //
+  //     final Uint8List? fileData = await oldImageLocation.getData();
+  //     if (fileData != null) {
+  //       UploadTask uploadTask = newImageLocation.putData(fileData);
+  //       TaskSnapshot snapshot = await uploadTask;
+  //
+  //       String newImageURL = await snapshot.ref.getDownloadURL();
+  //
+  //       await FirebaseFirestore.instance
+  //           .collection('users')
+  //           .doc(sharedPreferences!.getString('uid'))
+  //           .collection('cart')
+  //           .doc(store.storeID)
+  //           .collection('items')
+  //           .doc(itemModel.itemID)
+  //           .update({
+  //         'itemImagePath': newImagePath,
+  //         'itemImageURL': newImageURL,
+  //       });
+  //     }
+  //
+  //     // Navigator.of(context).pop();
+  //     // ScaffoldMessenger.of(context).showSnackBar(
+  //     //   const SnackBar(
+  //     //     content: const Text('Item added to cart successfully!'),
+  //     //     backgroundColor: Colors.green,
+  //     //     duration: const Duration(seconds: 3),
+  //     //   ),
+  //     // );
+  //     showFloatingToast(context: context,
+  //         message: 'Item added to cart successfully!',
+  //         backgroundColor: Colors.green,
+  //         icon: PhosphorIcons.checkCircle(),
+  //       bottom: 16,
+  //     );
+  //   } catch (e) {
+  //     String errorMessage;
+  //
+  //     // Check if the error is a manually thrown exception
+  //     if (e is Exception) {
+  //       errorMessage = e.toString().replaceFirst('Exception: ', ''); // Remove "Exception: " prefix
+  //     } else {
+  //       errorMessage = "An unexpected error occurred: $e";
+  //     }
+  //
+  //     Navigator.of(context).pop();
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text(errorMessage),
+  //         backgroundColor: Colors.red,
+  //         duration: const Duration(seconds: 3),
+  //       ),
+  //     );
+  //   }
+  // }
+
+  Future<void> _addItemToCartFirestore(Stores store, Item itemModel, AddToCartItem addCartItemModel) async {
+    showFloatingToast(context: context, message: 'Adding item...', bottom: 16, duration: const Duration(seconds: 25));
 
     try {
-      await FirebaseFirestore.instance.runTransaction((transaction) async {
-        // References
-        DocumentReference itemStoreReference = FirebaseFirestore.instance
-            .collection('stores')
-            .doc(store.storeID)
-            .collection('items')
-            .doc(itemModel.itemID);
+      await _retryTransaction(3, () async {
+        await FirebaseFirestore.instance.runTransaction((transaction) async {
+          DocumentReference itemStoreReference = FirebaseFirestore.instance
+              .collection('stores')
+              .doc(store.storeID)
+              .collection('items')
+              .doc(itemModel.itemID);
 
-        DocumentReference storeCartReference = FirebaseFirestore.instance
-            .collection('users')
-            .doc(sharedPreferences!.getString('uid'))
-            .collection('cart')
-            .doc(store.storeID);
+          DocumentReference storeCartReference = FirebaseFirestore.instance
+              .collection('users')
+              .doc(sharedPreferences!.getString('uid'))
+              .collection('cart')
+              .doc(store.storeID);
 
-        DocumentReference itemCartReference = storeCartReference
-            .collection('items')
-            .doc(itemModel.itemID);
+          DocumentReference itemCartReference = storeCartReference
+              .collection('items')
+              .doc(itemModel.itemID);
 
-        // ** Step 1: Read all required documents first (before any writes) **
-        DocumentSnapshot itemStoreSnapshot = await transaction.get(itemStoreReference);
-        DocumentSnapshot itemCartSnapshot = await transaction.get(itemCartReference);
+          DocumentSnapshot itemStoreSnapshot = await transaction.get(itemStoreReference);
+          DocumentSnapshot itemCartSnapshot = await transaction.get(itemCartReference);
 
-        // Check if the item exists in the store
-        if (!itemStoreSnapshot.exists) {
-          throw Exception('Item does not exist in the store.');
-        }
+          if (!itemStoreSnapshot.exists) {
+            throw Exception('Item does not exist in the store.');
+          }
 
-        int itemStock = itemStoreSnapshot.get('itemStock') as int;
+          int itemStock = itemStoreSnapshot.get('itemStock') as int;
 
-        // Check if stock is enough
-        if (itemStock < addCartItemModel.itemQnty!) {
-          throw Exception('Not enough stock available in the store.');
-        }
+          if (itemStock < addCartItemModel.itemQnty!) {
+            throw Exception('Not enough stock available in the store.');
+          }
 
-        // ** Step 2: Now, perform all writes after reading everything **
-
-        // Deduct stock from the store item
-        transaction.update(itemStoreReference, {
-          'itemStock': itemStock - addCartItemModel.itemQnty!,
-        });
-
-        // Ensure store info is added to cart
-        transaction.set(storeCartReference, store.addStoreToCart(), SetOptions(merge: true));
-
-        if (itemCartSnapshot.exists) {
-          // Update item quantity and total price in cart
-          int newItemQnty = addCartItemModel.itemQnty! + itemCartSnapshot.get('itemQnty') as int;
-          double newItemTotal = addCartItemModel.itemTotal! + itemCartSnapshot.get('itemTotal');
-
-          transaction.update(itemCartReference, {
-            'itemQnty': newItemQnty,
-            'itemTotal': newItemTotal,
+          transaction.update(itemStoreReference, {
+            'itemStock': itemStock - addCartItemModel.itemQnty!,
           });
-        } else {
-          // Add new item to cart
-          transaction.set(itemCartReference, addCartItemModel.toJson());
-        }
+
+          transaction.set(storeCartReference, store.addStoreToCart(), SetOptions(merge: true));
+
+          if (itemCartSnapshot.exists) {
+            int newItemQnty = addCartItemModel.itemQnty! + (itemCartSnapshot.get('itemQnty') as int);
+            double newItemTotal = addCartItemModel.itemTotal! + (itemCartSnapshot.get('itemTotal'));
+
+            transaction.update(itemCartReference, {
+              'itemQnty': newItemQnty,
+              'itemTotal': newItemTotal,
+            });
+          } else {
+            transaction.set(itemCartReference, addCartItemModel.toJson());
+          }
+        });
       });
 
-      // Move image after the transaction completes successfully
       Reference oldImageLocation = firebaseStorage.ref(itemModel.itemImagePath);
       final String newImagePath = 'users/${sharedPreferences!.getString('uid')}/cart/${store.storeID}/items/${itemModel.itemID}.jpg';
       Reference newImageLocation = firebaseStorage.ref(newImagePath);
 
       final Uint8List? fileData = await oldImageLocation.getData();
       if (fileData != null) {
-        UploadTask uploadTask = newImageLocation.putData(fileData);
-        TaskSnapshot snapshot = await uploadTask;
-
-        String newImageURL = await snapshot.ref.getDownloadURL();
-
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(sharedPreferences!.getString('uid'))
-            .collection('cart')
-            .doc(store.storeID)
-            .collection('items')
-            .doc(itemModel.itemID)
-            .update({
-          'itemImagePath': newImagePath,
-          'itemImageURL': newImageURL,
-        });
+        String? newImageURL = await _uploadImageWithRetry(fileData, newImageLocation, 3);
+        if (newImageURL != null) {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(sharedPreferences!.getString('uid'))
+              .collection('cart')
+              .doc(store.storeID)
+              .collection('items')
+              .doc(itemModel.itemID)
+              .update({
+            'itemImagePath': newImagePath,
+            'itemImageURL': newImageURL,
+          });
+        }
       }
 
-      // Navigator.of(context).pop();
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(
-      //     content: const Text('Item added to cart successfully!'),
-      //     backgroundColor: Colors.green,
-      //     duration: const Duration(seconds: 3),
-      //   ),
-      // );
-      showFloatingToast(context: context,
-          message: 'Item added to cart successfully!',
-          backgroundColor: Colors.green,
-          icon: PhosphorIcons.checkCircle(),
+      showFloatingToast(
+        context: context,
+        message: 'Item added to cart successfully!',
+        backgroundColor: Colors.green,
+        icon: PhosphorIcons.checkCircle(),
+        bottom: 16,
       );
     } catch (e) {
-      String errorMessage;
-
-      // Check if the error is a manually thrown exception
-      if (e is Exception) {
-        errorMessage = e.toString().replaceFirst('Exception: ', ''); // Remove "Exception: " prefix
-      } else {
-        errorMessage = "An unexpected error occurred: $e";
-      }
-
+      String errorMessage = (e is Exception) ? e.toString().replaceFirst('Exception: ', '') : 'An unexpected error occurred: $e';
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-        ),
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red, duration: const Duration(seconds: 3)),
       );
     }
   }
+
+  Future<void> _retryTransaction(int retries, Function transactionFn) async {
+    int attempts = 0;
+    while (attempts < retries) {
+      try {
+        await transactionFn();
+        return;
+      } catch (e) {
+        attempts++;
+        if (attempts == retries) {
+          throw e;
+        }
+        await Future.delayed(const Duration(seconds: 2));
+      }
+    }
+  }
+
+  Future<String?> _uploadImageWithRetry(Uint8List fileData, Reference newImageLocation, int retries) async {
+    int attempts = 0;
+    while (attempts < retries) {
+      try {
+        UploadTask uploadTask = newImageLocation.putData(fileData);
+        TaskSnapshot snapshot = await uploadTask;
+        return await snapshot.ref.getDownloadURL();
+      } catch (e) {
+        attempts++;
+        if (attempts == retries) {
+          return null;
+        }
+        await Future.delayed(const Duration(seconds: 2));
+      }
+    }
+    return null;
+  }
+
 
   @override
   Widget build(BuildContext context) {

@@ -12,6 +12,7 @@ import 'package:delivery_service_user/widgets/error_dialog.dart';
 import 'package:delivery_service_user/widgets/item_dialog.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
+import 'package:delivery_service_user/widgets/show_floating_toast.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -33,187 +34,6 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
     TextEditingController qnty = TextEditingController();
     int itemCount = 1;
     qnty.text = itemCount.toString();
-
-    // showDialog(
-    //   context: context,
-    //   builder: (context) {
-    //     return AlertDialog(
-    //       shape: const RoundedRectangleBorder(
-    //         borderRadius: BorderRadius.zero,
-    //       ),
-    //       content: StatefulBuilder(
-    //         builder: (context, setState) {
-    //           return Column(
-    //             mainAxisSize: MainAxisSize.min,
-    //             children: [
-    //               SizedBox(
-    //                 height: 100,
-    //                 width: 100,
-    //                 child: Container(
-    //                   decoration: BoxDecoration(
-    //                     border: Border.all(
-    //                       color: Colors.grey,
-    //                       width: 2,
-    //                     ),
-    //                   ),
-    //                   child: const Center(
-    //                     child: Icon(
-    //                       Icons.image,
-    //                       color: Colors.grey,
-    //                     ),
-    //                   ),
-    //                 ),
-    //               ),
-    //               const Padding(
-    //                 padding: EdgeInsets.only(top: 8),
-    //                 child: Divider(
-    //                   color: Colors.grey,
-    //                 ),
-    //               ),
-    //               Padding(
-    //                 padding: const EdgeInsets.all(4),
-    //                 child: Column(
-    //                   crossAxisAlignment: CrossAxisAlignment.center,
-    //                   children: [
-    //                     Text(
-    //                       '${itemModel.itemName}',
-    //                       maxLines: 3,
-    //                       overflow: TextOverflow.ellipsis,
-    //                     ),
-    //                     const SizedBox(height: 5,),
-    //                     Row(
-    //                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //                       children: [
-    //                         Flexible(
-    //                           child: RichText(
-    //                             text: TextSpan(
-    //                               children: [
-    //                                 TextSpan(
-    //                                   text: '₱ ',
-    //                                   style: TextStyle(
-    //                                     fontSize: 20,
-    //                                     fontWeight: FontWeight.bold,
-    //                                     color: Theme.of(context).colorScheme.primary,
-    //                                   ),
-    //                                 ),
-    //                                 TextSpan(
-    //                                   text: '${itemModel.itemPrice}',
-    //                                   style: TextStyle(
-    //                                     fontSize: 16,
-    //                                     fontWeight: FontWeight.bold,
-    //                                     color: Theme.of(context).colorScheme.primary,
-    //                                   ),
-    //                                 ),
-    //                               ],
-    //                             ),
-    //                             overflow: TextOverflow.ellipsis,
-    //                             maxLines: 3,
-    //                           ),
-    //                         ),
-    //                         Row(
-    //                           children: [
-    //                             IconButton(
-    //                               onPressed: () {
-    //                                 if (itemCount > 1) {
-    //                                   setState(() {
-    //                                     itemCount--;
-    //                                   });
-    //                                 }
-    //                               },
-    //                               icon: const Icon(Icons.remove),
-    //                             ),
-    //                             SizedBox(
-    //                               width: 30,
-    //                               child: TextField(
-    //                                 controller: TextEditingController(text: itemCount.toString()),
-    //                                 keyboardType: TextInputType.number,
-    //                                 textAlign: TextAlign.center,
-    //                                 onChanged: (value) {
-    //                                   if (value.isEmpty) {
-    //                                     itemCount = 0;
-    //                                     return ;
-    //                                   }
-    //                                   if (int.tryParse(value) == null || int.tryParse(value) == 0) {
-    //                                     itemCount = 1;
-    //                                     setState(() {
-    //                                       showDialog(
-    //                                         context: context,
-    //                                         builder: (c) {
-    //                                           return const ErrorDialog(message: 'Quantity must be a whole number(ex: 1, 2, ...)');
-    //                                         },
-    //                                       );
-    //                                     });
-    //                                   } else {
-    //                                     itemCount = int.parse(value);
-    //                                   }
-    //                                 },
-    //                               ),
-    //                             ),
-    //                             IconButton(
-    //                               onPressed: () {
-    //                                 if (itemCount == 1) {
-    //                                   setState((){
-    //                                     itemCount = 1;
-    //                                     return;
-    //                                   });
-    //                                 }
-    //                                 setState(() {
-    //                                   itemCount++;
-    //                                 });
-    //                               },
-    //                               icon: const Icon(Icons.add),
-    //                             ),
-    //                           ],
-    //                         ),
-    //                       ],
-    //                     ),
-    //                   ],
-    //                 ),
-    //               ),
-    //             ],
-    //           );
-    //         },
-    //       ),
-    //       actions: [
-    //         TextButton(
-    //           onPressed: () {
-    //             Navigator.of(context).pop();
-    //           },
-    //           child: const Text('Cancel'),
-    //         ),
-    //         TextButton(
-    //           onPressed: () {
-    //             if (itemCount == 0) {
-    //               setState(() {
-    //                 showDialog(
-    //                   context: context,
-    //                   builder: (c) {
-    //                     return const ErrorDialog(message: 'Please enter a quantity(ex: 1, 2, ...)');
-    //                   },
-    //                 );
-    //               });
-    //             }
-    //
-    //             double itemTotal = itemCount * itemModel.itemPrice!;
-    //
-    //             _addItemToCartFirestore(
-    //               widget.store!,
-    //               itemModel,
-    //               AddToCartItem(
-    //                 itemID: itemModel.itemID,
-    //                 itemName: itemModel.itemName,
-    //                 itemPrice: itemModel.itemPrice,
-    //                 itemQnty: itemCount,
-    //                 itemTotal: itemTotal,
-    //               ),
-    //             );
-    //           },
-    //           child: const Text('Add to Cart'),
-    //         ),
-    //       ],
-    //     );
-    //   },
-    // );
 
     showDialog(
       context: context,
@@ -461,257 +281,131 @@ class _StoreItemScreenState extends State<StoreItemScreen> {
 
   }
 
-  // void _addItemToCartFirestore(Stores store, Item itemModel, AddToCartItem addCartItemModel) async {
-  //   showDialog(
-  //     context: context,
-  //     builder: (c) {
-  //       return const LoadingDialog(message: "Adding item to cart");
-  //     },
-  //   );
-  //
-  //   //Check if itemStock in the store is greater than
-  //   DocumentReference itemStoreReference = firebaseFirestore.collection('stores').doc(store.storeID).collection('items').doc(itemModel.itemID);
-  //   //Check if the item document exist in the Store
-  //   DocumentSnapshot itemStoreSnapshot = await itemStoreReference.get();
-  //
-  //   //Reference for the cart Collection in Firestore
-  //   CollectionReference cartCollection = FirebaseFirestore.instance.collection('users').doc(sharedPreferences!.getString('uid')).collection('cart');
-  //
-  //   //Adding the store inside the cart Collection as Document
-  //   DocumentReference storeCartReference = cartCollection.doc(store.storeID);
-  //
-  //   //Add a fields to the new store document: sellerUID, sellerName, phone, address
-  //   await storeCartReference.set(store.addStoreToCart());
-  //
-  //   //Add the item Collection inside the store Document || this is the items Collection reference
-  //   CollectionReference itemCartReference = storeCartReference.collection('items');
-  //
-  //   //Check if the item document exist
-  //   DocumentSnapshot itemCartSnapshot = await itemCartReference.doc('${itemModel.itemID}').get();
-  //
-  //   if(itemCartSnapshot.exists) {
-  //     try {
-  //       //We need to check the store item location to check if there's an available stock
-  //       //TODOLIST
-  //
-  //       int newItemQnty = addCartItemModel.itemQnty! + itemCartSnapshot.get('itemQnty') as int;
-  //       double newItemTotal = addCartItemModel.itemTotal! + itemCartSnapshot.get('itemTotal');
-  //
-  //       await itemCartReference.doc('${itemModel.itemID}').update({
-  //         'itemQnty' : newItemQnty,
-  //         'itemTotal' : newItemTotal,
-  //       });
-  //
-  //       Navigator.of(context).pop();
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //          SnackBar(
-  //           content: const Text('Item added to cart successfully!'),
-  //           backgroundColor: Colors.black.withOpacity(0.8), // Optional: Set background color
-  //           duration: const Duration(seconds: 3), // Optional: How long the snackbar is shown
-  //         ),
-  //       );
-  //
-  //     } catch (e) {
-  //       Navigator.of(context).pop();
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text('Failed to add item to cart: $e'),
-  //           backgroundColor: Colors.red, // Optional: Set background color for error
-  //           duration: const Duration(seconds: 3), // Optional: How long the snackbar is shown
-  //         ),
-  //       );
-  //     }
-  //   } else {
-  //     try {
-  //       // showDialog(
-  //       //   context: context,
-  //       //   builder: (c) {
-  //       //     return const LoadingDialog(message: "Adding item to cart");
-  //       //   },
-  //       // );
-  //
-  //       //Uploading the fields in the Cart Collection
-  //       await itemCartReference.doc('${itemModel.itemID}').set(addCartItemModel.toJson());
-  //
-  //       //Reference to the new image path
-  //       Reference oldImageLocation = firebaseStorage.ref(itemModel.itemImagePath);
-  //       //String variable of the newImageLocation for the reference in Storage as well as imagePath in the document
-  //       final String newImagePath = 'users/${sharedPreferences!.getString('uid')}/cart/${store.storeID}/items/${itemModel.itemID}.jpg';
-  //       Reference newImageLocation = firebaseStorage.ref(newImagePath);
-  //
-  //       //Download the Item Image from the Store
-  //       final Uint8List? fileData = await oldImageLocation.getData();
-  //
-  //       if (fileData != null) {
-  //         //Upload to the new Image Location (User's Cart)
-  //         UploadTask uploadTask = newImageLocation.putData(fileData);
-  //         TaskSnapshot snapshot = await uploadTask;
-  //
-  //         //Get the new image URL
-  //         String newImageURL = await snapshot.ref.getDownloadURL();
-  //
-  //         //Update the document to the new itemImagePath and itemImageURL
-  //         await itemCartReference.doc('${itemModel.itemID}').update({
-  //           'itemImagePath': newImagePath,
-  //           'itemImageURL': newImageURL,
-  //         });
-  //
-  //       }
-  //
-  //       Navigator.of(context).pop();
-  //
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: const Text('Item added to cart successfully!'),
-  //             backgroundColor: Colors.black.withOpacity(0.8),
-  //           duration: const Duration(seconds: 3),
-  //         ),
-  //       );
-  //     } catch (e) {
-  //       String errorMessage;
-  //
-  //       if (e is Exception) {
-  //         errorMessage = e.toString();
-  //       } else {
-  //         errorMessage = 'Failed to add item to cart: $e';
-  //       }
-  //
-  //       Navigator.of(context).pop();
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text(errorMessage),
-  //           backgroundColor: Colors.red, // Optional: Set background color for error
-  //           duration: const Duration(seconds: 3), // Optional: How long the snackbar is shown
-  //         ),
-  //       );
-  //     }
-  //   }
-  // }
-
-  void updateItem() {
-    print("YESSSS");
-  }
-
-  void _addItemToCartFirestore(Stores store, Item itemModel, AddToCartItem addCartItemModel) async {
-    showDialog(
-      context: context,
-      builder: (c) {
-        return const LoadingDialog(message: "Adding item to cart");
-      },
-    );
+  Future<void> _addItemToCartFirestore(Stores store, Item itemModel, AddToCartItem addCartItemModel) async {
+    showFloatingToast(context: context, message: 'Adding item...', bottom: 16, duration: const Duration(seconds: 25));
 
     try {
-      await FirebaseFirestore.instance.runTransaction((transaction) async {
-        // References
-        DocumentReference itemStoreReference = FirebaseFirestore.instance
-            .collection('stores')
-            .doc(store.storeID)
-            .collection('items')
-            .doc(itemModel.itemID);
+      await _retryTransaction(3, () async {
+        await FirebaseFirestore.instance.runTransaction((transaction) async {
+          DocumentReference itemStoreReference = FirebaseFirestore.instance
+              .collection('stores')
+              .doc(store.storeID)
+              .collection('items')
+              .doc(itemModel.itemID);
 
-        DocumentReference storeCartReference = FirebaseFirestore.instance
-            .collection('users')
-            .doc(sharedPreferences!.getString('uid'))
-            .collection('cart')
-            .doc(store.storeID);
+          DocumentReference storeCartReference = FirebaseFirestore.instance
+              .collection('users')
+              .doc(sharedPreferences!.getString('uid'))
+              .collection('cart')
+              .doc(store.storeID);
 
-        DocumentReference itemCartReference = storeCartReference
-            .collection('items')
-            .doc(itemModel.itemID);
+          DocumentReference itemCartReference = storeCartReference
+              .collection('items')
+              .doc(itemModel.itemID);
 
-        // ** Step 1: Read all required documents first (before any writes) **
-        DocumentSnapshot itemStoreSnapshot = await transaction.get(itemStoreReference);
-        DocumentSnapshot itemCartSnapshot = await transaction.get(itemCartReference);
+          DocumentSnapshot itemStoreSnapshot = await transaction.get(itemStoreReference);
+          DocumentSnapshot itemCartSnapshot = await transaction.get(itemCartReference);
 
-        // Check if the item exists in the store
-        if (!itemStoreSnapshot.exists) {
-          throw Exception('Item does not exist in the store.');
-        }
+          if (!itemStoreSnapshot.exists) {
+            throw Exception('Item does not exist in the store.');
+          }
 
-        int itemStock = itemStoreSnapshot.get('itemStock') as int;
+          int itemStock = itemStoreSnapshot.get('itemStock') as int;
 
-        // Check if stock is enough
-        if (itemStock < addCartItemModel.itemQnty!) {
-          throw Exception('Not enough stock available in the store.');
-        }
+          if (itemStock < addCartItemModel.itemQnty!) {
+            throw Exception('Not enough stock available in the store.');
+          }
 
-        // ** Step 2: Now, perform all writes after reading everything **
-
-        // Deduct stock from the store item
-        transaction.update(itemStoreReference, {
-          'itemStock': itemStock - addCartItemModel.itemQnty!,
-        });
-
-        // Ensure store info is added to cart
-        transaction.set(storeCartReference, store.addStoreToCart(), SetOptions(merge: true));
-
-        if (itemCartSnapshot.exists) {
-          // Update item quantity and total price in cart
-          int newItemQnty = addCartItemModel.itemQnty! + itemCartSnapshot.get('itemQnty') as int;
-          double newItemTotal = addCartItemModel.itemTotal! + itemCartSnapshot.get('itemTotal');
-
-          transaction.update(itemCartReference, {
-            'itemQnty': newItemQnty,
-            'itemTotal': newItemTotal,
+          transaction.update(itemStoreReference, {
+            'itemStock': itemStock - addCartItemModel.itemQnty!,
           });
-        } else {
-          // Add new item to cart
-          transaction.set(itemCartReference, addCartItemModel.toJson());
-        }
+
+          transaction.set(storeCartReference, store.addStoreToCart(), SetOptions(merge: true));
+
+          if (itemCartSnapshot.exists) {
+            int newItemQnty = addCartItemModel.itemQnty! + (itemCartSnapshot.get('itemQnty') as int);
+            double newItemTotal = addCartItemModel.itemTotal! + (itemCartSnapshot.get('itemTotal'));
+
+            transaction.update(itemCartReference, {
+              'itemQnty': newItemQnty,
+              'itemTotal': newItemTotal,
+            });
+          } else {
+            transaction.set(itemCartReference, addCartItemModel.toJson());
+          }
+        });
       });
 
-      // Move image after the transaction completes successfully
       Reference oldImageLocation = firebaseStorage.ref(itemModel.itemImagePath);
       final String newImagePath = 'users/${sharedPreferences!.getString('uid')}/cart/${store.storeID}/items/${itemModel.itemID}.jpg';
       Reference newImageLocation = firebaseStorage.ref(newImagePath);
 
       final Uint8List? fileData = await oldImageLocation.getData();
       if (fileData != null) {
-        UploadTask uploadTask = newImageLocation.putData(fileData);
-        TaskSnapshot snapshot = await uploadTask;
-
-        String newImageURL = await snapshot.ref.getDownloadURL();
-
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(sharedPreferences!.getString('uid'))
-            .collection('cart')
-            .doc(store.storeID)
-            .collection('items')
-            .doc(itemModel.itemID)
-            .update({
-          'itemImagePath': newImagePath,
-          'itemImageURL': newImageURL,
-        });
+        String? newImageURL = await _uploadImageWithRetry(fileData, newImageLocation, 3);
+        if (newImageURL != null) {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(sharedPreferences!.getString('uid'))
+              .collection('cart')
+              .doc(store.storeID)
+              .collection('items')
+              .doc(itemModel.itemID)
+              .update({
+            'itemImagePath': newImagePath,
+            'itemImageURL': newImageURL,
+          });
+        }
       }
 
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Item added to cart successfully!'),
-          backgroundColor: Colors.black.withOpacity(0.8),
-          duration: const Duration(seconds: 3),
-        ),
+      showFloatingToast(
+        context: context,
+        message: 'Item added to cart successfully!',
+        backgroundColor: Colors.green,
+        icon: PhosphorIcons.checkCircle(),
+        bottom: 16,
       );
     } catch (e) {
-      String errorMessage;
-
-      // Check if the error is a manually thrown exception
-      if (e is Exception) {
-        errorMessage = e.toString().replaceFirst('Exception: ', ''); // Remove "Exception: " prefix
-      } else {
-        errorMessage = "An unexpected error occurred: $e";
-      }
-
+      String errorMessage = (e is Exception) ? e.toString().replaceFirst('Exception: ', '') : 'An unexpected error occurred: $e';
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-        ),
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red, duration: const Duration(seconds: 3)),
       );
     }
+  }
+
+  Future<void> _retryTransaction(int retries, Function transactionFn) async {
+    int attempts = 0;
+    while (attempts < retries) {
+      try {
+        await transactionFn();
+        return;
+      } catch (e) {
+        attempts++;
+        if (attempts == retries) {
+          throw e;
+        }
+        await Future.delayed(const Duration(seconds: 2));
+      }
+    }
+  }
+
+  Future<String?> _uploadImageWithRetry(Uint8List fileData, Reference newImageLocation, int retries) async {
+    int attempts = 0;
+    while (attempts < retries) {
+      try {
+        UploadTask uploadTask = newImageLocation.putData(fileData);
+        TaskSnapshot snapshot = await uploadTask;
+        return await snapshot.ref.getDownloadURL();
+      } catch (e) {
+        attempts++;
+        if (attempts == retries) {
+          return null;
+        }
+        await Future.delayed(const Duration(seconds: 2));
+      }
+    }
+    return null;
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/authentication/auth_screen_remake.dart';
 import 'package:delivery_service_user/widgets/report_page.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -18,6 +19,13 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Enable Firestore Persistence using the latest approach
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true, // ✅ Enables offline caching
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED, // ✅ Optional: No limit on cache size
+  );
+
   runApp(const MyApp());
 }
 

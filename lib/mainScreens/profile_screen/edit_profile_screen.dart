@@ -3,6 +3,7 @@ import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/models/users.dart';
 import 'package:delivery_service_user/widgets/circle_image_avatar.dart';
 import 'package:delivery_service_user/widgets/custom_text_field.dart';
+import 'package:delivery_service_user/widgets/custom_text_field_validations.dart';
 import 'package:delivery_service_user/widgets/status_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,8 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   // Controllers for the text fields
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -41,8 +44,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
       'userPhone': _phoneController.text,
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profile updated successfully')),
+      const SnackBar(content: Text('Profile updated successfully'), backgroundColor: Colors.green,),
     );
+
+    Navigator.pop(context);
   }
 
   Future<void> verifyAndActivatePhone(String phoneNumber) async {
@@ -183,107 +188,113 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Pressable Circle Avatar
-                Center(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CircleImageAvatar(
-                        imageUrl: user.userProfileURL,
-                        size: 100,
-                        onTap: () {
-                          // Your edit profile picture logic here
-                        },
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 2,
-                        child: Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.4),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Icon(
-                              PhosphorIcons.camera(PhosphorIconsStyle.fill),
-                              color: Colors.white,
-                              size: 18,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Pressable Circle Avatar
+                  Center(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CircleImageAvatar(
+                          imageUrl: user.userProfileURL,
+                          size: 100,
+                          onTap: () {
+                            // Your edit profile picture logic here
+                          },
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 2,
+                          child: Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.4),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Icon(
+                                PhosphorIcons.camera(PhosphorIconsStyle.fill),
+                                color: Colors.white,
+                                size: 18,
+                              ),
                             ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Name field
+                  const Text(
+                    "Name",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  CustomTextField(
+                    controller: _nameController,
+                    labelText: 'Enter your name',
+                    validator: validateName,
+                    isObscure: false,
+                  ),
+                  const SizedBox(height: 20),
+                  // Email Text
+                  Row(
+                    children: [
+                      const Text(
+                        "Email",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
+                      const SizedBox(width: 4,),
+                      verifiedStatusWidget(user.emailVerified!),
                     ],
                   ),
-                ),
-                const SizedBox(height: 20),
-                // Name field
-                const Text(
-                  "Name",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                CustomTextField(
-                  controller: _nameController,
-                  labelText: 'Enter your name',
-                  isObscure: false,
-                ),
-                const SizedBox(height: 20),
-                // Email Text
-                Row(
-                  children: [
-                    const Text(
-                      "Email",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(width: 4,),
-                    verifiedStatusWidget(user.emailVerified!),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                CustomTextField(
-                  controller: _emailController,
-                  labelText: 'Enter your email',
-                  isObscure: false,
-                  inputType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 20),
-                // Mobile Number field
-                Row(
-                  children: [
-                    const Text(
-                      "Mobile Number",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(width: 4,),
-                    verifiedStatusWidget(user.phoneVerified!),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                CustomTextField(
-                  controller: _phoneController,
-                  labelText: 'Enter your mobile number',
-                  isObscure: false,
-                  inputType: TextInputType.phone,
-                  suffixIcon: user.phoneVerified == false
-                      ? TextButton(
-                          style: TextButton.styleFrom(
-                            splashFactory: NoSplash.splashFactory,
-                          ),
-                          onPressed: () {
-                            print('Verify is clicked!');
-                            // Implement your phone verification logic here.
-                            verifyAndActivatePhone(_phoneController.text.trim());
-                          },
-                          child: const Text("Verify"),
-                        )
-                      : null,
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  CustomTextField(
+                    controller: _emailController,
+                    labelText: 'Enter your email',
+                    enabled: false,
+                    isObscure: false,
+                    inputType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 20),
+                  // Mobile Number field
+                  Row(
+                    children: [
+                      const Text(
+                        "Mobile Number",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 4,),
+                      verifiedStatusWidget(user.phoneVerified!),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  CustomTextField(
+                    controller: _phoneController,
+                    labelText: 'Enter your mobile number',
+                    isObscure: false,
+                    validator: validatePhone,
+                    inputType: TextInputType.phone,
+                    suffixIcon: user.phoneVerified == false
+                        ? TextButton(
+                            style: TextButton.styleFrom(
+                              splashFactory: NoSplash.splashFactory,
+                            ),
+                            onPressed: () {
+                              print('Verify is clicked!');
+                              // Implement your phone verification logic here.
+                              verifyAndActivatePhone(_phoneController.text.trim());
+                            },
+                            child: const Text("Verify"),
+                          )
+                        : null,
+                  ),
+                ],
+              ),
             ),
           ),
           bottomNavigationBar: BottomAppBar(
@@ -294,7 +305,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               height: 60,
               child: TextButton(
-                onPressed: _saveProfile,
+                onPressed: () {
+                  if(_nameController.text.trim() == user.userName && _phoneController.text.trim() == user.userPhone) {
+                    Navigator.pop(context);
+                  } else {
+                    if(_formKey.currentState!.validate()){
+                      _saveProfile();
+                    }
+                  }
+                },
                 child: const Text(
                   'Save',
                   style: TextStyle(color: Colors.white, fontSize: 18),

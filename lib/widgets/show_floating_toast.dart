@@ -9,13 +9,14 @@ void showFloatingToast({
   bool showDismissButton = false,
   String dismissLabel = 'Okay',
   Duration duration = const Duration(seconds: 3),
+  double bottom = 0,
 }) {
   // Clear any existing snackbars before showing a new one
   ScaffoldMessenger.of(context).clearSnackBars();
 
   final snackBar = SnackBar(
     behavior: SnackBarBehavior.floating,
-    margin: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 0),
+    margin: EdgeInsets.only(left: 16, top: 16, right: 16, bottom: bottom),
     backgroundColor: backgroundColor,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12),
