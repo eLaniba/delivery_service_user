@@ -1,19 +1,12 @@
 import 'dart:typed_data';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:delivery_service_user/global/global.dart';
-import 'package:delivery_service_user/models/add_to_cart_item.dart';
-import 'package:delivery_service_user/widgets/loading_dialog.dart';
-import 'package:delivery_service_user/widgets/show_floating_toast.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/models/category_item.dart';
 import 'package:delivery_service_user/models/stores.dart';
 import 'package:delivery_service_user/widgets/item_card.dart';
 import 'package:delivery_service_user/widgets/progress_bar.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:shimmer/shimmer.dart';
+
 
 class AllProductsScreen extends StatefulWidget {
   final Stores store;

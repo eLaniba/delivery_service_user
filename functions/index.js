@@ -411,3 +411,66 @@ exports.orderNotification = functions.firestore
         await notificationRef.set(notificationData);
     return null;
   });
+
+exports.copyCartImage = functions.firestore
+  .document('users/{userId}/cart/{storeId}/items/{itemId}')
+  .onCreate(async (snap, context) => {
+    const data = snap.data();
+
+    // Only process items needing image copy
+    if (!data.needsImageCopy || !data.originalImagePath) {
+      console.log('Skipping - no image copy needed');
+      return null;
+    }
+
+    const bucket = admin.storage().bucket();
+    const newImagePath = `users/${context.params.userId}/cart/${context.params.storeId}/items/${context.params.itemId}.jpg`;
+
+    try {
+      // 1. Copy the image
+      await bucket.file(data.originalImagePath).copy(newImagePath);
+      console.log('Image copied to:', newImagePath);
+
+      // 2. Get the new download URL
+      const [newUrl] = await bucket.file(newImagePath).getSignedUrl({
+        action: 'read',
+        expires: '03-09-2491' // Far future date
+      });
+
+      // 3. Update Firestore with the NEW paths
+      await snap.ref.update({
+        itemImagePath: newImagePath,  // THIS MUST BE THE NEW PATH
+        itemImageURL: newUrl,        // THIS MUST BE THE NEW URL
+        needsImageCopy: false
+      });
+
+      console.log('Firestore document updated with new image references');
+      return true;
+    } catch (error) {
+      console.error('Failed to copy image:', error);
+
+      // Fallback - keep original image but mark as processed
+      await snap.ref.update({
+        needsImageCopy: false,
+        // Explicitly keep original paths if copy fails
+        itemImagePath: data.originalImagePath,
+        itemImageURL: data.itemImageURL
+      });
+
+      throw error;
+    }
+  });
+
+  exports.cleanupCartImages = functions.firestore
+    .document('users/{userId}/cart/{storeId}/items/{itemId}')
+    .onDelete(async (snap, context) => {
+      const data = snap.data();
+      if (!data.itemImagePath || !data.itemImagePath.includes('users/')) return;
+
+      try {
+        await admin.storage().bucket().file(data.itemImagePath).delete();
+        console.log('Deleted copied image:', data.itemImagePath);
+      } catch (error) {
+        console.error('Error deleting image:', error);
+      }
+    });

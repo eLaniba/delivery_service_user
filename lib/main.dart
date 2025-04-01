@@ -3,12 +3,15 @@ import 'package:delivery_service_user/authentication/auth_screen_remake.dart';
 import 'package:delivery_service_user/widgets/report_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
 import 'global/global.dart';
 
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+
+import 'services/providers/badge_provider.dart';
 
 void main() async {
   // WidgetsFlutterBinding.ensureInitialized();
@@ -38,28 +41,48 @@ class MyApp extends StatelessWidget {
     FlutterNativeSplash.remove();
     const customTextColor = Color.fromARGB(255, 52, 49, 49); // RGB(52, 49, 49)
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Guser',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSwatch(
-          primarySwatch: Colors.red,
-          accentColor: Colors.redAccent,
-          errorColor: Colors.red,
-          brightness: Brightness.light,
-        ).copyWith(
-          onPrimary: Colors.white, // Text/icon color on primary elements
-          onSurface: customTextColor, // Default text color on surfaces
+    return MultiProvider(
+      providers: [
+        StreamProvider<CartCount>(
+          create: (_) => BadgeProvider.cartItemCountStream(),
+          initialData: CartCount(0),
         ),
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: customTextColor),
-          bodyMedium: TextStyle(color: customTextColor),
-          titleLarge: TextStyle(color: customTextColor), // AppBar title color
+        StreamProvider<OrderCount>(
+          create: (_) => BadgeProvider.activeOrderCountStream(),
+          initialData: OrderCount(0),
         ),
-        iconTheme: const IconThemeData(color: customTextColor), // Custom icon color
-        useMaterial3: true,
+        StreamProvider<MessageCount>(
+          create: (_) => BadgeProvider.unreadMessagesCountStream(),
+          initialData: MessageCount(0),
+        ),
+        StreamProvider<NotificationCount>(
+          create: (_) => BadgeProvider.unreadNotificationCountStream(),
+          initialData: NotificationCount(0),
+        ),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Guser',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSwatch(
+            primarySwatch: Colors.red,
+            accentColor: Colors.redAccent,
+            errorColor: Colors.red,
+            brightness: Brightness.light,
+          ).copyWith(
+            onPrimary: Colors.white, // Text/icon color on primary elements
+            onSurface: customTextColor, // Default text color on surfaces
+          ),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: customTextColor),
+            bodyMedium: TextStyle(color: customTextColor),
+            titleLarge: TextStyle(color: customTextColor), // AppBar title color
+          ),
+          iconTheme: const IconThemeData(color: customTextColor), // Custom icon color
+          useMaterial3: true,
+        ),
+        home: const AuthScreenRemake(),
       ),
-      home: const AuthScreenRemake(),
     );
   }
 }

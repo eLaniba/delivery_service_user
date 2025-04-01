@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
+import 'package:delivery_service_user/mainScreens/main_screen.dart';
 import 'package:delivery_service_user/mainScreens/main_screen_provider.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/live_location_tracking_page.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/rate_screen.dart';
@@ -138,7 +139,7 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
 
     Future.delayed(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (c) => const MainScreenProvider()));
+          context, MaterialPageRoute(builder: (c) => const MainScreen()));
     });
   }
 

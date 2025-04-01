@@ -280,226 +280,187 @@ class _ItemCardState extends State<ItemCard> {
 
   }
 
-  //TODO: Old _addToCartFirestore(revert to this if error)
-  // void _addItemToCartFirestore(Stores store, Item itemModel, AddToCartItem addCartItemModel) async {
-  //   // showDialog(
-  //   //   barrierDismissible: false,
-  //   //   context: context,
-  //   //   builder: (c) {
-  //   //     return const LoadingDialog(message: "Adding item to cart");
-  //   //   },
-  //   // );
-  //   showFloatingToast(context: context, message: 'Adding item...', bottom: 16);
+  // Future<void> _addItemToCartFirestore(Stores store, Item itemModel, AddToCartItem addCartItemModel) async {
+  //   showFloatingToast(context: context, message: 'Adding item...', bottom: 16, duration: const Duration(seconds: 25));
   //
   //   try {
-  //     await FirebaseFirestore.instance.runTransaction((transaction) async {
-  //       // References
-  //       DocumentReference itemStoreReference = FirebaseFirestore.instance
-  //           .collection('stores')
-  //           .doc(store.storeID)
-  //           .collection('items')
-  //           .doc(itemModel.itemID);
+  //     await _retryTransaction(3, () async {
+  //       await FirebaseFirestore.instance.runTransaction((transaction) async {
+  //         DocumentReference itemStoreReference = FirebaseFirestore.instance
+  //             .collection('stores')
+  //             .doc(store.storeID)
+  //             .collection('items')
+  //             .doc(itemModel.itemID);
   //
-  //       DocumentReference storeCartReference = FirebaseFirestore.instance
-  //           .collection('users')
-  //           .doc(sharedPreferences!.getString('uid'))
-  //           .collection('cart')
-  //           .doc(store.storeID);
+  //         DocumentReference storeCartReference = FirebaseFirestore.instance
+  //             .collection('users')
+  //             .doc(sharedPreferences!.getString('uid'))
+  //             .collection('cart')
+  //             .doc(store.storeID);
   //
-  //       DocumentReference itemCartReference = storeCartReference
-  //           .collection('items')
-  //           .doc(itemModel.itemID);
+  //         DocumentReference itemCartReference = storeCartReference
+  //             .collection('items')
+  //             .doc(itemModel.itemID);
   //
-  //       // ** Step 1: Read all required documents first (before any writes) **
-  //       DocumentSnapshot itemStoreSnapshot = await transaction.get(itemStoreReference);
-  //       DocumentSnapshot itemCartSnapshot = await transaction.get(itemCartReference);
+  //         DocumentSnapshot itemStoreSnapshot = await transaction.get(itemStoreReference);
+  //         DocumentSnapshot itemCartSnapshot = await transaction.get(itemCartReference);
   //
-  //       // Check if the item exists in the store
-  //       if (!itemStoreSnapshot.exists) {
-  //         throw Exception('Item does not exist in the store.');
-  //       }
+  //         if (!itemStoreSnapshot.exists) {
+  //           throw Exception('Item does not exist in the store.');
+  //         }
   //
-  //       int itemStock = itemStoreSnapshot.get('itemStock') as int;
+  //         int itemStock = itemStoreSnapshot.get('itemStock') as int;
   //
-  //       // Check if stock is enough
-  //       if (itemStock < addCartItemModel.itemQnty!) {
-  //         throw Exception('Not enough stock available in the store.');
-  //       }
+  //         if (itemStock < addCartItemModel.itemQnty!) {
+  //           throw Exception('Not enough stock available in the store.');
+  //         }
   //
-  //       // ** Step 2: Now, perform all writes after reading everything **
-  //
-  //       // Deduct stock from the store item
-  //       transaction.update(itemStoreReference, {
-  //         'itemStock': itemStock - addCartItemModel.itemQnty!,
-  //       });
-  //
-  //       // Ensure store info is added to cart
-  //       transaction.set(storeCartReference, store.addStoreToCart(), SetOptions(merge: true));
-  //
-  //       if (itemCartSnapshot.exists) {
-  //         // Update item quantity and total price in cart
-  //         int newItemQnty = addCartItemModel.itemQnty! + itemCartSnapshot.get('itemQnty') as int;
-  //         double newItemTotal = addCartItemModel.itemTotal! + itemCartSnapshot.get('itemTotal');
-  //
-  //         transaction.update(itemCartReference, {
-  //           'itemQnty': newItemQnty,
-  //           'itemTotal': newItemTotal,
+  //         transaction.update(itemStoreReference, {
+  //           'itemStock': itemStock - addCartItemModel.itemQnty!,
   //         });
-  //       } else {
-  //         // Add new item to cart
-  //         transaction.set(itemCartReference, addCartItemModel.toJson());
-  //       }
+  //
+  //         transaction.set(storeCartReference, store.addStoreToCart(), SetOptions(merge: true));
+  //
+  //         if (itemCartSnapshot.exists) {
+  //           int newItemQnty = addCartItemModel.itemQnty! + (itemCartSnapshot.get('itemQnty') as int);
+  //           double newItemTotal = addCartItemModel.itemTotal! + (itemCartSnapshot.get('itemTotal'));
+  //
+  //           transaction.update(itemCartReference, {
+  //             'itemQnty': newItemQnty,
+  //             'itemTotal': newItemTotal,
+  //           });
+  //         } else {
+  //           transaction.set(itemCartReference, addCartItemModel.toJson());
+  //         }
+  //       });
   //     });
   //
-  //     // Move image after the transaction completes successfully
   //     Reference oldImageLocation = firebaseStorage.ref(itemModel.itemImagePath);
   //     final String newImagePath = 'users/${sharedPreferences!.getString('uid')}/cart/${store.storeID}/items/${itemModel.itemID}.jpg';
   //     Reference newImageLocation = firebaseStorage.ref(newImagePath);
   //
   //     final Uint8List? fileData = await oldImageLocation.getData();
   //     if (fileData != null) {
-  //       UploadTask uploadTask = newImageLocation.putData(fileData);
-  //       TaskSnapshot snapshot = await uploadTask;
-  //
-  //       String newImageURL = await snapshot.ref.getDownloadURL();
-  //
-  //       await FirebaseFirestore.instance
-  //           .collection('users')
-  //           .doc(sharedPreferences!.getString('uid'))
-  //           .collection('cart')
-  //           .doc(store.storeID)
-  //           .collection('items')
-  //           .doc(itemModel.itemID)
-  //           .update({
-  //         'itemImagePath': newImagePath,
-  //         'itemImageURL': newImageURL,
-  //       });
+  //       String? newImageURL = await _uploadImageWithRetry(fileData, newImageLocation, 3);
+  //       if (newImageURL != null) {
+  //         await FirebaseFirestore.instance
+  //             .collection('users')
+  //             .doc(sharedPreferences!.getString('uid'))
+  //             .collection('cart')
+  //             .doc(store.storeID)
+  //             .collection('items')
+  //             .doc(itemModel.itemID)
+  //             .update({
+  //           'itemImagePath': newImagePath,
+  //           'itemImageURL': newImageURL,
+  //         });
+  //       }
   //     }
   //
-  //     // Navigator.of(context).pop();
-  //     // ScaffoldMessenger.of(context).showSnackBar(
-  //     //   const SnackBar(
-  //     //     content: const Text('Item added to cart successfully!'),
-  //     //     backgroundColor: Colors.green,
-  //     //     duration: const Duration(seconds: 3),
-  //     //   ),
-  //     // );
-  //     showFloatingToast(context: context,
-  //         message: 'Item added to cart successfully!',
-  //         backgroundColor: Colors.green,
-  //         icon: PhosphorIcons.checkCircle(),
+  //     showFloatingToast(
+  //       context: context,
+  //       message: 'Item added to cart successfully!',
+  //       backgroundColor: Colors.green,
+  //       icon: PhosphorIcons.checkCircle(),
   //       bottom: 16,
   //     );
   //   } catch (e) {
-  //     String errorMessage;
-  //
-  //     // Check if the error is a manually thrown exception
-  //     if (e is Exception) {
-  //       errorMessage = e.toString().replaceFirst('Exception: ', ''); // Remove "Exception: " prefix
-  //     } else {
-  //       errorMessage = "An unexpected error occurred: $e";
-  //     }
-  //
+  //     String errorMessage = (e is Exception) ? e.toString().replaceFirst('Exception: ', '') : 'An unexpected error occurred: $e';
   //     Navigator.of(context).pop();
   //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text(errorMessage),
-  //         backgroundColor: Colors.red,
-  //         duration: const Duration(seconds: 3),
-  //       ),
+  //       SnackBar(content: Text(errorMessage), backgroundColor: Colors.red, duration: const Duration(seconds: 3)),
   //     );
   //   }
   // }
 
+  //TODO: modified _addItemToCartFirestore with Cloud Functions to Upload Image
+
   Future<void> _addItemToCartFirestore(Stores store, Item itemModel, AddToCartItem addCartItemModel) async {
-    showFloatingToast(context: context, message: 'Adding item...', bottom: 16, duration: const Duration(seconds: 25));
+    showFloatingToast(
+      context: context,
+      message: 'Adding item to cart...',
+      bottom: 16,
+      duration: const Duration(minutes: 1),
+    );
 
     try {
-      await _retryTransaction(3, () async {
-        await FirebaseFirestore.instance.runTransaction((transaction) async {
-          DocumentReference itemStoreReference = FirebaseFirestore.instance
-              .collection('stores')
-              .doc(store.storeID)
-              .collection('items')
-              .doc(itemModel.itemID);
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        // 1. References
+        final itemStoreRef = FirebaseFirestore.instance
+            .collection('stores')
+            .doc(store.storeID)
+            .collection('items')
+            .doc(itemModel.itemID);
 
-          DocumentReference storeCartReference = FirebaseFirestore.instance
-              .collection('users')
-              .doc(sharedPreferences!.getString('uid'))
-              .collection('cart')
-              .doc(store.storeID);
+        final storeCartRef = FirebaseFirestore.instance
+            .collection('users')
+            .doc(sharedPreferences!.getString('uid'))
+            .collection('cart')
+            .doc(store.storeID);
 
-          DocumentReference itemCartReference = storeCartReference
-              .collection('items')
-              .doc(itemModel.itemID);
+        final itemCartRef = storeCartRef.collection('items').doc(itemModel.itemID);
 
-          DocumentSnapshot itemStoreSnapshot = await transaction.get(itemStoreReference);
-          DocumentSnapshot itemCartSnapshot = await transaction.get(itemCartReference);
+        // 2. Get documents in parallel
+        final snapshots = await Future.wait([
+          transaction.get(itemStoreRef),
+          transaction.get(itemCartRef),
+        ]);
 
-          if (!itemStoreSnapshot.exists) {
-            throw Exception('Item does not exist in the store.');
-          }
+        // 3. Validate stock
+        final itemStoreSnapshot = snapshots[0];
+        if (!itemStoreSnapshot.exists) throw Exception('Item does not exist in store');
+        final itemStock = itemStoreSnapshot.get('itemStock') as int;
+        if (itemStock < addCartItemModel.itemQnty!) throw Exception('Not enough stock available');
 
-          int itemStock = itemStoreSnapshot.get('itemStock') as int;
-
-          if (itemStock < addCartItemModel.itemQnty!) {
-            throw Exception('Not enough stock available in the store.');
-          }
-
-          transaction.update(itemStoreReference, {
-            'itemStock': itemStock - addCartItemModel.itemQnty!,
-          });
-
-          transaction.set(storeCartReference, store.addStoreToCart(), SetOptions(merge: true));
-
-          if (itemCartSnapshot.exists) {
-            int newItemQnty = addCartItemModel.itemQnty! + (itemCartSnapshot.get('itemQnty') as int);
-            double newItemTotal = addCartItemModel.itemTotal! + (itemCartSnapshot.get('itemTotal'));
-
-            transaction.update(itemCartReference, {
-              'itemQnty': newItemQnty,
-              'itemTotal': newItemTotal,
-            });
-          } else {
-            transaction.set(itemCartReference, addCartItemModel.toJson());
-          }
+        // 4. Update store stock
+        transaction.update(itemStoreRef, {
+          'itemStock': itemStock - addCartItemModel.itemQnty!,
         });
-      });
 
-      Reference oldImageLocation = firebaseStorage.ref(itemModel.itemImagePath);
-      final String newImagePath = 'users/${sharedPreferences!.getString('uid')}/cart/${store.storeID}/items/${itemModel.itemID}.jpg';
-      Reference newImageLocation = firebaseStorage.ref(newImagePath);
+        // 5. Create/update store cart document with ALL required fields
+        transaction.set(storeCartRef, {
+          'storeID': store.storeID,
+          'storeName': store.storeName,
+          'storeAddress': store.storeAddress,
+          'storeLocation': store.storeLocation,
+          'storePhone': store.storePhone,
+          'storeProfileURL': store.storeProfileURL,
+          'lastUpdated': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
 
-      final Uint8List? fileData = await oldImageLocation.getData();
-      if (fileData != null) {
-        String? newImageURL = await _uploadImageWithRetry(fileData, newImageLocation, 3);
-        if (newImageURL != null) {
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(sharedPreferences!.getString('uid'))
-              .collection('cart')
-              .doc(store.storeID)
-              .collection('items')
-              .doc(itemModel.itemID)
-              .update({
-            'itemImagePath': newImagePath,
-            'itemImageURL': newImageURL,
+        // 6. Handle cart item
+        final itemCartSnapshot = snapshots[1];
+        if (itemCartSnapshot.exists) {
+          final newQnty = addCartItemModel.itemQnty! + (itemCartSnapshot.get('itemQnty') as int);
+          final newTotal = addCartItemModel.itemTotal! + (itemCartSnapshot.get('itemTotal') as double);
+
+          transaction.update(itemCartRef, {
+            'itemQnty': newQnty,
+            'itemTotal': newTotal,
+          });
+        } else {
+          transaction.set(itemCartRef, {
+            ...addCartItemModel.toJson(),
+            'originalImagePath': itemModel.itemImagePath,
+            'needsImageCopy': true,
+            'itemImageURL': itemModel.itemImageURL,
           });
         }
-      }
+      });
 
       showFloatingToast(
         context: context,
-        message: 'Item added to cart successfully!',
+        message: 'Item added to cart!',
         backgroundColor: Colors.green,
         icon: PhosphorIcons.checkCircle(),
         bottom: 16,
       );
     } catch (e) {
-      String errorMessage = (e is Exception) ? e.toString().replaceFirst('Exception: ', '') : 'An unexpected error occurred: $e';
-      Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red, duration: const Duration(seconds: 3)),
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }

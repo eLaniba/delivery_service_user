@@ -5,7 +5,6 @@ import 'package:delivery_service_user/models/stores.dart';
 import 'package:delivery_service_user/widgets/category_card.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class AllCategoriesScreen extends StatelessWidget {
   final Stores store;
@@ -33,12 +32,23 @@ class AllCategoriesScreen extends StatelessWidget {
               return const SliverFillRemaining(
                 hasScrollBody: false,
                 child: Center(
-                  child: Text(
-                    'No categories available',
-                    style: TextStyle(
-                      color: Colors.grey,
-                    ),
-                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.playlist_remove_outlined,
+                        color: Colors.grey,
+                        size: 48,
+                      ),
+                      Text(
+                        'No categories available',
+                        style: TextStyle(
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  )
                 ),
               );
             }
@@ -46,6 +56,20 @@ class AllCategoriesScreen extends StatelessWidget {
             return SliverList(
               delegate: SliverChildBuilderDelegate(
                     (BuildContext context, int index) {
+                  if (index == categorySnapshot.data!.docs.length) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Text(
+                          'End of results.',
+                          style: TextStyle(
+                            color: gray,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
                   Category sCategory = Category.fromJson(
                     categorySnapshot.data!.docs[index].data()! as Map<String, dynamic>,
                   );
@@ -63,23 +87,10 @@ class AllCategoriesScreen extends StatelessWidget {
                     category: sCategory,
                   );
                 },
-                childCount: categorySnapshot.data!.docs.length,
+                childCount: categorySnapshot.data!.docs.length + 1, // +1 for the "End of results" text
               ),
             );
           },
-        ),
-        const SliverToBoxAdapter(
-          child: Center(
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: Text(
-                'End of results.',
-                style: TextStyle(
-                  color: gray,
-                ),
-              ),
-            ),
-          ),
         ),
       ],
     );

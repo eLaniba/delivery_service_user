@@ -17,6 +17,7 @@ class Stores {
     this.storePhone,
     this.storeAddress,
     this.storeLocation,
+
   });
 
   Stores.fromJson(Map<String, dynamic> json) {

@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/authentication/auth_screen_remake.dart';
 import 'package:delivery_service_user/authentication/new_signup/email_verification_page.dart';
-import 'package:delivery_service_user/authentication/register.dart';
 import 'package:delivery_service_user/global/global.dart';
-import 'package:delivery_service_user/mainScreens/main_screen.dart';
 import 'package:delivery_service_user/services/auth_service.dart';
 import 'package:delivery_service_user/services/geopoint_json.dart';
 import 'package:delivery_service_user/widgets/custom_text_field.dart';
@@ -12,6 +10,7 @@ import 'package:delivery_service_user/widgets/error_dialog.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class LoginRemake extends StatefulWidget {
   const LoginRemake({super.key});
@@ -21,6 +20,8 @@ class LoginRemake extends StatefulWidget {
 }
 
 class _LoginRemakeState extends State<LoginRemake> {
+  bool _isPasswordHidden = true;
+
   //AuthService class (see services/auth_service.dart)
   AuthService _authService = AuthService();
 
@@ -277,8 +278,22 @@ class _LoginRemakeState extends State<LoginRemake> {
                         CustomTextField(
                           labelText: 'Password',
                           controller: passwordController,
-                          isObscure: true,
+                          isObscure: _isPasswordHidden,
                           validator: validatePassword,
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordHidden = !_isPasswordHidden;
+                              });
+                            },
+                            icon: PhosphorIcon(
+                              _isPasswordHidden
+                                  ? PhosphorIcons.eyeSlash(
+                                  PhosphorIconsStyle.bold)
+                                  : PhosphorIcons.eye(
+                                  PhosphorIconsStyle.bold),
+                            ),
+                          ),
                         ),
                         //Forgot password?
                         TextButton(

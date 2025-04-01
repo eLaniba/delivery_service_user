@@ -22,7 +22,7 @@ class _AuthScreenRemakeState extends State<AuthScreenRemake> {
       future: _authService.isLoggedIn(),
       builder: (context, snapshot) {
         if(snapshot.hasData && snapshot.data == true) {
-          return const MainScreenProvider();
+          return const MainScreen();
         } else {
           return const LoginRemake();
         }

@@ -39,35 +39,105 @@ class _CartScreen2State extends State<CartScreen2> {
     return total;
   }
 
+  //TODO: This delete method will delete the original file in the store
+  // Future<void> deleteItem(AddToCartItem item) async {
+  //   showDialog(
+  //     context: context,
+  //     builder: (c) {
+  //       return const LoadingDialog(message: "Deleting item");
+  //     },
+  //   );
+  //
+  //   try {
+  //     print('LOCATION - users/${sharedPreferences!.getString('uid')}/cart/${widget.addToCartStoreInfo!.storeID}/items/${item.itemID}');
+  //     //Deleting the item image from the Firebase Cloud Storage
+  //     final imageRef = firebaseStorage.ref(item.itemImagePath);
+  //     await imageRef.delete();
+  //
+  //     //Retrieve back the itemQnty from Cart to Store
+  //     DocumentReference itemFromStore = firebaseFirestore.collection('stores').doc(widget.addToCartStoreInfo!.storeID).collection('items').doc(item.itemID);
+  //
+  //     //Check if item exist in the Store items collection
+  //     DocumentSnapshot itemSnapshot = await itemFromStore.get();
+  //     if(itemSnapshot.exists) {
+  //         await itemFromStore.update({
+  //           //Can you help me get the itemQnty inside the itemSnapshot document?
+  //           'itemStock': FieldValue.increment(item.itemQnty!),
+  //         });
+  //     } else {
+  //       print("Item not found in store, skipping stock restoration.");
+  //     }
+  //
+  //     //Deleting item document after deleting the image
+  //     await firebaseFirestore
+  //         .collection("users")
+  //         .doc(sharedPreferences!.getString('uid'))
+  //         .collection("cart")
+  //         .doc(widget.addToCartStoreInfo!.storeID)
+  //         .collection("items")
+  //         .doc(item.itemID)
+  //         .delete();
+  //     if(mounted) {
+  //       Navigator.of(context).pop();
+  //     }
+  //
+  //     // Show a success Snackbar
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Item deleted.'),
+  //         backgroundColor: Colors.green,
+  //         duration: Duration(seconds: 5), // Optional: How long the snackbar is shown
+  //       ),
+  //     );
+  //
+  //   } catch (e) {
+  //     print("Error deleting item: $e");
+  //
+  //     // Show an error Snackbar if something goes wrong
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Failed to delete item: $e'),
+  //         backgroundColor: Colors.red, // Optional: Set background color for error
+  //         duration: Duration(seconds: 5), // Optional: How long the snackbar is shown
+  //       ),
+  //     );
+  //   }
+  //
+  // }
+
+ //TODO: Updated one:
   Future<void> deleteItem(AddToCartItem item) async {
     showDialog(
       context: context,
-      builder: (c) {
-        return const LoadingDialog(message: "Deleting item");
-      },
+      builder: (c) => const LoadingDialog(message: "Deleting item"),
     );
 
     try {
-      print('LOCATION - users/${sharedPreferences!.getString('uid')}/cart/${widget.addToCartStoreInfo!.storeID}/items/${item.itemID}');
-      //Deleting the item image from the Firebase Cloud Storage
-      // final imageRef = firebaseStorage.ref(item.itemImagePath);
-      // await imageRef.delete();
-
-      //Retrieve back the itemQnty from Cart to Store
-      DocumentReference itemFromStore = firebaseFirestore.collection('stores').doc(widget.addToCartStoreInfo!.storeID).collection('items').doc(item.itemID);
-
-      //Check if item exist in the Store items collection
-      DocumentSnapshot itemSnapshot = await itemFromStore.get();
-      if(itemSnapshot.exists) {
-          await itemFromStore.update({
-            //Can you help me get the itemQnty inside the itemSnapshot document?
-            'itemStock': FieldValue.increment(item.itemQnty!),
-          });
-      } else {
-        print("Item not found in store, skipping stock restoration.");
+      // 1. Delete the image (if it exists in user's storage)
+      try {
+        if (item.itemImagePath != null &&
+            item.itemImagePath!.contains('users/')) {
+          await firebaseStorage.ref(item.itemImagePath).delete();
+        }
+      } catch (e) {
+        debugPrint("Image deletion skipped (might be using store's original image)");
       }
 
-      //Deleting item document after deleting the image
+      // 2. Restore stock to store
+      DocumentReference itemFromStore = firebaseFirestore
+          .collection('stores')
+          .doc(widget.addToCartStoreInfo!.storeID)
+          .collection('items')
+          .doc(item.itemID);
+
+      DocumentSnapshot itemSnapshot = await itemFromStore.get();
+      if (itemSnapshot.exists) {
+        await itemFromStore.update({
+          'itemStock': FieldValue.increment(item.itemQnty!),
+        });
+      }
+
+      // 3. Delete the cart item document
       await firebaseFirestore
           .collection("users")
           .doc(sharedPreferences!.getString('uid'))
@@ -76,32 +146,24 @@ class _CartScreen2State extends State<CartScreen2> {
           .collection("items")
           .doc(item.itemID)
           .delete();
-      if(mounted) {
-        Navigator.of(context).pop();
-      }
 
-      // Show a success Snackbar
+      if (mounted) Navigator.of(context).pop();
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Item deleted.'),
-          backgroundColor: Colors.black.withOpacity(0.8),
-          duration: const Duration(seconds: 5), // Optional: How long the snackbar is shown
+          backgroundColor: Colors.green,
         ),
       );
-
     } catch (e) {
-      print("Error deleting item: $e");
-
-      // Show an error Snackbar if something goes wrong
+      if (mounted) Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to delete item: $e'),
-          backgroundColor: Colors.red, // Optional: Set background color for error
-          duration: Duration(seconds: 5), // Optional: How long the snackbar is shown
+          content: Text('Failed to delete: ${e.toString()}'),
+          backgroundColor: Colors.red,
         ),
       );
     }
-
   }
 
   void updateQuantity() {

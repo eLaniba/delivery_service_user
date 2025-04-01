@@ -5,6 +5,7 @@ import 'package:delivery_service_user/mainScreens/notification_screen.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_history_screen.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/order_screen.dart';
 import 'package:delivery_service_user/mainScreens/profile_screen/messages_screens/message__main_screen_provider.dart';
+import 'package:delivery_service_user/mainScreens/profile_screen/messages_screens/message_main_screen.dart';
 
 import 'package:delivery_service_user/mainScreens/profile_screen/profile_screen.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_screen_remake.dart';

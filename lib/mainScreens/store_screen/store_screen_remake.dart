@@ -1,9 +1,11 @@
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/store_screen/store_category_screen.dart';
 import 'package:delivery_service_user/models/stores.dart';
+import 'package:delivery_service_user/services/providers/badge_provider.dart';
 import 'package:delivery_service_user/widgets/store_card.dart';
 import 'package:firebase_pagination/firebase_pagination.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 
 class StoreScreenRemake extends StatefulWidget {
@@ -136,7 +138,24 @@ class _StoreScreenRemakeState extends State<StoreScreenRemake> {
         return StoreCard(
           store: stores,
           onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => StoreCategoryScreen(stores: stores,),),);
+            // Navigator.of(context).push(
+            //   MaterialPageRoute(
+            //     builder: (context) => StreamProvider<CartCount>(
+            //       create: (_) => BadgeProvider.cartItemCountStream(),
+            //       initialData: CartCount(0),
+            //       child: StoreCategoryScreen(
+            //         stores: stores,
+            //       ),
+            //     ),
+            //   ),
+            // );
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => StoreCategoryScreen(
+                  stores: stores,
+                ),
+              ),
+            );
           },
         );
       },
