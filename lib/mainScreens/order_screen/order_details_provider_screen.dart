@@ -2,8 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
-import 'package:delivery_service_user/mainScreens/main_screen_provider.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/live_location_tracking_page.dart';
+import 'package:delivery_service_user/mainScreens/order_screen/modify_order/modify_order_main.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/rate_screen.dart';
 import 'package:delivery_service_user/mainScreens/profile_screen/messages_screen_2.dart';
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
@@ -14,6 +14,7 @@ import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:delivery_service_user/widgets/report_page.dart';
 import 'package:delivery_service_user/widgets/show_floating_toast.dart';
 import 'package:delivery_service_user/widgets/status_widget.dart';
+import 'package:delivery_service_user/widgets/time_limit_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shimmer/shimmer.dart';
@@ -220,26 +221,26 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
               },
               icon: Icon(PhosphorIcons.mapPin(PhosphorIconsStyle.fill)),
             ),
-          if (order.orderStatus == 'Pending' || order.orderStatus == 'Preparing')
-            TextButton(
-              onPressed: () async {
-                bool? isConfirm = await ConfirmationDialog.show(context, 'Do you want to cancel the order?');
-
-                if(isConfirm == true) {
-                  cancelOrder(order.orderID!);
-                }
-              },
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-            ),
+          // if (order.orderStatus == 'Pending' || order.orderStatus == 'Preparing')
+          //   TextButton(
+          //     onPressed: () async {
+          //       bool? isConfirm = await ConfirmationDialog.show(context, 'Do you want to cancel the order?');
+          //
+          //       if(isConfirm == true) {
+          //         cancelOrder(order.orderID!);
+          //       }
+          //     },
+          //     style: TextButton.styleFrom(
+          //       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(30),
+          //       ),
+          //     ),
+          //     child: const Text(
+          //       'Cancel',
+          //       style: TextStyle(color: Colors.white, fontSize: 16),
+          //     ),
+          //   ),
           //TODO: Add or statement
           if (orderCompleteStatus.contains(order.orderStatus) && order.rate == null)
             TextButton(
@@ -441,11 +442,43 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
               ),
             ),
             // Item List
-            itemList(
-              items: order.items!,
-              listLimit: showItems
-                  ? order.items!.length
-                  : (order.items!.length > 3 ? 3 : order.items!.length),
+            Column(
+              children: [
+                itemList(
+                  items: order.items!,
+                  listLimit: showItems
+                      ? order.items!.length
+                      : (order.items!.length > 3 ? 3 : order.items!.length),
+                ),
+                //Add Item
+                if(order.orderStatus == 'Preparing')
+                  InkWell(
+                    onTap: () async {
+                      int? timeLimit = await TimeLimitDialog.show(context);
+
+                      if (timeLimit != null) {
+                        Navigator.of(context).push(MaterialPageRoute(builder: (c) => ModifyOrderMain(minutes: timeLimit, storeID: order.storeID!,)));
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      color: Colors.white,
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Add Item',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 4),
             // Order Total
@@ -456,6 +489,35 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
               serviceFee: order.serviceFee!,
               orderTotal: order.orderTotal!,
             ),
+            //Cancel Order
+            if(order.orderStatus == 'Pending')
+              InkWell(
+              onTap: () async {
+                bool? isConfirm = await ConfirmationDialog.show(context, 'Are you sure you want to cancel this order?');
+
+                if (isConfirm == true) {
+                  cancelOrder(order.orderID!);
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                color: Colors.white,
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Cancel Order',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
           ],
         ),
       ),

@@ -1,6 +1,5 @@
 import 'package:delivery_service_user/authentication/login_remake.dart';
 import 'package:delivery_service_user/mainScreens/main_screen.dart';
-import 'package:delivery_service_user/mainScreens/main_screen_provider.dart';
 import 'package:delivery_service_user/services/auth_service.dart';
 import 'package:delivery_service_user/services/providers/badge_provider.dart';
 import 'package:flutter/material.dart';

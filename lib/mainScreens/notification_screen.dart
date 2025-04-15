@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/notification_screen_2.dart';
+import 'package:delivery_service_user/mainScreens/order_screen/order_details_provider.dart';
+import 'package:delivery_service_user/mainScreens/order_screen/order_details_provider_screen.dart';
 import 'package:delivery_service_user/models/notification_model.dart';
 import 'package:delivery_service_user/services/util.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +21,7 @@ class NotificationScreen extends StatelessWidget {
               notification: notification,
               uid: notification.notificationID!)), // Your search screen
     );
+
 
     FirebaseFirestore.instance
         .collection('users')
@@ -67,15 +70,41 @@ class NotificationScreen extends StatelessWidget {
               final formattedDate = orderDateRead(notification.timestamp!.toDate());
 
               return Container(
-                color: notification.read == false ? Colors.blue.withOpacity(0.1) : null,
-                child: ListTile(
-                  leading: Icon(
-                    PhosphorIcons.package(PhosphorIconsStyle.bold),
-                    size: 32,
+                decoration: BoxDecoration(
+                  color: notification.read == false
+                      ? Theme.of(context).colorScheme.primary.withOpacity(0.05)
+                      : Theme.of(context).colorScheme.surface,
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Colors.grey.withOpacity(0.2),
+                    ),
                   ),
-                  title: Text(notification.title ?? ''),
-                  subtitle: Text(formattedDate),
-                  trailing: Icon(PhosphorIcons.caretRight()),
+                ),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  leading: CircleAvatar(
+                    backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    child: Icon(
+                      PhosphorIcons.package(PhosphorIconsStyle.bold),
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  title: Text(
+                    notification.title ?? '',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: notification.read == false ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  subtitle: Text(
+                    formattedDate,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  trailing: Icon(
+                    PhosphorIcons.caretRight(),
+                    color: Theme.of(context).iconTheme.color,
+                  ),
                   onTap: () {
                     notificationRead(context, notification);
                   },

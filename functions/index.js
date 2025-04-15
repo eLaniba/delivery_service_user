@@ -37,16 +37,22 @@ exports.onUserNameChanged = functions.firestore
     });
   });
 
-//TODO: 1. User Place order, firebase deploy --only functions:onOrderCreatedStore receive Notification
+//TODO: 1. User Place order, firebase deploy --only functions:newOrderNotification receive Notification
 exports.newOrderNotification = functions.firestore
   .document('active_orders/{orderId}')
   .onCreate(async (snapshot, context) => {
     try {
       const newOrder = snapshot.data();
       const storeId = newOrder.storeID;
+      const userName = newOrder.userName; // Retrieve userName from the order document
 
       if (!storeId) {
         console.log('No storeID specified in the order data.');
+        return null;
+      }
+
+      if (!userName) {
+        console.log('No userName specified in the order data.');
         return null;
       }
 
@@ -65,13 +71,13 @@ exports.newOrderNotification = functions.firestore
         return null;
       }
 
-      // Set notification title and body
-      const notificationTitle = 'New Order Received';
-      const notificationBody = `Order #${context.params.orderId} was placed.`;
+      // Compose the notification title and body using the userName field
+      const notificationTitle = `You have a new order from ${userName}!`;
+      const notificationBody = `You've received a new order from ${userName} --- check it out!`;
 
       console.log('Sending notification to tokens:', storeTokens);
 
-      // Loop through each token and send individually
+      // Loop through each token and send notifications individually
       for (const token of storeTokens) {
         try {
           const message = {
@@ -89,7 +95,7 @@ exports.newOrderNotification = functions.firestore
         }
       }
 
-      // Create notification data object
+      // Create a notification data object
       const notificationData = {
         orderID: context.params.orderId,
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
@@ -310,65 +316,76 @@ exports.newChatNotification = functions.firestore
 exports.orderNotification = functions.firestore
   .document('active_orders/{orderId}')
   .onUpdate(async (change, context) => {
-    // Exit if the document was deleted.
-    if (!change.after.exists) {
-      return null;
-    }
+    if (!change.after.exists) return null;
 
-    // Get the data before and after the change.
     const beforeData = change.before.exists ? change.before.data() : {};
     const afterData = change.after.data();
     const orderId = context.params.orderId;
 
-    // Only proceed if the orderStatus has changed.
-    if (beforeData.orderStatus === afterData.orderStatus) {
-      return null;
-    }
+    if (beforeData.orderStatus === afterData.orderStatus) return null;
 
     const orderStatus = afterData.orderStatus;
+    const riderName = afterData.riderName || 'The rider'; // fallback
+    const userName = afterData.userName || 'The customer'; // fallback
     let tokensPath = '';
     let notificationTitle = '';
     let notificationBody = '';
     let notificationCollectionPath = '';
 
-    // Build the notification based on orderStatus.
     switch (orderStatus) {
-//      case 'Pending':
-//        tokensPath = `stores/${afterData.storeID}/tokens`;
-//        notificationTitle = 'New Order Received';
-//        notificationBody = `Order #${orderId.toUpperCase()} was placed.`;
-//        notificationCollectionPath = `stores/${afterData.storeID}/notifications`;
-//        break;
       case 'Preparing':
         tokensPath = `users/${afterData.userID}/tokens`;
         notificationTitle = 'Store Accepted Your Order';
         notificationBody = `Store is preparing your order #${orderId.toUpperCase()}.`;
         notificationCollectionPath = `users/${afterData.userID}/notifications`;
         break;
+
       case 'Assigned':
         tokensPath = `stores/${afterData.storeID}/tokens`;
-        notificationTitle = 'Rider Accepted Your Order';
-        notificationBody = `Rider en route to pick up order #${orderId.toUpperCase()}.`;
+        notificationTitle = `Rider ${riderName} Accepted Your Order`;
+        notificationBody = `Rider ${riderName} is on the way to pick up order #${orderId.toUpperCase()}.`;
         notificationCollectionPath = `stores/${afterData.storeID}/notifications`;
         break;
+
+      case 'Picking up':
+        tokensPath = `stores/${afterData.storeID}/tokens`;
+        notificationTitle = `Rider ${riderName} is On Their Way!`;
+        notificationBody = `Your rider is arriving shortly to pick up Order #${orderId.toUpperCase()}.`;
+        notificationCollectionPath = `stores/${afterData.storeID}/notifications`;
+        break;
+
+      case 'Picked up':
+        tokensPath = `stores/${afterData.storeID}/tokens`;
+        notificationTitle = `Order Placed by ${userName} is Complete!`;
+        notificationBody = `Congratulations! Order #${orderId.toUpperCase()} has been completed.`;
+        notificationCollectionPath = `stores/${afterData.storeID}/notifications`;
+        break;
+
       case 'Delivering':
         tokensPath = `users/${afterData.userID}/tokens`;
-        notificationTitle = 'Your Delivery is On Its Way!';
+        notificationTitle = `Rider ${riderName} is On Their Way!`;
         notificationBody = `Your rider is arriving shortly with your order #${orderId.toUpperCase()}.`;
         notificationCollectionPath = `users/${afterData.userID}/notifications`;
         break;
+
       case 'Delivered':
         tokensPath = `stores/${afterData.storeID}/tokens`;
-        notificationTitle = 'Order Delivered Successfully!';
-        notificationBody = `Order #${orderId.toUpperCase()} has been successfully delivered by the rider.`;
+        notificationTitle = `Delivery Successful!`;
+        notificationBody = `Congratulations! Order #${orderId.toUpperCase()} has been delivered by ${userName}.`;
         notificationCollectionPath = `stores/${afterData.storeID}/notifications`;
         break;
+
+      case 'Cancelled':
+        tokensPath = `stores/${afterData.storeID}/tokens`;
+        notificationTitle = `Customer ${userName} Cancelled Order #${orderId.toUpperCase()}`;
+        notificationBody = `Please review this cancellation and ensure the order is not shipped and all pending processes are halted.`;
+        notificationCollectionPath = `stores/${afterData.storeID}/notifications`;
+        break;
+
       default:
-        // If the orderStatus doesn't match any of the above, do nothing.
         return null;
     }
 
-    // Fetch tokens from the designated tokens collection.
     const tokensSnapshot = await db.collection(tokensPath).get();
     const tokens = tokensSnapshot.docs
       .map(doc => doc.data().token)
@@ -379,10 +396,9 @@ exports.orderNotification = functions.firestore
       return null;
     }
 
-    // Send the notification to each token.
     for (const token of tokens) {
       const message = {
-        token: token,
+        token,
         notification: {
           title: notificationTitle,
           body: notificationBody,
@@ -397,18 +413,18 @@ exports.orderNotification = functions.firestore
       }
     }
 
-      const notificationRef = db.collection(notificationCollectionPath).doc();
-        const notificationData = {
-          notificationID: notificationRef.id,
-          orderID: orderId,
-          timestamp: admin.firestore.FieldValue.serverTimestamp(),
-          title: notificationTitle,
-          body: notificationBody,
-          type: 'order',
-          read: false,
-        };
+    const notificationRef = db.collection(notificationCollectionPath).doc();
+    const notificationData = {
+      notificationID: notificationRef.id,
+      orderID: orderId,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      title: notificationTitle,
+      body: notificationBody,
+      type: 'order',
+      read: false,
+    };
 
-        await notificationRef.set(notificationData);
+    await notificationRef.set(notificationData);
     return null;
   });
 
@@ -461,16 +477,80 @@ exports.copyCartImage = functions.firestore
     }
   });
 
-  exports.cleanupCartImages = functions.firestore
-    .document('users/{userId}/cart/{storeId}/items/{itemId}')
-    .onDelete(async (snap, context) => {
-      const data = snap.data();
-      if (!data.itemImagePath || !data.itemImagePath.includes('users/')) return;
+exports.cleanupCartImages = functions.firestore
+.document('users/{userId}/cart/{storeId}/items/{itemId}')
+.onDelete(async (snap, context) => {
+  const data = snap.data();
+  if (!data.itemImagePath || !data.itemImagePath.includes('users/')) return;
 
-      try {
+  try {
+    await admin.storage().bucket().file(data.itemImagePath).delete();
+    console.log('Deleted copied image:', data.itemImagePath);
+  } catch (error) {
+    console.error('Error deleting image:', error);
+  }
+});
+
+//TODO: Cart Management for Modified Carts
+exports.copyCartModifyImage = functions.firestore
+  .document('users/{userId}/cart_modify/{storeId}/items/{itemId}')
+  .onCreate(async (snap, context) => {
+    const data = snap.data();
+
+    // Only process items needing image copy
+    if (!data.needsImageCopy || !data.originalImagePath) {
+      console.log('Skipping - no image copy needed');
+      return null;
+    }
+
+    const bucket = admin.storage().bucket();
+    const newImagePath = `users/${context.params.userId}/cart_modify/${context.params.storeId}/items/${context.params.itemId}.jpg`;
+
+    try {
+      // 1. Copy the image
+      await bucket.file(data.originalImagePath).copy(newImagePath);
+      console.log('Image copied to:', newImagePath);
+
+      // 2. Get the new download URL
+      const [newUrl] = await bucket.file(newImagePath).getSignedUrl({
+        action: 'read',
+        expires: '03-09-2491' // Far future date
+      });
+
+      // 3. Update Firestore with the NEW paths
+      await snap.ref.update({
+        itemImagePath: newImagePath,  // THIS MUST BE THE NEW PATH
+        itemImageURL: newUrl,        // THIS MUST BE THE NEW URL
+        needsImageCopy: false
+      });
+
+      console.log('Firestore document updated with new image references');
+      return true;
+    } catch (error) {
+      console.error('Failed to copy image:', error);
+
+      // Fallback - keep original image but mark as processed
+      await snap.ref.update({
+        needsImageCopy: false,
+        // Explicitly keep original paths if copy fails
+        itemImagePath: data.originalImagePath,
+        itemImageURL: data.itemImageURL
+      });
+
+      throw error;
+    }
+  });
+
+exports.cleanupCartModifyImages = functions.firestore
+  .document('users/{userId}/cart_modify/{storeId}/items/{itemId}')
+  .onDelete(async (snap, context) => {
+    const data = snap.data();
+    if (!data.itemImagePath || !data.itemImagePath.includes('users/')) return;
+
+    try {
         await admin.storage().bucket().file(data.itemImagePath).delete();
         console.log('Deleted copied image:', data.itemImagePath);
-      } catch (error) {
+    } catch (error) {
         console.error('Error deleting image:', error);
-      }
-    });
+    }
+});
