@@ -321,3 +321,41 @@ Widget verifiedStatusWidget(bool isVerified) {
     );
   }
 }
+
+class NoticeInfo extends StatelessWidget {
+  String content;
+  Color? backgroundColor;
+  IconData? phosphorIcon;
+
+  NoticeInfo({required this.content, this.backgroundColor, this.phosphorIcon, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: backgroundColor ?? Colors.orange,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal:4.0, vertical: 2.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min, // Wraps tightly around the child
+        children: [
+          Icon(
+            phosphorIcon ?? PhosphorIcons.warningCircle(PhosphorIconsStyle.bold),
+            color: Colors.white,
+            size: 18,
+          ),
+          const SizedBox(width: 4.0), // Space between icon and text
+          Flexible(
+            child: Text(
+              "$content ",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+          ),
+        ],
+      ),
+    );;
+  }
+}

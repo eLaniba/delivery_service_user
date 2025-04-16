@@ -1,30 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/modify_order/modify_order_item_card.dart';
-import 'package:delivery_service_user/mainScreens/store_screen/store_category_screen.dart';
-import 'package:delivery_service_user/mainScreens/store_screen/store_item_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
-
 import 'package:delivery_service_user/models/stores.dart';
 import 'package:delivery_service_user/models/category_item.dart';
-import 'package:delivery_service_user/widgets/item_card.dart';
-import 'package:delivery_service_user/widgets/store_card.dart';
-import 'package:delivery_service_user/widgets/category_card.dart';
 
 class ModifyOrderSearchProducts extends StatefulWidget {
   final String searchQuery;
-  final VoidCallback? onTap;
   //For Products, Categories, and Items Search
   final Stores store;
   //For Store Item Screen; the Items in the Category Card
   final Category? category;
+  final void Function(int) onChangePage;
 
   const ModifyOrderSearchProducts({
     required this.searchQuery,
-    this.onTap,
     required this.store,
     this.category,
+    required this.onChangePage,
     Key? key,
   }) : super(key: key);
 
@@ -40,49 +32,71 @@ class _ModifyOrderSearchProductsState extends State<ModifyOrderSearchProducts> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         centerTitle: false,
         titleSpacing: 0,
-        title: Container(
-          height: 44,
-          margin: const EdgeInsets.only(right: 32),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          // TextField for Search
-          child: Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8),
-                  child: TextField(
-                    autofocus: true,
-                    controller: _searchController,
-                    onChanged: (value) {
-                      // Force rebuild so we can re-filter the data
-                      setState(() {});
-                    },
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.grey,
-                    ),
-                    decoration: const InputDecoration(
-                      hintText: 'Search item...',
-                      hintStyle: TextStyle(fontSize: 18, color: Colors.grey),
-                      border: InputBorder.none, // No underline / border
-                    ),
+        title: Row(
+          children: [
+            // InkWell(
+            //   splashColor: Colors.transparent,
+            //   onTap: () {
+            //     widget.onChangePage.call(0);
+            //   },
+            //   child: Container(
+            //     margin: const EdgeInsets.only(left: 16),
+            //     width: 30,
+            //     height: 30,
+            //     child: const Icon(Icons.arrow_back),
+            //   ),
+            // ),
+            Flexible(
+              child: Container(
+                height: 44,
+                margin: const EdgeInsets.only(left: 16, right: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.grey, // Change this to any color you like
+                    width: 1.5,         // You can adjust the width
                   ),
                 ),
-              ),
+                // TextField for Search
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: TextField(
+                          autofocus: false,
+                          controller: _searchController,
+                          onChanged: (value) {
+                            setState(() {});
+                          },
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey,
+                          ),
+                          decoration: const InputDecoration(
+                            hintText: 'Search item...',
+                            hintStyle: TextStyle(fontSize: 18, color: Colors.grey),
+                            border: InputBorder.none, // No underline / border
+                          ),
+                        ),
+                      ),
+                    ),
 
-            ],
-          ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
-        foregroundColor: Colors.white,
-        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Colors.grey,
+        elevation: 0,
+        scrolledUnderElevation: 0,
       ),
       body: _buildSearchBody(),
-      backgroundColor: Colors.grey[200],
     );
   }
 

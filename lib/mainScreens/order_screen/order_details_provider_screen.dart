@@ -9,6 +9,7 @@ import 'package:delivery_service_user/mainScreens/profile_screen/messages_screen
 import 'package:delivery_service_user/models/add_to_cart_item.dart';
 import 'package:delivery_service_user/models/new_order.dart';
 import 'package:delivery_service_user/services/util.dart';
+import 'package:delivery_service_user/widgets/circle_image_avatar.dart';
 import 'package:delivery_service_user/widgets/confirmation_dialog.dart';
 import 'package:delivery_service_user/widgets/loading_dialog.dart';
 import 'package:delivery_service_user/widgets/report_page.dart';
@@ -33,7 +34,7 @@ class OrderDetailsProviderScreen extends StatefulWidget {
 class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen> {
   List<String> orderCompleteStatus = ['Delivered', 'Completing', 'Completed'];
   bool showItems = false;
-
+  NewOrder? localOrder;
 
   void completeOrderDialog(NewOrder order) {
     showDialog(
@@ -187,6 +188,33 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
     showFloatingToast(context: context, message: 'Order successfully cancelled', backgroundColor: Colors.green);
   }
 
+  void modifyOrder(int minutes, String storeID, String orderID) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('active_orders')
+          .doc(orderID)
+          .update({
+        'userModify': true,
+      });
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (c) => ModifyOrderMain(
+            minutes: minutes,
+            storeID: storeID,
+            orderID: orderID,
+          ),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to start modifying order.')),
+      );
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     // Retrieve the order from the Provider.
@@ -274,6 +302,38 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (order.prepStartTime != null && order.prepDuration != null)
+                  StreamBuilder<int>(
+                    stream: Stream.periodic(const Duration(seconds: 1), (_) {
+                      final start = order.prepStartTime!.toDate();
+                      final now = DateTime.now();
+                      final passed = now.difference(start).inMinutes;
+                      return order.prepDuration! - passed;
+                    }),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) return const SizedBox();
+
+                      final remaining = snapshot.data!;
+                      if (remaining <= 0) {
+                        return const SizedBox();
+                      } else {
+                        return InkWell(
+                          onTap: () {
+                            modifyOrder(remaining, order.storeID!, order.orderID!);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            color: Colors.orange,
+                            child: NoticeInfo(
+                              phosphorIcon: PhosphorIcons.warningCircle(PhosphorIconsStyle.bold),
+                              content: 'Click here to add more items — $remaining minute(s) left.',
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+
                 orderInfoContainer(
                   context: context,
                   orderStatus: order.orderStatus!,
@@ -343,10 +403,11 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
               name: '${order.userName!} (You)',
               phone: reformatPhoneNumber(order.userPhone!),
               address: order.userAddress!,
+              imageURL: order.userProfileURL!,
             ),
             const SizedBox(height: 4),
             // Store Information
-            Stack(
+            Column(
               children: [
                 storeUserInfoContainer(
                   context: context,
@@ -362,31 +423,41 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
                   name: order.storeName!,
                   phone: reformatPhoneNumber(order.storePhone!),
                   address: order.storeAddress!,
+                  imageURL: order.storeProfileURL!,
                 ),
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ReportPage(id: order.storeID!, type: 'store',),
-                        ),
-                      );
-                    },
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      splashFactory: NoSplash.splashFactory,
+                Divider(
+                  color: gray5,
+                ),
+                //Report/Message
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ReportPage(
+                              id: widget.order!.riderID!,
+                              type: 'rider',
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text('Report Rider', style: TextStyle(color: gray, fontWeight: FontWeight.bold),),
                     ),
-                    child: const Text(
-                      'Report',
-                      style: TextStyle(color: grey20, fontSize: 14, ),
+                    InkWell(
+                      onTap: () {
+                        sendMessage(
+                          widget.order!.riderName!,
+                          widget.order!.riderID!,
+                          widget.order!.riderProfileURL!,
+                          'rider',
+                        );
+                      },
+                      child: Text('Send message', style: TextStyle(color: gray, fontWeight: FontWeight.bold),),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
@@ -457,7 +528,14 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
                       int? timeLimit = await TimeLimitDialog.show(context);
 
                       if (timeLimit != null) {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (c) => ModifyOrderMain(minutes: timeLimit, storeID: order.storeID!,)));
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (c) => ModifyOrderMain(
+                                minutes: timeLimit,
+                                storeID: order.storeID!,
+                                orderID: order.orderID!),
+                          ),
+                        );
                       }
                     },
                     child: Container(
@@ -664,6 +742,7 @@ Widget orderInfoContainer({
 Widget storeUserInfoContainer({
   BuildContext? context,
   required IconData icon,
+  required String imageURL,
   required String name,
   required String phone,
   required String address,
@@ -677,11 +756,12 @@ Widget storeUserInfoContainer({
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: 24,
-            color: Theme.of(context!).primaryColor,
-          ),
+          // Icon(
+          //   icon,
+          //   size: 24,
+          //   color: Theme.of(context!).primaryColor,
+          // ),
+          CircleImageAvatar(size: 48, imageUrl: imageURL,),
           const SizedBox(width: 16),
           Flexible(
             child: Column(
@@ -948,7 +1028,7 @@ Widget orderTotal({
               overflow: TextOverflow.ellipsis,
             ),
             Text(
-              'Service fee',
+              'Convenience fee',
               style: TextStyle(
                 fontSize: 16,
                 color: gray,

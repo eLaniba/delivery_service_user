@@ -5,6 +5,8 @@ class NewOrder{
   //Order Information
   String? orderStatus;
   String? orderID;
+  int? prepDuration;
+  Timestamp? prepStartTime;
   Timestamp? orderTime;
   Timestamp? orderDelivered;
   String? paymentMethod;
@@ -33,6 +35,8 @@ class NewOrder{
   String? userAddress;
   bool? userConfirmDelivery;
   GeoPoint? userLocation;
+  bool? userModify;
+
 
   //Rider information
   String? riderProfileURL;
@@ -49,6 +53,8 @@ class NewOrder{
     //Order Information
     this.orderStatus,
     this.orderID,
+    this.prepDuration,
+    this.prepStartTime,
     this.orderTime,
     this.orderDelivered,
     this.paymentMethod,
@@ -99,6 +105,8 @@ class NewOrder{
   NewOrder.fromJson(Map<String, dynamic> json) {
     orderStatus = json['orderStatus'];
     orderID = json['orderID'];
+    prepDuration = json['prepDuration'];
+    prepStartTime = json['prepStartTime'];
     orderTime = json['orderTime'];
     orderDelivered = json['orderDelivered'];
     paymentMethod = json['paymentMethod'];
@@ -126,6 +134,7 @@ class NewOrder{
     userAddress = json['userAddress'];
     userConfirmDelivery = json['userConfirmDelivery'];
     userLocation = json['userLocation'];
+    userModify = json['userModify'];
 
     riderProfileURL = json['riderProfileURL'];
     riderID = json['riderID'];
@@ -141,6 +150,8 @@ class NewOrder{
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['orderStatus'] = orderStatus;
     data['orderID'] = orderID;
+    data['prepDuration'] = prepDuration;
+    data['prepStartTime'] = prepStartTime;
     data['orderTime'] = orderTime;
     data['orderDelivered'] = orderDelivered;
     data['paymentMethod'] = paymentMethod;
@@ -168,6 +179,7 @@ class NewOrder{
     data['userAddress'] = userAddress;
     data['userConfirmDelivery'] = userConfirmDelivery;
     data['userLocation'] = userLocation;
+    data['userModify'] = userModify;
 
     data['riderProfileURL'] = riderProfileURL;
     data['riderID'] = riderID;

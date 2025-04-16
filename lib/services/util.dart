@@ -6,10 +6,23 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
-  String orderDateRead(DateTime orderDateTime) {
-  String formattedOrderTime = DateFormat('MMMM d, y h:mm a').format(orderDateTime);
-  return formattedOrderTime;
+String orderDateRead(DateTime orderDateTime) {
+  final now = DateTime.now();
+
+  final isToday = orderDateTime.year == now.year &&
+      orderDateTime.month == now.month &&
+      orderDateTime.day == now.day;
+
+  String formattedDate = DateFormat('MMMM d, y h:mm a').format(orderDateTime);
+
+  if (isToday) {
+    return 'Today, $formattedDate';
+  } else {
+    String day = DateFormat('E').format(orderDateTime); // E = Mon, Tue, etc.
+    return '$day, $formattedDate';
+  }
 }
+
 
 String capitalizeEachWord(String input) {
   if (input.isEmpty) return input;
