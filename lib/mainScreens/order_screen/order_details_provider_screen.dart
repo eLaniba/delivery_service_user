@@ -33,7 +33,7 @@ class OrderDetailsProviderScreen extends StatefulWidget {
 class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen> {
   List<String> orderCompleteStatus = ['Delivered', 'Completing', 'Completed'];
   bool showItems = false;
-
+  NewOrder? localOrder;
 
   void completeOrderDialog(NewOrder order) {
     showDialog(
@@ -457,7 +457,14 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
                       int? timeLimit = await TimeLimitDialog.show(context);
 
                       if (timeLimit != null) {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (c) => ModifyOrderMain(minutes: timeLimit, storeID: order.storeID!,)));
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (c) => ModifyOrderMain(
+                                minutes: timeLimit,
+                                storeID: order.storeID!,
+                                orderID: order.orderID!),
+                          ),
+                        );
                       }
                     },
                     child: Container(

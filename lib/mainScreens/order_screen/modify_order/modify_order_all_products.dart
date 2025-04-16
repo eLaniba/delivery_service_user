@@ -3,14 +3,14 @@ import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/mainScreens/order_screen/modify_order/modify_order_item_card.dart';
 import 'package:delivery_service_user/models/category_item.dart';
 import 'package:delivery_service_user/models/stores.dart'; // <-- Import store model
-import 'package:delivery_service_user/widgets/item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class ModifyOrderAllProducts extends StatefulWidget {
   Stores store;
+  final void Function(int) onChangePage;
 
-  ModifyOrderAllProducts({required this.store, super.key});
+  ModifyOrderAllProducts({required this.store, required this.onChangePage, super.key});
 
   @override
   State<ModifyOrderAllProducts> createState() => _ModifyOrderAllProductsState();
@@ -30,7 +30,7 @@ class _ModifyOrderAllProductsState extends State<ModifyOrderAllProducts> {
         automaticallyImplyLeading: false,
         title: GestureDetector(
           onTap: () {
-            // Navigator.of(context).push(MaterialPageRoute(builder: (c) => ModifyOrderSearchProducts(searchQuery: 'items', store: store!,)));
+            widget.onChangePage.call(1);
           },
           child: Container(
             width: double.infinity,
@@ -63,6 +63,10 @@ class _ModifyOrderAllProductsState extends State<ModifyOrderAllProducts> {
           ),
         ),
         titleSpacing: 0,
+        foregroundColor: Colors.grey,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
       ),
       body: CustomScrollView(
         slivers: [
