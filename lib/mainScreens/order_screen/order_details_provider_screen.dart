@@ -298,7 +298,7 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Order Information & Rider Info
+            // Order Information
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -340,29 +340,58 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
                   orderID: order.orderID!,
                   orderTime: order.orderTime!.toDate(),
                 ),
-                if (order.riderName != null && order.riderPhone != null) ...[
-                  const SizedBox(height: 4),
-                  Stack(
-                    children: [
-                      riderInfoContainer(
-                        onTap: () {
-                          sendMessage(
-                            order.riderName!,
-                            order.riderID!,
-                            order.riderProfileURL!,
-                            'rider',
-                          );
-                        },
-                        context: context,
-                        icon: PhosphorIcons.moped(PhosphorIconsStyle.bold),
-                        name: order.riderName!,
-                        phone: reformatPhoneNumber(order.riderPhone!),
-                      ),
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: TextButton(
-                          onPressed: () {
+
+              ],
+            ),
+            const SizedBox(height: 4),
+            // User Information
+            Container(
+              padding: const EdgeInsets.only(bottom: 16),
+              color: Colors.white,
+              child: Column(
+                children: [
+                  storeUserInfoContainer(
+                    context: context,
+                    icon: PhosphorIcons.user(PhosphorIconsStyle.bold),
+                    name: '${order.userName!} (You)',
+                    phone: reformatPhoneNumber(order.userPhone!),
+                    address: order.userAddress!,
+                    imageURL: order.userProfileURL!,
+                  ),
+                ],
+              ),
+            ),
+            //Rider Information
+            if (order.riderName != null && order.riderPhone != null) ...[
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.only(bottom: 16),
+                color: Colors.white,
+                child: Column(
+                  children: [
+                    riderInfoContainer(
+                      onTap: () {
+                        sendMessage(
+                          order.riderName!,
+                          order.riderID!,
+                          order.riderProfileURL!,
+                          'rider',
+                        );
+                      },
+                      context: context,
+                      imageURL: order.riderProfileURL!,
+                      name: order.riderName!,
+                      phone: reformatPhoneNumber(order.riderPhone!),
+                    ),
+                    const Divider(
+                      color: gray5,
+                    ),
+                    //Report/Message
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        InkWell(
+                          onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -373,93 +402,79 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
                               ),
                             );
                           },
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            splashFactory: NoSplash.splashFactory,
-                          ),
-                          child: const Text(
-                            'Report',
-                            style: TextStyle(
-                              color: grey20,
-                              fontSize: 14,
-                            ),
-                          ),
+                          child: const Text('Report Rider', style: TextStyle(color: gray, fontWeight: FontWeight.bold),),
                         ),
+                        InkWell(
+                          onTap: () {
+                            sendMessage(
+                              order.riderName!,
+                              order.riderID!,
+                              order.riderProfileURL!,
+                              'rider',
+                            );
+                          },
+                          child: const Text('Send message', style: TextStyle(color: gray, fontWeight: FontWeight.bold),),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+            ],
+
+            const SizedBox(height: 4),
+
+            // Store Information
+            Container(
+              padding: const EdgeInsets.only(bottom: 16),
+              color: Colors.white,
+              child: Column(
+                children: [
+                  storeUserInfoContainer(
+                    context: context,
+                    icon: PhosphorIcons.storefront(PhosphorIconsStyle.bold),
+                    name: order.storeName!,
+                    phone: reformatPhoneNumber(order.storePhone!),
+                    address: order.storeAddress!,
+                    imageURL: order.storeProfileURL!,
+                  ),
+                  const Divider(
+                    color: gray5,
+                  ),
+                  //Report/Message
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ReportPage(
+                                id: order.storeID!,
+                                type: 'store',
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text('Report Store', style: TextStyle(color: gray, fontWeight: FontWeight.bold),),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          sendMessage(
+                            order.storeName!,
+                            order.storeID!,
+                            order.storeProfileURL!,
+                            'store',
+                          );
+                        },
+                        child: const Text('Send message', style: TextStyle(color: gray, fontWeight: FontWeight.bold),),
                       ),
                     ],
                   ),
                 ],
-              ],
-            ),
-            const SizedBox(height: 4),
-            // User Information
-            storeUserInfoContainer(
-              context: context,
-              icon: PhosphorIcons.user(PhosphorIconsStyle.bold),
-              name: '${order.userName!} (You)',
-              phone: reformatPhoneNumber(order.userPhone!),
-              address: order.userAddress!,
-              imageURL: order.userProfileURL!,
-            ),
-            const SizedBox(height: 4),
-            // Store Information
-            Column(
-              children: [
-                storeUserInfoContainer(
-                  context: context,
-                  onTap: () {
-                    sendMessage(
-                      order.storeName!,
-                      order.storeID!,
-                      order.storeProfileURL!,
-                      'store',
-                    );
-                  },
-                  icon: PhosphorIcons.storefront(PhosphorIconsStyle.bold),
-                  name: order.storeName!,
-                  phone: reformatPhoneNumber(order.storePhone!),
-                  address: order.storeAddress!,
-                  imageURL: order.storeProfileURL!,
-                ),
-                Divider(
-                  color: gray5,
-                ),
-                //Report/Message
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ReportPage(
-                              id: widget.order!.riderID!,
-                              type: 'rider',
-                            ),
-                          ),
-                        );
-                      },
-                      child: Text('Report Rider', style: TextStyle(color: gray, fontWeight: FontWeight.bold),),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        sendMessage(
-                          widget.order!.riderName!,
-                          widget.order!.riderID!,
-                          widget.order!.riderProfileURL!,
-                          'rider',
-                        );
-                      },
-                      child: Text('Send message', style: TextStyle(color: gray, fontWeight: FontWeight.bold),),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
             const SizedBox(height: 4),
             // Payment Method
@@ -751,16 +766,11 @@ Widget storeUserInfoContainer({
   return InkWell(
     onTap: onTap,
     child: Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(left: 16, top: 16, right: 16),
       color: Colors.white,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Icon(
-          //   icon,
-          //   size: 24,
-          //   color: Theme.of(context!).primaryColor,
-          // ),
           CircleImageAvatar(size: 48, imageUrl: imageURL,),
           const SizedBox(width: 16),
           Flexible(
@@ -800,7 +810,7 @@ Widget storeUserInfoContainer({
 
 Widget riderInfoContainer({
   BuildContext? context,
-  required IconData icon,
+  required String imageURL,
   required String name,
   required String phone,
   VoidCallback? onTap,
@@ -808,16 +818,12 @@ Widget riderInfoContainer({
   return InkWell(
     onTap: onTap,
     child: Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(left: 16, top: 16, right: 16),
       color: Colors.white,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: 24,
-            color: Theme.of(context!).primaryColor,
-          ),
+          CircleImageAvatar(size: 48, imageUrl: imageURL,),
           const SizedBox(width: 16),
           Flexible(
             child: Column(
