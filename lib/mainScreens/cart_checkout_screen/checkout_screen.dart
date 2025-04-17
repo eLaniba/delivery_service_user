@@ -348,6 +348,8 @@ import 'package:delivery_service_user/widgets/show_floating_toast.dart';
                     serviceFee: serviceFee,
                     orderTotal: orderTotal,
                     //Store information
+                    storeStatus: 'Pending',
+                    storeDelivered: null,
                     storeID: widget.addToCartStoreInfo!.storeID,
                     storeProfileURL: widget.addToCartStoreInfo!.storeProfileURL,
                     storeName: widget.addToCartStoreInfo!.storeName,
@@ -358,6 +360,8 @@ import 'package:delivery_service_user/widgets/show_floating_toast.dart';
                     //List of items
                     items: widget.items,
                     //User information
+                    userStatus: 'Pending',
+                    userDelivered: null,
                     userID: sharedPreferences!.get('uid').toString(),
                     userProfileURL: sharedPreferences!.get('profileURL').toString(),
                     userName: sharedPreferences!.get('name').toString(),

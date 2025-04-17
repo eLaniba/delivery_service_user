@@ -7,7 +7,6 @@ admin.initializeApp();
 const db = admin.firestore();
 
 //TODO: Will push this to the server soon, if the user changes the name, all chat history will be replaced
-
 exports.onUserNameChanged = functions.firestore
   .document('users/{userId}')
   .onUpdate((change, context) => {
@@ -357,7 +356,7 @@ exports.orderNotification = functions.firestore
       case 'Picked up':
         tokensPath = `stores/${afterData.storeID}/tokens`;
         notificationTitle = `Order Placed by ${userName} is Complete!`;
-        notificationBody = `Congratulations! Order #${orderId.toUpperCase()} has been completed.`;
+        notificationBody = `Congratulations! Order number ${orderId.toUpperCase()} has been completed.`;
         notificationCollectionPath = `stores/${afterData.storeID}/notifications`;
         break;
 

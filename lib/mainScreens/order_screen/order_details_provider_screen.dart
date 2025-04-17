@@ -100,6 +100,8 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
     DocumentReference orderDocument = firebaseFirestore
         .collection('active_orders')
         .doc('${order.orderID}');
+    DateTime now = DateTime.now();
+    Timestamp userDelivered = Timestamp.fromDate(now);
     try {
       await orderDocument.update({
         'userConfirmDelivery': true,
@@ -176,6 +178,8 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
     try {
       await orderDocument.update({
         'orderStatus': 'Cancelled',
+        'storeStatus': 'Cancelled',
+        'userStatus': 'Cancelled',
       });
     } catch (e) {
       showFloatingToast(context: context, message: 'Error occurred, please try again.');

@@ -54,7 +54,7 @@ class OrderCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         //Order Status Widget
-                        orderStatusWidget(order.orderStatus!),
+                        orderStatusWidget(order.userStatus!),
                         //Order ID
                         Text(
                           order.orderID!.toUpperCase(),

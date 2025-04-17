@@ -16,6 +16,8 @@ class NewOrder{
   double? orderTotal;
 
   //Store information
+  String? storeStatus;
+  Timestamp? storeDelivered;
   String? storeProfileURL;
   String? storeID;
   String? storeName;
@@ -28,6 +30,8 @@ class NewOrder{
   List<AddToCartItem>? items;
 
   //User Information
+  String? userStatus;
+  Timestamp? userDelivered;
   String? userProfileURL;
   String? userID;
   String? userName;
@@ -39,11 +43,12 @@ class NewOrder{
 
 
   //Rider information
+  bool? riderStoreDelivered;
+  bool? riderUserDelivered;
   String? riderProfileURL;
   String? riderID;
   String? riderName;
   String? riderPhone;
-  bool? riderConfirmDelivery;
   GeoPoint? riderLocation;
 
   bool? rate;
@@ -64,6 +69,8 @@ class NewOrder{
     this.orderTotal,
 
     //Store information
+    this.storeStatus,
+    this.storeDelivered,
     this.storeProfileURL,
     this.storeID,
     this.storeName,
@@ -75,6 +82,8 @@ class NewOrder{
     this.items,
 
     //User Information
+    this.userStatus,
+    this.userDelivered,
     this.userProfileURL,
     this.userID,
     this.userName,
@@ -84,11 +93,12 @@ class NewOrder{
     this.userLocation,
 
     //Rider information
+    this.riderStoreDelivered,
+    this.riderUserDelivered,
     this.riderProfileURL,
     this.riderID,
     this.riderName,
     this.riderPhone,
-    this.riderConfirmDelivery,
     this.riderLocation,
     this.rate,
   });
@@ -115,6 +125,8 @@ class NewOrder{
     subTotal = json['subTotal'];
     orderTotal = json['orderTotal'];
 
+    storeStatus = json['storeStatus'];
+    storeDelivered = json['storeDelivered'];
     storeProfileURL = json['storeProfileURL'];
     storeID = json['storeID'];
     storeName = json['storeName'];
@@ -127,6 +139,8 @@ class NewOrder{
       items = List<AddToCartItem>.from(json['items'].map((item) => AddToCartItem.fromJson(item)));
     }
 
+    userStatus = json['userStatus'];
+    userDelivered = json['userDelivered'];
     userProfileURL = json['userProfileURL'];
     userID = json['userID'];
     userName = json['userName'];
@@ -136,11 +150,12 @@ class NewOrder{
     userLocation = json['userLocation'];
     userModify = json['userModify'];
 
+    riderStoreDelivered = json['riderStoreDelivered'];
+    riderUserDelivered = json['riderUserDelivered'];
     riderProfileURL = json['riderProfileURL'];
     riderID = json['riderID'];
     riderName = json['riderName'];
     riderPhone = json['riderPhone'];
-    riderConfirmDelivery = json['riderConfirmDelivery'];
     riderLocation = json['riderLocation'];
 
     rate = json['rate'];
@@ -160,6 +175,8 @@ class NewOrder{
     data['subTotal'] = subTotal;
     data['orderTotal'] = orderTotal;
 
+    data['storeStatus'] = storeStatus;
+    data['storeDelivered'] = storeDelivered;
     data['storeProfileURL'] = storeProfileURL;
     data['storeID'] = storeID;
     data['storeName'] = storeName;
@@ -172,6 +189,8 @@ class NewOrder{
       data['items'] = items!.map((item) => item.toJson()).toList();
     }
 
+    data['userStatus'] = userStatus;
+    data['userDelivered'] = userDelivered;
     data['userProfileURL'] = userProfileURL;
     data['userID'] = userID;
     data['userName'] = userName;
@@ -181,11 +200,12 @@ class NewOrder{
     data['userLocation'] = userLocation;
     data['userModify'] = userModify;
 
+    data['riderStoreDelivered'] = riderStoreDelivered;
+    data['riderUserDelivered'] = riderUserDelivered;
     data['riderProfileURL'] = riderProfileURL;
     data['riderID'] = riderID;
     data['riderName'] = riderName;
     data['riderPhone'] = riderPhone;
-    data['riderConfirmDelivery'] = riderConfirmDelivery;
     data['riderLocation'] = riderLocation;
 
     data['rate'] = rate;
