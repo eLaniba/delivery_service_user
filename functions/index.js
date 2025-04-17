@@ -125,8 +125,11 @@ exports.completeTransaction = functions.firestore
     const beforeData = change.before.data();
     const afterData = change.after.data();
 
-    // Proceed only if orderStatus changed to 'Completed'
-    if (afterData.orderStatus !== 'Completed' || beforeData.orderStatus === 'Completed') {
+    // Exit early if both storeStatus and orderStatus haven't changed or are already 'Completed'
+    const storeCompleted = afterData.storeStatus === 'Completed' && beforeData.storeStatus !== 'Completed';
+    const orderCompleted = afterData.orderStatus === 'Completed' && beforeData.orderStatus !== 'Completed';
+
+    if (!storeCompleted && !orderCompleted) {
       return null;
     }
 
@@ -136,51 +139,53 @@ exports.completeTransaction = functions.firestore
     const riderFee = afterData.riderFee || 0;
     const paymentMethod = afterData.paymentMethod;
 
-    // Step 1: Calculate payment details
     const serviceCommission = subTotal * 0.01;
     const serviceFeeTotal = serviceCommission + serviceFee;
     const storeEarnings = subTotal - serviceCommission;
 
-    // Step 2: Prepare store transaction document data with unified "earnings" field
-    let storeTransactionData = {
-      orderID: afterData.orderID,
-      orderCompleted: afterData.orderDelivered,
-      paymentMethod: paymentMethod,
-      serviceCommission: serviceCommission,
-      serviceFee: serviceFee,
-      serviceFeeTotal: serviceFeeTotal,
-      earnings: storeEarnings
-    };
+    const promises = [];
 
-    // Step 3: Prepare rider transaction document data with unified "earnings" field
-    let riderTransactionData = {
-      orderID: afterData.orderID,
-      orderCompleted: afterData.orderDelivered,
-      paymentMethod: paymentMethod,
-      earnings: riderFee
-    };
+    // Write to store transaction if storeStatus is 'Completed'
+    if (storeCompleted) {
+      const storeTransactionData = {
+        orderID: afterData.orderID,
+        orderCompleted: afterData.orderDelivered,
+        paymentMethod: paymentMethod,
+        serviceCommission: serviceCommission,
+        serviceFee: serviceFee,
+        serviceFeeTotal: serviceFeeTotal,
+        earnings: storeEarnings
+      };
 
-    // Write the transaction document to the store's subcollection
-    const storeTransactionRef = admin.firestore()
-      .collection('stores')
-      .doc(afterData.storeID)
-      .collection('transactions')
-      .doc();
+      const storeTransactionRef = admin.firestore()
+        .collection('stores')
+        .doc(afterData.storeID)
+        .collection('transactions')
+        .doc();
 
-    // Write the transaction document to the rider's subcollection
-    const riderTransactionRef = admin.firestore()
-      .collection('riders')
-      .doc(afterData.riderID)
-      .collection('transactions')
-      .doc();
+      promises.push(storeTransactionRef.set(storeTransactionData));
+    }
 
-    // Execute both writes concurrently
-    const promises = [
-      storeTransactionRef.set(storeTransactionData),
-      riderTransactionRef.set(riderTransactionData)
-    ];
+    // Write to rider transaction if orderStatus is 'Completed'
+    if (orderCompleted) {
+      const riderTransactionData = {
+        orderID: afterData.orderID,
+        orderCompleted: afterData.orderDelivered,
+        paymentMethod: paymentMethod,
+        earnings: riderFee
+      };
 
-    return Promise.all(promises);
+      const riderTransactionRef = admin.firestore()
+        .collection('riders')
+        .doc(afterData.riderID)
+        .collection('transactions')
+        .doc();
+
+      promises.push(riderTransactionRef.set(riderTransactionData));
+    }
+
+    // Only run if any transaction is being written
+    return promises.length > 0 ? Promise.all(promises) : null;
   });
 
 exports.restockCancelledOrder = functions.firestore
@@ -335,21 +340,21 @@ exports.orderNotification = functions.firestore
       case 'Preparing':
         tokensPath = `users/${afterData.userID}/tokens`;
         notificationTitle = 'Store Accepted Your Order';
-        notificationBody = `Store is preparing your order #${orderId.toUpperCase()}.`;
+        notificationBody = `Store is preparing your order number ${orderId.toUpperCase()}.`;
         notificationCollectionPath = `users/${afterData.userID}/notifications`;
         break;
 
       case 'Assigned':
         tokensPath = `stores/${afterData.storeID}/tokens`;
         notificationTitle = `Rider ${riderName} Accepted Your Order`;
-        notificationBody = `Rider ${riderName} is on the way to pick up order #${orderId.toUpperCase()}.`;
+        notificationBody = `Rider ${riderName} is on the way to pick up order number ${orderId.toUpperCase()}.`;
         notificationCollectionPath = `stores/${afterData.storeID}/notifications`;
         break;
 
       case 'Picking up':
         tokensPath = `stores/${afterData.storeID}/tokens`;
         notificationTitle = `Rider ${riderName} is On Their Way!`;
-        notificationBody = `Your rider is arriving shortly to pick up Order #${orderId.toUpperCase()}.`;
+        notificationBody = `Your rider is arriving shortly to pick up order number ${orderId.toUpperCase()}.`;
         notificationCollectionPath = `stores/${afterData.storeID}/notifications`;
         break;
 

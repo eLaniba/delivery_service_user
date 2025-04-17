@@ -41,6 +41,7 @@ class _OrderScreenState extends State<OrderScreen> {
               );
             } else {
               return SliverFillRemaining(
+
                 hasScrollBody: false,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

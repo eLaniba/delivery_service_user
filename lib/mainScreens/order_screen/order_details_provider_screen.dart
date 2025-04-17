@@ -68,7 +68,7 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
                 ElevatedButton(
                   onPressed: () async {
                     Navigator.pop(context);
-                    confirmDelivery(order);
+                    completeOrder(order);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
@@ -87,12 +87,12 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
     );
   }
 
-  Future<void> confirmDelivery(NewOrder order) async {
+  Future<void> completeOrder(NewOrder order) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return const LoadingDialog(
-          message: 'Confirming order',
+          message: 'Completing order',
         );
       },
     );
@@ -102,9 +102,10 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
         .doc('${order.orderID}');
     DateTime now = DateTime.now();
     Timestamp userDelivered = Timestamp.fromDate(now);
+
     try {
       await orderDocument.update({
-        'userConfirmDelivery': true,
+        'userDelivered': userDelivered,
       });
     } catch (e) {
       rethrow;
@@ -306,7 +307,7 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (order.prepStartTime != null && order.prepDuration != null)
+                if (order.prepStartTime != null && order.prepDuration != null && order.userStatus == 'Preparing')
                   StreamBuilder<int>(
                     stream: Stream.periodic(const Duration(seconds: 1), (_) {
                       final start = order.prepStartTime!.toDate();
@@ -357,7 +358,7 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
                   storeUserInfoContainer(
                     context: context,
                     icon: PhosphorIcons.user(PhosphorIconsStyle.bold),
-                    name: '${order.userName!} (You)',
+                    name: '(You) ${order.userName!}',
                     phone: reformatPhoneNumber(order.userPhone!),
                     address: order.userAddress!,
                     imageURL: order.userProfileURL!,
@@ -618,94 +619,94 @@ class _OrderDetailsProviderScreenState extends State<OrderDetailsProviderScreen>
           ],
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
+      bottomNavigationBar: order.userStatus == 'Cancelled' || order.userStatus == 'Completed' ? null : BottomAppBar(
         child: order.orderStatus == 'Cancelled'
             ? Container(
-                height: 60,
-                decoration: BoxDecoration(
-                  color: grey20,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Center(
-                  child: Text(
-                    'Cancelled Order',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              )
+          height: 60,
+          decoration: BoxDecoration(
+            color: grey20,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: const Center(
+            child: Text(
+              'Cancelled Order',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        )
             : order.orderStatus != 'Delivering' && !orderCompleteStatus.contains(order.orderStatus)
             ? Container(
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: grey20,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'Complete Order',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  )
+          height: 60,
+          decoration: BoxDecoration(
+            color: grey20,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: const Center(
+            child: Text(
+              'Complete Order',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        )
             : orderCompleteStatus.contains(order.orderStatus)
             ? Container(
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              PhosphorIcon(
-                                PhosphorIcons.sealCheck(
-                                    PhosphorIconsStyle.fill),
-                                color: Colors.white,
-                              ),
-                              const SizedBox(
-                                width: 8,
-                              ),
-                              const Text(
-                                'Order Completed',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
+          height: 60,
+          decoration: BoxDecoration(
+            color: Colors.green,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                PhosphorIcon(
+                  PhosphorIcons.sealCheck(
+                      PhosphorIconsStyle.fill),
+                  color: Colors.white,
+                ),
+                const SizedBox(
+                  width: 8,
+                ),
+                const Text(
+                  'Order Completed',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
             : Container(
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            completeOrderDialog(order);
-                          },
-                          child: const Text(
-                            'Complete Order',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
+          height: 60,
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: TextButton(
+            onPressed: () {
+              completeOrderDialog(order);
+            },
+            child: const Text(
+              'Complete Order',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

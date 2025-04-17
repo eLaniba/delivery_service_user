@@ -235,7 +235,7 @@ Widget orderStatusWidget(String orderStatus) {
           ),
           const SizedBox(width: 4.0), // Space between icon and text
           const Text(
-            "Order Cancelled",
+            "Order Cancelled ",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ],
