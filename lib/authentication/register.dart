@@ -467,7 +467,7 @@ class _RegisterState extends State<Register> {
                         labelText: 'Password',
                         controller: passwordController,
                         isObscure: _isPasswordHidden,
-                        validator: validatePassword,
+                        validator: validatePasswordNewStandard,
                         suffixIcon: IconButton(
                           onPressed: () {
                             setState(() {

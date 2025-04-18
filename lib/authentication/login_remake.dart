@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_service_user/authentication/auth_screen_remake.dart';
 import 'package:delivery_service_user/authentication/new_signup/email_verification_page.dart';
+import 'package:delivery_service_user/authentication/reset_password_screen.dart';
 import 'package:delivery_service_user/global/global.dart';
 import 'package:delivery_service_user/services/auth_service.dart';
 import 'package:delivery_service_user/services/geopoint_json.dart';
@@ -299,9 +300,9 @@ class _LoginRemakeState extends State<LoginRemake> {
                         TextButton(
                           onPressed: () {
                             // Add your navigation or action here for Sign Up
-                            Navigator.pushReplacement(
+                            Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const EmailVerificationPage()),
+                              MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),
                             );
                           },
                           style: TextButton.styleFrom(
