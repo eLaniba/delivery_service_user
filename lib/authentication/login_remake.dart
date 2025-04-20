@@ -233,13 +233,14 @@ class _LoginRemakeState extends State<LoginRemake> {
                   height: 200,
                   width: 200,
                 ),
-                // const Text(
-                //   "Welcome",
-                //   style: TextStyle(
-                //     fontSize: 24,
-                //   ),
-                // ),
-                // const SizedBox(height: 8),
+
+                const Text(
+                  "Welcome to tindaPH!",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
 
                 //sample
                 Form(

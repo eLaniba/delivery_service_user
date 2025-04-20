@@ -6,6 +6,41 @@ const bodyParser = require("body-parser");
 admin.initializeApp();
 const db = admin.firestore();
 
+// Firestore Trigger: autoValidateUser
+ exports.autoValidateUser = functions.firestore
+   .document("users/{userID}")
+   .onUpdate(async (change, context) => {
+     const beforeData = change.before.data();
+     const afterData = change.after.data();
+
+     // Check if both emailVerified and phoneVerified are true.
+     if (afterData.emailVerified === true && afterData.phoneVerified === true) {
+       // Only update if the status is not already 'registered'
+       if (afterData.status !== "registered" && afterData.status !== "blocked") {
+         try {
+           await change.after.ref.update({ status: "registered" });
+           console.log(`User ${context.params.userID} validated and status updated to 'registered'.`);
+           return null;
+         } catch (error) {
+           console.error("Error updating status:", error);
+           throw new Error("Failed to update status.");
+         }
+       }
+     }
+
+     else if (afterData.emailVerified === false || afterData.phoneVerified === false) {
+        try {
+           await change.after.ref.update({ status: "pending" });
+           console.log(`User ${context.params.userID} validated and status updated to 'pending'.`);
+           return null;
+         } catch (error) {
+           console.error("Error updating status:", error);
+           throw new Error("Failed to update status.");
+         }
+     }
+     return null;
+   });
+
 //TODO: Will push this to the server soon, if the user changes the name, all chat history will be replaced
 exports.onUserNameChanged = functions.firestore
   .document('users/{userId}')
@@ -149,7 +184,7 @@ exports.completeTransaction = functions.firestore
     if (storeCompleted) {
       const storeTransactionData = {
         orderID: afterData.orderID,
-        orderCompleted: afterData.orderDelivered,
+        orderCompleted: afterData.storeDelivered,
         paymentMethod: paymentMethod,
         serviceCommission: serviceCommission,
         serviceFee: serviceFee,
